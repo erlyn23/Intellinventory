@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "intellinventory": {
+      "hosting": {
+        "app": [
+          "intellinventory"
+        ]
+      }
+    }
+  }
+}

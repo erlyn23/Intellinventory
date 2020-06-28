@@ -1,0 +1,21 @@
+<app-cabecera></app-cabecera>
+
+
+<ion-content color="secondary">
+
+  <ion-list style="background: white;">
+    <ion-item color="secondary" *ngFor="let inv of inventarios, let i = index">
+      <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
+        {{inv.NombreInventario}}
+      </ion-button>
+      <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <ion-fab (click)="abrirModal()" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

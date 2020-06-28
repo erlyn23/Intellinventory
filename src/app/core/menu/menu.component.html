@@ -1,0 +1,66 @@
+<ion-menu side="start" menuId="first" contentId="main">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Start Menu</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content color="secondary">
+    <ion-list style="background: white;">
+      <ion-item color="secondary">
+        <ion-button (click)="goToHome()" style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="home-outline"></ion-icon>
+          Inicio
+        </ion-button>
+      </ion-item>
+      <ion-item color="secondary">
+        <ion-button (click)="goToControl()" style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="document-text-outline"></ion-icon>
+          Control de inventarios
+        </ion-button>
+      </ion-item>
+      <ion-item color="secondary">
+        <ion-button style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="settings-outline"></ion-icon>
+          Editar Perfil
+        </ion-button>
+      </ion-item>
+      <ion-item color="secondary">
+        <ion-button (click)="salir()" style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Salir
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+
+<ion-menu side="start" menuId="second" contentId="main">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>Start Menu</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content color="secondary">
+    <ion-list style="background: white;">
+      <ion-item color="secondary">
+        <ion-button (click)="goToHome()" style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="home-outline"></ion-icon>
+          Inicio
+        </ion-button>
+      </ion-item>
+      <ion-item color="secondary">
+        <ion-button style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="settings-outline"></ion-icon>
+          Editar Perfil
+        </ion-button>
+      </ion-item>
+      <ion-item color="secondary">
+        <ion-button (click)="salir()" style="width: 100%; height: 100%;" fill="clear">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Salir
+        </ion-button>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>

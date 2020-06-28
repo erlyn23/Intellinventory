@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Agregar nuevo empleado</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content color="secondary">
+  <ion-grid>
+    <form [formGroup]="formulario">
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Cédula</ion-label>
+            <ion-input type="text" formControlName="Cedula"></ion-input>
+          </ion-item>
+          <ion-text color="danger" *ngIf="Cedula.invalid && (Cedula.touched || Cedula.dirty)">
+            <p *ngIf="Cedula.errors.required">No puedes dejar la cédula vacía</p>
+            <p *ngIf="Cedula.errors.pattern">Solo puedes insertar números</p>
+            <p *ngIf="Cedula.errors.minlength">La cédula debe tener solo 11 números</p>
+            <p *ngIf="Cedula.errors.maxlength">La cédula debe tener solo 11 números</p>
+          </ion-text>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Nombre completo</ion-label>
+            <ion-input type="text" formControlName="Nombre"></ion-input>
+          </ion-item>
+          <ion-text color="danger" *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
+            <p *ngIf="Nombre.errors.required">No puedes dejar el nombre vacío</p>
+            <p *ngIf="Nombre.errors.minlength">El nombre debe contener al menos 3 letras</p>
+            <p *ngIf="Nombre.errors.maxlength">El nombre no puede tener más de 30 letras</p>
+          </ion-text>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-button color="primary" (click)="guardarEmpleado()" expand="full" shape="round" [disabled]="formulario.invalid">
+            Agregar empleado
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ion-grid>
+</ion-content>
