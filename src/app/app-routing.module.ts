@@ -26,6 +26,10 @@ const routes: Routes = [
   {
     path: 'administracion',
     loadChildren: ()=> import('./paginas/Empleado/control-inventarios/administracion/administracion.module').then(m=>m.AdministracionPageModule)
+  },
+  {
+    path: 'calculadora',
+    loadChildren: () => import('./paginas/Empleado/calculadora/calculadora.module').then( m => m.CalculadoraPageModule)
   }
 ];
 
