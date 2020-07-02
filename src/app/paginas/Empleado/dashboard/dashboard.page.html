@@ -1,4 +1,62 @@
 <app-cabecera></app-cabecera>
 <ion-content color="secondary">
-    
+    <ion-grid>
+        <ion-row>
+            <ion-col size="3">
+                <img class="perfil" src="./../../../../assets/user.png">
+            </ion-col>
+            <ion-col size="9">
+                <ion-row>&nbsp;</ion-row>
+                <ion-title>Bienvenido, {{nombre}}</ion-title>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('ctrlInventario')" style="width: 100%; height: 75px; font-size: 20px;" shape="round">
+                    <ion-icon slot="start" name="document-text-outline"></ion-icon>
+                    Control de inventarios
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('stock')" style="width: 100%; height: 75px; font-size: 20px;" shape="round">
+                    <ion-icon slot="start" name="cube-outline"></ion-icon>
+                    Crear Stock
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('proveedores')" style="width: 100%; height: 75px; font-size: 20px;" shape="round">
+                    <ion-icon slot="start" name="person-add-outline"></ion-icon>
+                    Proveedores
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('calculadora')" style="width: 100%; height: 75px; font-size: 20px;" shape="round">
+                    <ion-icon slot="start" name="calculator-outline"></ion-icon>
+                    Calculadora
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('editar')" style="width: 100%; height: 75px; font-size: 20px;" shape="round">
+                    <ion-icon slot="start" name="settings-outline"></ion-icon>
+                    Editar Perfil
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('salir')" style="width: 100%; height: 75px; font-size: 20px;" shape="round">
+                    <ion-icon slot="start" name="log-out-outline"></ion-icon>
+                    Salir
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-content>
