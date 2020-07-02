@@ -11,10 +11,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 import { environment } from './../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MenuComponent } from './core/menu/menu.component';
 import { Push } from '@ionic-native/push/ngx';
+import { FileChooser } from '@ionic-native/file-chooser/ngx';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -24,12 +26,14 @@ import { Push } from '@ionic-native/push/ngx';
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
+    AngularFireStorageModule,
     AngularFireAuthModule,
     BrowserAnimationsModule],
   providers: [
     StatusBar,
     SplashScreen,
     Push,
+    FileChooser,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

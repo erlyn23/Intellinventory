@@ -117,8 +117,8 @@ export class SalidaComponent implements OnInit {
         this.aviso('Se está agotando la existencia, le recomendamos rellenar el inventario');
       } */else{
         //Proceso completo para guardar artículo en la BD
-        this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.producto.Codigo)
-        .set({
+        this.servicio.insertarenlaBD(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.producto.Codigo,
+        {
         Nombre: this.producto.Nombre,
         Codigo: this.producto.Codigo,
         Cantidad: this.cantidadAnterior-this.producto.Cantidad,
@@ -127,14 +127,14 @@ export class SalidaComponent implements OnInit {
         FechaSalida: this.producto.fechaSalida,
         Descripcion: this.producto.Descripcion
         }).then(()=>{
-        this.servicio.mensaje('toastSuccess','Salida hecha correctamente');
-        this.modalCtrl.dismiss();
-        this.getJefe('posicion').then(data=>{
-          if(data.value == 'jefe')
-          {
-            //Aquí va el código de las notificaciones.
-          }
-        });
+          this.servicio.mensaje('toastSuccess','Salida hecha correctamente');
+          this.modalCtrl.dismiss();
+          this.getJefe('posicion').then(data=>{
+            if(data.value == 'jefe')
+            {
+              //Aquí va el código de las notificaciones.
+            }
+          });
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });

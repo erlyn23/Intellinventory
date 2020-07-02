@@ -100,24 +100,24 @@ export class EntradaComponent implements OnInit {
       //Variables que almacenan los datos necesarios para operar en la BD.
 
       //Proceso completo para guardar artículo en la BD
-        this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.producto.Codigo)
-        .set({
-        Nombre: this.producto.Nombre,
-        Codigo: this.producto.Codigo,
-        Cantidad: this.producto.Cantidad + this.cantidadAnterior,
-        Precio: this.producto.Precio,
-        FechaEntrada: this.producto.fechaEntrada,
-        FechaSalida: "",
-        Descripcion: this.producto.Descripcion
-        }).then(()=>{
-        this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
-        this.modalCtrl.dismiss();
-        this.getJefe('posicion').then(data=>{
-          if(data.value == 'jefe')
+        this.servicio.insertarenlaBD(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.producto.Codigo, 
           {
-            //Aquí va el código de las notificaciones.
-          }
-        });
+          Nombre: this.producto.Nombre,
+          Codigo: this.producto.Codigo,
+          Cantidad: this.producto.Cantidad + this.cantidadAnterior,
+          Precio: this.producto.Precio,
+          FechaEntrada: this.producto.fechaEntrada,
+          FechaSalida: "",
+          Descripcion: this.producto.Descripcion
+          }).then(()=>{
+            this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
+            this.modalCtrl.dismiss();
+            this.getJefe('posicion').then(data=>{
+              if(data.value == 'jefe')
+              {
+                //Aquí va el código de las notificaciones.
+              }
+            });
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });

@@ -32,10 +32,7 @@ export class ModalCrearComponent implements OnInit {
     this.db.database.ref('EmpleadosActivos/'+cedula).set({
       CodigoActivacion: this.datos.getClave(),
     });
-    this.db.database.ref(this.datos.getClave()+'/Empleados/'+cedula).set({
-      Nombre: nombre,
-      Cedula: cedula
-    }).then(()=>{
+    this.servicio.insertarenlaBD(this.datos.getClave()+'/Empleados/'+cedula, {Cedula: cedula, Nombre: nombre}).then(()=>{
       this.servicio.mensaje('toastSuccess', 'El empleado se ha guardado correctamente');
       this.modalCtrl.dismiss();
     }).catch(err=>{

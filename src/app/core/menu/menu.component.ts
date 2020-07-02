@@ -73,4 +73,24 @@ export class MenuComponent implements OnInit {
       console.log(err);
     })
   }
+  
+  goToPerfil()
+  {
+    this.router.navigate(['editar-perfil'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
+  goToCalculator()
+  {
+    this.router.navigate(['calculadora'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
 }

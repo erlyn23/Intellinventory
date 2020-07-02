@@ -4,6 +4,7 @@ import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { Plugins } from '@capacitor/core';
+import { AngularFireStorage } from '@angular/fire/storage';
 
 const { Storage } = Plugins;
 
@@ -16,11 +17,13 @@ export class DashboardPage implements OnInit {
 
   nombre: any;
   ref: any;
+  imagen: any;
   constructor(private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private datos: DatosService,
     private router: Router,
-    private db: AngularFireDatabase) { }
+    private db: AngularFireDatabase,
+    private storage: AngularFireStorage) { }
 
   ngOnInit() { 
     const cedula = this.datos.getCedula();
@@ -30,9 +33,26 @@ export class DashboardPage implements OnInit {
       let nombre = data.payload.val();
       this.nombre = nombre.Nombre;
     });
+    this.obtenerPerfil();
   }
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
+  }
+
+  
+  obtenerPerfil()
+  {
+    const clave = this.datos.getClave();
+    const cedula = this.datos.getCedula();
+
+    this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let foto = data.payload.val();
+      const directorioFoto = this.storage.ref(foto.Ruta);
+      directorioFoto.getDownloadURL().subscribe(url=>{
+        this.imagen = url;
+      })
+    })
   }
 
   async salir()

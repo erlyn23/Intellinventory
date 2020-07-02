@@ -57,6 +57,17 @@
     }
 }
 
+.confirmarSubir .alert-wrapper{
+    --background:white;
+
+    .alert-title, .alert-message{
+        color: black;
+    }
+}
+
+.customPopover .popover-content{
+    margin-top: -130px;
+}
 
 .alertDisfrazado{
     position: absolute;
