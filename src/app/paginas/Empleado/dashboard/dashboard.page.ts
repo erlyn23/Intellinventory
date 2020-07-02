@@ -84,10 +84,10 @@ export class DashboardPage implements OnInit {
         //Aquí van los proveedores
       break;
       case 'calculadora':
-      this.router.navigate(['calculadora']);
+        this.router.navigate(['calculadora']);
       break;
       case 'editar':
-        //Aquí va el editar
+        this.router.navigate(['editar-perfil']);
       break;
       case 'salir':
         this.salir();

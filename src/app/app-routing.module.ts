@@ -30,6 +30,10 @@ const routes: Routes = [
   {
     path: 'calculadora',
     loadChildren: () => import('./paginas/Empleado/calculadora/calculadora.module').then( m => m.CalculadoraPageModule)
+  },
+  {
+    path: 'editar-perfil',
+    loadChildren: () => import('./paginas/Empleado/editar-perfil/editar-perfil.module').then( m => m.EditarPerfilPageModule)
   }
 ];
 

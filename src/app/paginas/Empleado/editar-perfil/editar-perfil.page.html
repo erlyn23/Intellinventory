@@ -1,0 +1,90 @@
+<app-cabecera></app-cabecera>
+
+<ion-content color="secondary">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="4"></ion-col>
+      <ion-col size="4">
+        <img src="../../../../assets/user.png" class="perfil">
+      </ion-col>
+      <ion-col size="4"></ion-col>
+    </ion-row>
+    <form [formGroup]="form">
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Nombre completo</ion-label>
+            <ion-input type="text" formControlName="Nombre"></ion-input>
+          </ion-item>
+          <div *ngIf="Nombre.invalid && (Nombre.dirty || Nombre.touched)">
+            <ion-item color="secondary" lines="none" *ngIf="Nombre.errors.required">
+              <ion-label color="danger">No puedes dejarlo vacío</ion-label>
+            </ion-item>
+            <ion-item color="secondary" lines="none" *ngIf="Nombre.errors.minlength">
+              <ion-label color="danger">Escribe como mínimo 3 letras</ion-label>
+            </ion-item>
+            <ion-item color="secondary" lines="none" *ngIf="Nombre.errors.maxlength">
+              <ion-label color="danger">Un nombre no tiene más de 30 letras</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Edad</ion-label>
+            <ion-input type="number" formControlName="Edad"></ion-input>
+          </ion-item>
+          <div *ngIf="Edad.invalid && (Edad.dirty || Edad.touched)">
+            <ion-item color="secondary" lines="none" *ngIf="Edad.errors.required">
+              <ion-label color="danger">No puedes dejarlo vacío</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Teléfono</ion-label>
+            <ion-input type="text" formControlName="Telefono"></ion-input>
+          </ion-item>
+          <div *ngIf="Telefono.invalid && (Telefono.dirty || Telefono.touched)">
+            <ion-item color="secondary" lines="none" *ngIf="Telefono.errors.required">
+              <ion-label color="danger">No puedes dejarlo vacío</ion-label>
+            </ion-item>
+            <ion-item color="secondary" lines="none" *ngIf="Telefono.errors.minlength">
+              <ion-label color="danger">Solo 10 números</ion-label>
+            </ion-item>
+            <ion-item color="secondary" lines="none" *ngIf="Telefono.errors.maxlength">
+              <ion-label color="danger">Solo 10 números</ion-label>
+            </ion-item>
+            <ion-item color="secondary" lines="none"  *ngIf="Telefono.errors.pattern">
+              <ion-label color="danger">Solo números</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Correo</ion-label>
+            <ion-input type="text" formControlName="Correo"></ion-input>
+          </ion-item>
+          <div *ngIf="Correo.invalid && (Correo.dirty || Correo.touched)">
+            <ion-item color="secondary" lines="none" *ngIf="Correo.errors.email">
+              <ion-label color="danger">Escribe un correo válido</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-button style="width: 100%;" shape="round" [disabled]="form.invalid">
+            <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+            Guardar Cambios
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ion-grid>
+</ion-content>
