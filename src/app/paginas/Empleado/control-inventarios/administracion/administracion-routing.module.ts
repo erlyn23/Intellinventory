@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: '',
     component: AdministracionPage
+  },
+  {
+    path: 'detalles-producto',
+    loadChildren: () => import('../../../Empleado/control-inventarios/administracion/detalles-producto/detalles-producto.module').then( m => m.DetallesProductoPageModule)
   }
 ];
 
