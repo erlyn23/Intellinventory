@@ -18,6 +18,10 @@
             <ion-label position="floating">Nombre del inventario</ion-label>
             <ion-input formControlName="Nombre" ype="text"></ion-input>
           </ion-item>
+          <ion-item lines="none" color="secondary" *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
+            <ion-label color="danger" *ngIf="Nombre.errors.required">Escribe un nombre</ion-label>
+            <ion-label color="danger" *ngIf="Nombre.errors.maxlength">Nombre muy largo</ion-label>
+          </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>

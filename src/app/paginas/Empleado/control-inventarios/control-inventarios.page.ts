@@ -5,6 +5,7 @@ import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { Router } from '@angular/router';
+import { Button } from 'protractor';
 
 @Component({
   selector: 'app-control-inventarios',
@@ -13,7 +14,7 @@ import { Router } from '@angular/router';
 })
 export class ControlInventariosPage implements OnInit {
 
-  inventarios: any[];
+  inventarios: any[] = [];
   ref: any;
   constructor(private modalCtrl: ModalController,
     private menuCtrl: MenuController,
@@ -85,9 +86,34 @@ export class ControlInventariosPage implements OnInit {
     await alert.present();
   }
 
+  async info(mensaje: string)
+  {
+    const alert = await this.alertCtrl.create({
+      cssClass: 'customAlert',
+      header: 'Información',
+      message: mensaje,
+      buttons:
+      [
+        {
+          cssClass: 'CancelarEliminar',
+          role: 'cancel',
+          text: 'Aceptar'
+        }
+      ]
+    });
+    await alert.present();
+  }
+
   goToAdministracion(i:number)
   {
-    this.datos.setKey(this.inventarios[i].key);
-    this.router.navigate(['administracion']);
+    if(this.inventarios[i].Estado == 'Finalizado')
+    {
+      this.info('Este inventario ha sido marcado como finalizado, así que solo puede ver información sobre él');
+      this.datos.setKey(this.inventarios[i].key);
+      this.router.navigate(['administracion']);
+    }else{
+      this.datos.setKey(this.inventarios[i].key);
+      this.router.navigate(['administracion']);
+    }
   }
 }

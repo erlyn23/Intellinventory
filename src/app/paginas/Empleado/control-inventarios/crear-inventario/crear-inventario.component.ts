@@ -22,7 +22,7 @@ export class CrearInventarioComponent implements OnInit {
   ngOnInit() {
     const fecha = new Date();
     this.form = this.formBuilder.group({
-      Nombre: ["",[Validators.required]],
+      Nombre: ["",[Validators.required, Validators.maxLength(30)]],
       Fecha: [`${fecha.getDate()}/${(fecha.getMonth() + 1)}/${fecha.getFullYear()}`]
     })
   }
@@ -31,13 +31,19 @@ export class CrearInventarioComponent implements OnInit {
   {
     this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()).push({
       NombreInventario: this.form.value.Nombre,
-      FechaInventario: this.form.value.Fecha
+      FechaInventario: this.form.value.Fecha,
+      Estado: 'En progreso'
     }).then(()=>{
       this.general.mensaje('toastSuccess','Se ha creado el inventario');
       this.modalCtrl.dismiss();
     }).catch(err=>{
       this.general.mensaje('customToast', err);
     })
+  }
+
+  get Nombre()
+  {
+    return this.form.get('Nombre');
   }
 
 }

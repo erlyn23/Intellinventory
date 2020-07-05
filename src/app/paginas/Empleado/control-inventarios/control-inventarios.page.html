@@ -3,10 +3,18 @@
 
 <ion-content color="secondary">
 
+  <ion-row *ngIf="inventarios.length == 0">
+    <ion-col size="12" style="text-align: center; font-style: italic; color:gray;">
+      <p>No hay inventarios registrados aún.</p>
+    </ion-col>
+  </ion-row>
   <ion-list style="background: white;">
     <ion-item color="secondary" *ngFor="let inv of inventarios, let i = index">
       <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
         {{inv.NombreInventario}} - {{inv.FechaInventario}}
+      </ion-button>
+      <ion-button color="success" fill="clear" *ngIf="inv.Estado == 'Finalizado'">
+        <ion-icon slot="icon-only" name="checkmark-circle"></ion-icon>
       </ion-button>
       <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>

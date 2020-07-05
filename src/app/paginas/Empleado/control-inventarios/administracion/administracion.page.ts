@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { ModalController, MenuController, NavController } from '@ionic/angular';
+import { ModalController, MenuController, NavController, AlertController } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
 import { EntradaComponent } from './entrada/entrada.component';
 import { SalidaComponent } from './salida/salida.component';
+import { GeneralService } from 'src/app/services/general.service';
 
 @Component({
   selector: 'app-administracion',
@@ -14,6 +15,7 @@ import { SalidaComponent } from './salida/salida.component';
 export class AdministracionPage implements OnInit {
 
   titulo: any;
+  estado: any;
   ref: any;
   productos: any[];
   tempProducts: any[];
@@ -21,7 +23,9 @@ export class AdministracionPage implements OnInit {
   constructor(private modalCtrl: ModalController,
     private navCtrl: NavController,
     private menuCtrl: MenuController,
+    private alertCtrl: AlertController,
     private datos:DatosService,
+    private servicio: GeneralService,
     private db: AngularFireDatabase,
     private router: Router) { }
 
@@ -35,6 +39,7 @@ export class AdministracionPage implements OnInit {
       let title = data.payload.val();
       if(title != null){
         this.titulo = title.NombreInventario;
+        this.estado = title.Estado;
       }
     });
 
@@ -93,6 +98,38 @@ export class AdministracionPage implements OnInit {
         }
       }
     });
+  }
+
+  async finalizarInventario(){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'customAlert',
+      header: 'Confirmar',
+      message: '¿Estás seguro de finalizar el inventario? Una vez hecho esto no podrás hacer nada para revertirlo.',
+      buttons:[
+        {
+          cssClass: 'CancelarEliminar',
+          text: 'Confirmar',
+          role: 'confirm',
+          handler: ()=>{
+              const cedula = this.datos.getCedula();
+              const clave = this.datos.getClave();
+              const llave = this.datos.getKey();
+              
+              this.db.database.ref(clave+'/Inventarios/'+cedula+'/'+llave).update({Estado: 'Finalizado'})
+              .then(()=>{
+                this.servicio.mensaje('toastSuccess','Inventario finalizado correctamente');
+                this.goBack();
+              });
+          }
+        },
+        {
+          cssClass:'ConfirmarEliminar',
+          text: 'Cancelar',
+          role: 'cancel'
+        }
+      ]
+    });
+    await alert.present();
   }
 
   goBack()
