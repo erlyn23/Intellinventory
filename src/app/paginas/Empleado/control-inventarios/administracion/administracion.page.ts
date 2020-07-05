@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { ModalController, MenuController } from '@ionic/angular';
+import { ModalController, MenuController, NavController } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
 import { EntradaComponent } from './entrada/entrada.component';
@@ -19,6 +19,7 @@ export class AdministracionPage implements OnInit {
   tempProducts: any[];
   esBusqueda: boolean = false;
   constructor(private modalCtrl: ModalController,
+    private navCtrl: NavController,
     private menuCtrl: MenuController,
     private datos:DatosService,
     private db: AngularFireDatabase,
@@ -32,7 +33,9 @@ export class AdministracionPage implements OnInit {
     this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario);
     this.ref.snapshotChanges().subscribe(data=>{
       let title = data.payload.val();
-      this.titulo = title.NombreInventario;
+      if(title != null){
+        this.titulo = title.NombreInventario;
+      }
     });
 
     this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
@@ -94,6 +97,8 @@ export class AdministracionPage implements OnInit {
 
   goBack()
   {
-    this.router.navigate(['control-inventarios']);
+    this.navCtrl.pop().then(()=>{
+      this.router.navigate(['control-inventarios']);
+    });
   }
 }

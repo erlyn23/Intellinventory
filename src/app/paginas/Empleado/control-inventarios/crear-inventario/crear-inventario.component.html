@@ -11,18 +11,26 @@
 
 <ion-content color="secondary">
   <ion-grid>
-    <form>
+    <form [formGroup]="form">
       <ion-row>
         <ion-col size="12">
           <ion-item color="secondary">
             <ion-label position="floating">Nombre del inventario</ion-label>
-            <ion-input [(ngModel)]="inventario.nombre" name="nombre" type="text"></ion-input>
+            <ion-input formControlName="Nombre" ype="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="crearInventario()" style="width: 100%;" color="primary" shape="round">
+          <ion-item color="secondary">
+            <ion-label position="floating">Fecha de creación</ion-label>
+            <ion-input formControlName="Fecha" ype="text" readonly></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-button (click)="crearInventario()" style="width: 100%;" color="primary" shape="round" [disabled]="form.invalid">
             Crear inventario
           </ion-button>
         </ion-col>

@@ -6,7 +6,7 @@
   <ion-list style="background: white;">
     <ion-item color="secondary" *ngFor="let inv of inventarios, let i = index">
       <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
-        {{inv.NombreInventario}}
+        {{inv.NombreInventario}} - {{inv.FechaInventario}}
       </ion-button>
       <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>

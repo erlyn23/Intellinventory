@@ -24,7 +24,9 @@ export class ControlInventariosPage implements OnInit {
     private router: Router) { }
 
   ngOnInit() {
-    this.ref = this.db.object(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula());
+    const clave = this.datos.getClave();
+    const cedula = this.datos.getCedula();
+    this.ref = this.db.object(clave+'/Inventarios/'+cedula);
     this.ref.snapshotChanges().subscribe(data=>{
       let invrios = data.payload.val();
       this.inventarios = [];
