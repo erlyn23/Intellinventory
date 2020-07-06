@@ -2,6 +2,9 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MenuController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Plugins } from '@capacitor/core';
+import { DatosService } from 'src/app/services/datos.service';
+import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireStorage } from '@angular/fire/storage';
 
 const { Storage } = Plugins;
 
@@ -13,11 +16,14 @@ const { Storage } = Plugins;
 export class MenuComponent implements OnInit {
 
   @Input() origen: any;
+  imagen: any;
+  ref: any;
   constructor(private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private router: Router) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   async salir()
   {
@@ -57,6 +63,16 @@ export class MenuComponent implements OnInit {
   goToHome()
   {
     this.router.navigate(['dashboard'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
+  goToHome1()
+  {
+    this.router.navigate(['dashboardjefe'])
     .then(()=>{
       this.menuCtrl.toggle();
     }).catch(err=>{

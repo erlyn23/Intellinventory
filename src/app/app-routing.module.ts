@@ -38,7 +38,19 @@ const routes: Routes = [
   {
     path: 'detalles-producto',
     loadChildren: () => import('./paginas/Empleado/control-inventarios/administracion/detalles-producto/detalles-producto.module').then( m => m.DetallesProductoPageModule)
-  }
+  },
+  {
+    path: 'control-inventarios-jefe',
+    loadChildren: () => import('./paginas/Jefe/control-inventarios/control-inventarios.module').then( m => m.ControlInventariosPageModule)
+  },
+  {
+    path: 'administracion-jefe',
+    loadChildren: ()=> import('./paginas/Jefe/control-inventarios/administracion/administracion.module').then(m=>m.AdministracionPageModule)
+  },
+  {
+    path: 'detalles-producto-jefe',
+    loadChildren: () => import('./paginas/Jefe/control-inventarios/administracion/detalles-producto/detalles-producto.module').then( m => m.DetallesProductoPageModule)
+  },
 ];
 
 @NgModule({

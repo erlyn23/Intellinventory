@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { ModalController, AlertController, MenuController, NavController } from '@ionic/angular';
 import { ModalCrearComponent } from './modal-crear/modal-crear.component';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
@@ -16,6 +16,7 @@ export class DashboardPage implements OnInit {
   empleados: any[];
   ref:any;
   constructor(private router: Router, 
+    private navCtrl: NavController,
     private modalCtrl: ModalController,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
@@ -72,6 +73,7 @@ export class DashboardPage implements OnInit {
             this.db.database.ref(this.datos.getClave()+'/Empleados/'+this.empleados[i].Cedula).remove()
             .then(()=>{
               this.servicio.mensaje('toastSuccess', 'Se ha eliminado el empleado');
+              this.router.navigate(['dashboardjefe'])
             }).catch((err)=>{
               this.servicio.mensaje('toastCustom',err);
             });
@@ -80,6 +82,12 @@ export class DashboardPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  abrirEmpleado(i:number)
+  {
+    this.datos.setCedula(this.empleados[i].Cedula);
+    this.router.navigate(['control-inventarios-jefe']);
   }
 
 

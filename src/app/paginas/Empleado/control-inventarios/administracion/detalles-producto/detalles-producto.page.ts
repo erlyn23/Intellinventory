@@ -4,7 +4,6 @@ import { DatosService } from 'src/app/services/datos.service';
 import { EntradaComponent } from './entrada/entrada.component';
 import { SalidaComponent } from './salida/salida.component';
 import { ModalController, NavController, AlertController } from '@ionic/angular';
-import { Route } from '@angular/compiler/src/core';
 import { Router } from '@angular/router';
 import { InventarioActualComponent } from './inventario-actual/inventario-actual.component';
 import { NotasComponent } from './notas/notas.component';
