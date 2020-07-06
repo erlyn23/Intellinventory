@@ -10,34 +10,35 @@
 </ion-header>
 
 <ion-content color="secondary">
-  <ion-row>
-    <ion-col size="12">
-      <ion-searchbar color="secondary" placeholder="Buscar un producto..." (ionChange)="buscarProducto($event)"></ion-searchbar>
-    </ion-col>
-  </ion-row>
   <ion-grid>
     <ion-row>
-      <ion-col size="6">
-        <ion-button (click)="abrirEntrada()" class="personalizado" [disabled]="estado == 'Finalizado'">
-          <ion-icon slot="start" name="add-circle-outline"></ion-icon>
-          Entrada
-        </ion-button>
+      <ion-col size="12">
+        <ion-searchbar color="secondary" placeholder="Buscar un producto..." (ionChange)="buscarProducto($event)"></ion-searchbar>
       </ion-col>
-      <ion-col size="6">
-        <ion-button (click)="abrirSalida()" class="personalizado" [disabled]="estado == 'Finalizado'">
-          <ion-icon slot="start" name="remove-circle-outline"></ion-icon>
-          Salida
-        </ion-button>
+    </ion-row>
+    <ion-row *ngIf="productos.length == 0">
+      <ion-col size="12" style="text-align: center; font-style: italic; color: gray;">
+        <p>No hay productos registrados.</p>
       </ion-col>
     </ion-row>
     <ion-list style="background: white;" *ngIf="esBusqueda == false">
-      <ion-item color="secondary" *ngFor="let prod of productos">
-        <ion-label>{{prod}}</ion-label>
+      <ion-item color="secondary" *ngFor="let prod of productos, let i = index">
+        <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
+          {{prod.Nombre}}
+        </ion-button>
+        <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
       </ion-item>
     </ion-list>
     <ion-list style="background: white;" *ngIf="esBusqueda == true">
-      <ion-item color="secondary" *ngFor="let prod of tempProducts">
-        <ion-label>{{prod}}</ion-label>
+      <ion-item color="secondary" *ngFor="let prod of tempProducts, let i = index">
+        <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
+          {{prod.Nombre}}
+        </ion-button>
+        <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
       </ion-item>
     </ion-list>
     <ion-row>
@@ -48,4 +49,9 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+  <ion-fab (click)="abrirCrear()" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

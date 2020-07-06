@@ -7,9 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { AdministracionPageRoutingModule } from './administracion-routing.module';
 
 import { AdministracionPage } from './administracion.page';
-import { EntradaComponent } from './entrada/entrada.component';
-import { SalidaComponent } from './salida/salida.component';
 import { AlertPersonalizadoComponent } from 'src/app/core/alert-personalizado/alert-personalizado.component';
+import { CrearProductoComponent } from './crear-producto/crear-producto.component';
 
 @NgModule({
   imports: [
@@ -19,6 +18,6 @@ import { AlertPersonalizadoComponent } from 'src/app/core/alert-personalizado/al
     IonicModule,
     AdministracionPageRoutingModule
   ],
-  declarations: [AdministracionPage, EntradaComponent, SalidaComponent, AlertPersonalizadoComponent]
+  declarations: [AdministracionPage, AlertPersonalizadoComponent, CrearProductoComponent]
 })
 export class AdministracionPageModule {}

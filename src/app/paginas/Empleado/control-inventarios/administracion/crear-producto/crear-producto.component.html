@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button>
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Registrar producto</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content color="secondary">
+  <ion-grid>
+    <form [formGroup]="form">
+      <ion-row>
+        <ion-col size="9">
+          <ion-item color="secondary">
+            <ion-label position="floating">Código</ion-label>
+            <ion-input type="number" formControlName="Codigo"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col size="3">
+          <ion-button>
+            <ion-icon slot="icon-only" name="barcode"></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Nombre Producto</ion-label>
+            <ion-input type="text" formControlName="Nombre"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Inventario inicial</ion-label>
+            <ion-input type="number" formControlName="CantidadInicial"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-button (click)="crearProducto()" style="width: 100%;" shape="round" [disabled]="form.invalid">
+            Agregar producto
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ion-grid>
+</ion-content>

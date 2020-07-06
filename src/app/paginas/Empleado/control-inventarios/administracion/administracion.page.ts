@@ -3,9 +3,8 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { ModalController, MenuController, NavController, AlertController } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
-import { EntradaComponent } from './entrada/entrada.component';
-import { SalidaComponent } from './salida/salida.component';
 import { GeneralService } from 'src/app/services/general.service';
+import { CrearProductoComponent } from './crear-producto/crear-producto.component';
 
 @Component({
   selector: 'app-administracion',
@@ -17,7 +16,7 @@ export class AdministracionPage implements OnInit {
   titulo: any;
   estado: any;
   ref: any;
-  productos: any[];
+  productos: any[] = [];
   tempProducts: any[];
   esBusqueda: boolean = false;
   constructor(private modalCtrl: ModalController,
@@ -50,7 +49,7 @@ export class AdministracionPage implements OnInit {
       for(let i in products)
       {
         products[i].key = i;
-        this.productos.push(products[i].Nombre);
+        this.productos.push({Nombre: products[i].Nombre, Codigo: products[i].Codigo});
       }
     });
   }
@@ -59,23 +58,48 @@ export class AdministracionPage implements OnInit {
     this.menuCtrl.enable(false, 'first');
   }
 
-  async abrirEntrada()
+  async abrirCrear()
   {
     const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: EntradaComponent,
+      cssClass: 'customModal',
+      component: CrearProductoComponent
     });
     await modal.present();
   }
-  async abrirSalida()
-  {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: SalidaComponent,
+
+  async abrirAlert(i: number){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'customAlert',
+      header: 'Confirmar',
+      message: '¿Estás seguro de querer eliminar este producto? No podrás recuperarlo',
+      buttons:
+      [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'CancelarEliminar',
+          handler: ()=>{
+            this.alertCtrl.dismiss();
+          }
+        },
+        {
+          text: 'Eliminar',
+          role: 'confirm',
+          cssClass: 'ConfirmarEliminar',
+          handler: ()=>{
+            this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()+'/'+this.datos.getKey()+'/Productos/'+this.productos[i].Codigo)
+            .remove().then(()=>{
+              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el empleado');
+            }).catch((err)=>{
+              this.servicio.mensaje('toastCustom',err);
+            });
+          }
+        }
+      ]
     });
-    await modal.present();
+    await alert.present();
   }
-  algo:string = "Esto es un texto";
+
   buscarProducto(val:any)
   {
     const claveBar = this.datos.getClave();
@@ -130,6 +154,18 @@ export class AdministracionPage implements OnInit {
       ]
     });
     await alert.present();
+  }
+
+  goToDetails(i:number)
+  {
+    if(this.tempProducts != undefined)
+    {
+      this.datos.setCode(this.tempProducts[i].Codigo);
+      this.router.navigate(['detalles-producto']);
+    }else{
+      this.datos.setCode(this.productos[i].Codigo);
+      this.router.navigate(['detalles-producto'])
+    } 
   }
 
   goBack()
