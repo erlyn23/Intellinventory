@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button>
+      <ion-button (click)="goBack()">
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -12,17 +12,8 @@
 <ion-content color="secondary">
   <ion-grid>
     <ion-row>
-      <ion-col size="6">
-        <ion-button (click)="abrirEntrada()" style="width: 100%;" shape="round">
-          <ion-icon slot="start" name="add-circle"></ion-icon>
-          Entrada
-        </ion-button>
-      </ion-col>
-      <ion-col size="6">
-        <ion-button (click)="abrirSalida()" style="width: 100%;" shape="round">
-          <ion-icon slot="start" name="remove-circle"></ion-icon>
-          Salida
-        </ion-button>
+      <ion-col size="12" style="text-align: center;">
+        <ion-title>Información del producto</ion-title>
       </ion-col>
     </ion-row>
     <ion-row>
@@ -35,25 +26,48 @@
               </ion-item>
               <ion-item color="primary">
                 <h4>Entrada: {{producto.Entrada}}</h4>
+                <ion-button (click)="abrirEntrada()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
               </ion-item>
               <ion-item color="primary">
-                <h4>Cantidad incial + entrada: </h4>
+                <h4>Cantidad incial + entrada: {{producto.SumaEntrada}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Salida: </h4>
+                <h4>Salida: {{producto.Salida}}</h4>
+                <ion-button (click)="abrirSalida()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
               </ion-item>
               <ion-item color="primary">
-                <h4>Total de existencia: </h4>
+                <h4>Total de existencia: {{producto.TotalExistencia}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Inventario actual: </h4>
+                <h4>Inventario actual: {{producto.InventarioActual}} </h4>
+                <ion-button (click)="abrirInventarioActual()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: </h4>
+                <h4>Diferencia: {{producto.Diferencia}}</h4>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Nota: {{producto.Nota}}</h4>
+                <ion-button (click)="abrirNotas()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
               </ion-item>
             </ion-list>
           </ion-card-content>
         </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col size="12">
+        <ion-button (click)="guardarCambios()" color="success" style="width: 100%;" shape="round" [disabled]="estado == 'Finalizado'">
+          <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+          Guardar Cambios
+        </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>

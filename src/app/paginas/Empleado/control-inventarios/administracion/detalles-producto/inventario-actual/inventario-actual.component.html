@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Salida Producto</ion-title>
+    <ion-title>Insertar inventario actual</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -22,8 +22,8 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="SalidaProducto()" style="width: 100%;" color="primary" shape="round" [disabled]="formulario.invalid">
-            Dar salida 
+          <ion-button (click)="regInventarioActual()" style="width: 100%;" color="primary" shape="round" [disabled]="formulario.invalid">
+            Insertar cantidad
           </ion-button>
         </ion-col>
       </ion-row>

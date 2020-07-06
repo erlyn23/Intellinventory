@@ -20,7 +20,6 @@ export class EntradaComponent implements OnInit {
   formulario: FormGroup;
   ref: any;
   fechaSalida: any;
-  cantidadAnterior:number = 0;
   constructor(private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
     private datos:DatosService,
@@ -29,10 +28,8 @@ export class EntradaComponent implements OnInit {
 
   ngOnInit() {
     this.formulario = this.formBuilder.group({
-      Codigo: ["",[Validators.required]],
       Cantidad: ["",[Validators.required]],
     });
-    this.cantidadAnterior = this.datos.getCantAnt();
   }
 
   async getJefe(llave:any)
@@ -58,11 +55,12 @@ export class EntradaComponent implements OnInit {
         const claveBar = this.datos.getClave();
         const cedula = this.datos.getCedula();
         const llaveInventario = this.datos.getKey();
+        const codigo = this.datos.getCode();
       //Variables que almacenan los datos necesarios para operar en la BD.
 
       //Proceso completo para guardar artículo en la BD
-        this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.formulario.value.Codigo).update({
-          Entrada: this.formulario.value.Cantidad + this.cantidadAnterior,
+        this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
+          Entrada: this.formulario.value.Cantidad
           }).then(()=>{
             this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
             this.modalCtrl.dismiss();

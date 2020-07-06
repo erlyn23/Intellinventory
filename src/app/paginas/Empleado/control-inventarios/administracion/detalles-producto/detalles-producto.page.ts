@@ -3,7 +3,12 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { EntradaComponent } from './entrada/entrada.component';
 import { SalidaComponent } from './salida/salida.component';
-import { ModalController } from '@ionic/angular';
+import { ModalController, NavController, AlertController } from '@ionic/angular';
+import { Route } from '@angular/compiler/src/core';
+import { Router } from '@angular/router';
+import { InventarioActualComponent } from './inventario-actual/inventario-actual.component';
+import { NotasComponent } from './notas/notas.component';
+import { GeneralService } from 'src/app/services/general.service';
 
 @Component({
   selector: 'app-detalles-producto',
@@ -14,9 +19,15 @@ export class DetallesProductoPage implements OnInit {
 
   producto: any = '';
   ref: any;
+  guardado: boolean = false;
+  estado: any;
   constructor(private modalCtrl: ModalController,
+    private alertCtrl: AlertController,
+    private navCtrl: NavController,
+    private router: Router,
     private db:AngularFireDatabase,
-    private datos: DatosService) { }
+    private datos: DatosService,
+    private servicio: GeneralService) { }
 
   ngOnInit() {
     const claveBar = this.datos.getClave();
@@ -29,9 +40,33 @@ export class DetallesProductoPage implements OnInit {
       let product = data.payload.val();
       if(product != null){
         this.producto = product;
-        this.datos.setCantAnt(product.Entrada);
+        this.producto.SumaEntrada = product.Entrada + product.CantidadInicial;
+        this.producto.TotalExistencia = product.SumaEntrada - product.Salida;
+        this.producto.Diferencia = product.InventarioActual - product.TotalExistencia;
+        this.producto.Nota = product.Nota;
       }
     });
+    this.estado = this.datos.getEstado();
+  }
+
+  async abrirConfirmar()
+  {
+    const alert = await this.alertCtrl.create({
+      cssClass:'customAlert',
+      header: 'Información',
+      message: 'Aún no guardas los cambios, aunque puedas verlos debes guardarlos.',
+      buttons:[
+        {
+          cssClass:'CancelarEliminar',
+          role: 'cancel',
+          text: 'Aceptar',
+          handler: ()=>{
+            this.alertCtrl.dismiss();
+          }
+        },
+      ]
+    });
+    await alert.present();
   }
 
   async abrirEntrada()
@@ -51,5 +86,53 @@ export class DetallesProductoPage implements OnInit {
     await modal.present();
   }
 
+  async abrirInventarioActual()
+  {
+    const modal = await this.modalCtrl.create({
+      cssClass:'customModal',
+      component: InventarioActualComponent,
+    });
+    await modal.present();
+  }
+
+  async abrirNotas()
+  {
+    const modal = await this.modalCtrl.create({
+      cssClass:'customModal',
+      component: NotasComponent,
+    });
+    await modal.present();
+  }
+
+
+  guardarCambios()
+  {
+    const claveBar = this.datos.getClave();
+    const cedula = this.datos.getCedula();
+    const llaveInventario = this.datos.getKey();
+    const codigo = this.datos.getCode();
+
+    this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
+      SumaEntrada: this.producto.SumaEntrada,
+      TotalExistencia: this.producto.TotalExistencia,
+      Diferencia: this.producto.Diferencia,
+      Nota: this.producto.Nota
+    }).then(()=>{
+      this.servicio.mensaje('toastSuccess','Cambios guardados correctamente');
+      this.guardado = true;
+    });
+  }
+
+  goBack()
+  {
+    if(!this.guardado && this.estado != 'Finalizado')
+    {
+      this.abrirConfirmar();
+    }else{
+      this.navCtrl.pop().then(()=>{
+        this.router.navigate(['administracion']);
+      })
+    }
+  }
 
 }

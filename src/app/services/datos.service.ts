@@ -10,7 +10,7 @@ export class DatosService {
   cedula: any;
   keyInventario: any;
   Codigo: any;
-  cantidadAnterior: any;
+  estado:any;
   constructor() { }
 
   //Métodos para obtener la clave del bar
@@ -58,15 +58,15 @@ export class DatosService {
       return this.Codigo;
     }
   //Métodos para obtener el código del producto
-
-  //Métodos para obtener la cantidad anterior
-    setCantAnt(cantAnt: any)
+  
+  //Métodos para obtener el estado del inventario
+    setEstado(state: any)
     {
-      this.cantidadAnterior = cantAnt;
+      this.estado = state;
     }
-    getCantAnt()
+    getEstado()
     {
-      return this.cantidadAnterior;
+      return this.estado;
     }
-  //Métodos para obtener la cantidad anterior
+  //Métodos para obtener el estado del inventario
 }

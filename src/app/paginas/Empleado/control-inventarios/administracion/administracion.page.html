@@ -21,7 +21,7 @@
         <p>No hay productos registrados.</p>
       </ion-col>
     </ion-row>
-    <ion-list style="background: white;" *ngIf="esBusqueda == false">
+    <ion-list style="background: white;" *ngIf="esBusqueda == false && estado != 'Finalizado'">
       <ion-item color="secondary" *ngFor="let prod of productos, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
           {{prod.Nombre}}
@@ -31,7 +31,7 @@
         </ion-button>
       </ion-item>
     </ion-list>
-    <ion-list style="background: white;" *ngIf="esBusqueda == true">
+    <ion-list style="background: white;" *ngIf="esBusqueda == true && estado != 'Finalizado'">
       <ion-item color="secondary" *ngFor="let prod of tempProducts, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
           {{prod.Nombre}}
@@ -43,13 +43,51 @@
     </ion-list>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="finalizarInventario()" style="width: 100%;" color="success" shape="round" [disabled]="estado == 'Finalizado'">
+        <ion-button (click)="finalizarInventario()" style="width: 100%;" color="success" shape="round" *ngIf="estado != 'Finalizado'">
           Finalizar inventario
         </ion-button>
       </ion-col>
     </ion-row>
+    <ion-row *ngIf="esBusqueda == false && estado == 'Finalizado'">
+      <ion-col size="12" *ngFor="let prod of productos">
+        <ion-card color="primary">
+          <ion-card-content>
+            <ion-list style="background: var(--ion-color-primary);">
+              <ion-item color="primary">
+                <h4>Producto: {{prod.Nombre}}</h4>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Diferencia: {{prod.Diferencia}}</h4>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Nota: {{prod.Nota}}</h4>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="esBusqueda == true && estado == 'Finalizado'">
+      <ion-col size="12" *ngFor="let prod of tempProducts">
+        <ion-card color="primary">
+          <ion-card-content>
+            <ion-list style="background: var(--ion-color-primary)">
+              <ion-item>
+                <h4>Producto: {{prod.Nombre}}</h4>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Diferencia: {{prod.Diferencia}}</h4>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Nota: {{prod.Nota}}</h4>
+              </ion-item>
+            </ion-list>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
   </ion-grid>
-  <ion-fab (click)="abrirCrear()" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab (click)="abrirCrear()" vertical="bottom" horizontal="end" slot="fixed" *ngIf="estado != 'Finalizado'">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

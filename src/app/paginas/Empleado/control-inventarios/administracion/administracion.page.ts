@@ -39,6 +39,7 @@ export class AdministracionPage implements OnInit {
       if(title != null){
         this.titulo = title.NombreInventario;
         this.estado = title.Estado;
+        this.datos.setEstado(this.estado);
       }
     });
 
@@ -49,7 +50,7 @@ export class AdministracionPage implements OnInit {
       for(let i in products)
       {
         products[i].key = i;
-        this.productos.push({Nombre: products[i].Nombre, Codigo: products[i].Codigo});
+        this.productos.push(products[i]);
       }
     });
   }
@@ -115,7 +116,7 @@ export class AdministracionPage implements OnInit {
       {
         if(products[i].Nombre.includes(val.detail.value))
         {
-          this.tempProducts.push(products[i].Nombre);
+          this.tempProducts.push(products[i]);
         }else if(val.detail.value == "")
         {
           this.esBusqueda = false;

@@ -36,7 +36,14 @@ export class CrearProductoComponent implements OnInit {
       {
         Codigo: this.form.value.Codigo,
         Nombre: this.form.value.Nombre,
-        CantidadInicial: this.form.value.CantidadInicial
+        CantidadInicial: this.form.value.CantidadInicial,
+        Entrada: 0,
+        SumaEntrada: 0,
+        Salida: 0,
+        TotalExistencia: 0,
+        InventarioActual: 0,
+        Diferencia: 0,
+        Nota: ''
       }).then(()=>{
         this.servicio.mensaje('toastSuccess','Se ha creado el producto correctamente');
         this.modalCtrl.dismiss();
