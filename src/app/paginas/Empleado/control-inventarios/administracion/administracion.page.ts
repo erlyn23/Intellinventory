@@ -90,7 +90,7 @@ export class AdministracionPage implements OnInit {
           handler: ()=>{
             this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()+'/'+this.datos.getKey()+'/Productos/'+this.productos[i].Codigo)
             .remove().then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el empleado');
+              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el producto');
             }).catch((err)=>{
               this.servicio.mensaje('toastCustom',err);
             });

@@ -4,6 +4,9 @@ import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { AlertController, PopoverController } from '@ionic/angular';
+import { Plugins } from '@capacitor/core';
+
+const { Storage } = Plugins;
 
 @Component({
   selector: 'app-foto-popover',
@@ -24,18 +27,39 @@ export class FotoPopoverComponent implements OnInit {
   ngOnInit() {}
 
 
+  async getPosicion()
+  {
+    return (await Storage.get({key: 'posicion'}));
+  }
+
   obtenerPerfil()
   {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
+    this.getPosicion().then(pos=>{
+      if(pos.value == 'jefe'){
+        const clave = this.datos.getClave();
 
-    this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let foto = data.payload.val();
-      const directorioFoto = this.storage.ref(foto.Ruta);
-      directorioFoto.getDownloadURL().subscribe(url=>{
-        this.imagen = url;
-      })
+        this.ref = this.db.object(clave+'/Jefe/FotoPerfil');
+        this.ref.snapshotChanges().subscribe(data=>{
+          let foto = data.payload.val();
+          const directorioFoto = this.storage.ref(foto.Ruta);
+          directorioFoto.getDownloadURL().subscribe(url=>{
+            this.imagen = url;
+          })
+        })
+        
+      }else{
+        const clave = this.datos.getClave();
+        const cedula = this.datos.getCedula();
+    
+        this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
+        this.ref.snapshotChanges().subscribe(data=>{
+          let foto = data.payload.val();
+          const directorioFoto = this.storage.ref(foto.Ruta);
+          directorioFoto.getDownloadURL().subscribe(url=>{
+            this.imagen = url;
+          })
+        })
+      }
     })
   }
 
@@ -51,21 +75,40 @@ export class FotoPopoverComponent implements OnInit {
           role: 'confirm',
           text: 'Confirmar',
           handler: ()=>{
-            const fileRef = this.storage.ref(ruta);
-            const tarea = this.storage.upload(ruta, this.imagen);
-            tarea.percentageChanges().subscribe(porcent=>{
-              if(porcent == 100)
-              {
-                const clave = this.datos.getClave();
-                const cedula = this.datos.getCedula();
-                this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
-                this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ruta}).catch(err=>{
-                  this.servicio.mensaje('customToast',err);
+            this.getPosicion().then(pos=>{
+              if(pos.value == 'jefe'){
+                const fileRef = this.storage.ref(ruta);
+                const tarea = this.storage.upload(ruta, this.imagen);
+                tarea.percentageChanges().subscribe(porcent=>{
+                  if(porcent == 100)
+                  {
+                    const clave = this.datos.getClave();
+                    this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
+                    this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ruta}).catch(err=>{
+                      this.servicio.mensaje('customToast',err);
+                    });
+                    this.popoverCtrl.dismiss();
+                  }
                 });
+                this.obtenerPerfil();
+              }else{
+                const fileRef = this.storage.ref(ruta);
+                const tarea = this.storage.upload(ruta, this.imagen);
+                tarea.percentageChanges().subscribe(porcent=>{
+                  if(porcent == 100)
+                  {
+                    const clave = this.datos.getClave();
+                    const cedula = this.datos.getCedula();
+                    this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
+                    this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ruta}).catch(err=>{
+                    this.servicio.mensaje('customToast',err);
+                  });
                 this.popoverCtrl.dismiss();
               }
             });
             this.obtenerPerfil();
+              }
+            })
           }
         },
         {
@@ -83,10 +126,20 @@ export class FotoPopoverComponent implements OnInit {
 
   subirImagen(ev: any)
   {
-    const cedula = this.datos.getCedula();
-    this.imagen = ev.target.files[0];
-    const rutaArchivo = `Perfil/${cedula}`;
-    this.abrirAlert(rutaArchivo);
+    this.getPosicion().then(pos=>{
+      if(pos.value == 'jefe')
+      {
+        const uid = this.datos.getClave();
+        this.imagen = ev.target.files[0];
+        const rutaArchivo = `PerfilJefe/${uid}`;
+        this.abrirAlert(rutaArchivo);
+      }else{
+        const cedula = this.datos.getCedula();
+        this.imagen = ev.target.files[0];
+        const rutaArchivo = `Perfil/${cedula}`;
+        this.abrirAlert(rutaArchivo);
+      }
+    })
   }
 
 }

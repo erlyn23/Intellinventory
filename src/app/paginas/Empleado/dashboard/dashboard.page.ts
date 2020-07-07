@@ -31,7 +31,9 @@ export class DashboardPage implements OnInit {
     this.ref = this.db.object(clave + '/Empleados/'+cedula);
     this.ref.snapshotChanges().subscribe(data=>{
       let nombre = data.payload.val();
-      this.nombre = nombre.Nombre;
+      if(nombre != null){
+        this.nombre = nombre.Nombre;
+      }
     });
     this.obtenerPerfil();
   }
@@ -48,10 +50,13 @@ export class DashboardPage implements OnInit {
     this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
     this.ref.snapshotChanges().subscribe(data=>{
       let foto = data.payload.val();
-      const directorioFoto = this.storage.ref(foto.Ruta);
-      directorioFoto.getDownloadURL().subscribe(url=>{
-        this.imagen = url;
-      })
+      if(foto != null)
+      {
+        const directorioFoto = this.storage.ref(foto.Ruta);
+        directorioFoto.getDownloadURL().subscribe(url=>{
+          this.imagen = url;
+        })
+      }
     })
   }
 

@@ -75,7 +75,7 @@ export class ControlInventariosPage implements OnInit {
           handler: ()=>{
             this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()+'/'+this.inventarios[i].key)
             .remove().then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el empleado');
+              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el inventario');
             }).catch((err)=>{
               this.servicio.mensaje('toastCustom',err);
             });

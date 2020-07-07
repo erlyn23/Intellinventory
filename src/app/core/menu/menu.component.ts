@@ -47,7 +47,9 @@ export class MenuComponent implements OnInit {
           cssClass: 'ConfirmarEliminar',
           handler: ()=>{
             this.limpiarUser();
-            this.router.navigate(['login']);
+            this.router.navigate(['login']).then(()=>{
+              this.menuCtrl.toggle();
+            })
           }
         }
       ]
@@ -93,6 +95,15 @@ export class MenuComponent implements OnInit {
   goToPerfil()
   {
     this.router.navigate(['editar-perfil'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
+  goToPerfil1(){
+    this.router.navigate(['editar-perfil-jefe'])
     .then(()=>{
       this.menuCtrl.toggle();
     }).catch(err=>{

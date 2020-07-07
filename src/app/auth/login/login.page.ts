@@ -31,12 +31,7 @@ export class LoginPage implements OnInit {
     private router: Router) { }
 
   ngOnInit() {
-  }
-
-  ionViewWillEnter() {
-    // this.clearUsuario();
     this.encontrado = 0;
-    this.menuCtrl.enable(false);
       this.getUsuario('posicion').then(pos=>{
         if(pos.value == 'jefe')
         {
@@ -68,15 +63,24 @@ export class LoginPage implements OnInit {
                   this.datos.setClave(activos[i].CodigoActivacion);
                   this.datos.setCedula(ced.value);
                   this.encontrado = 1;
-                  this.router.navigate(['dashboard']);
-                }else if(this.empleado.codigo != activos[i].key && this.encontrado == 0){
-                  this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
+                  this.router.navigate(['dashboard']).then(()=>{
+                    this.encontrado = 0;
+                  });
                 }
+              }
+              if(this.encontrado == 0){
+                this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
               }
             })
           })
         }
       })
+  }
+
+  ionViewWillEnter() {
+    // this.clearUsuario();
+    this.menuCtrl.enable(false,'first');
+    this.menuCtrl.enable(false, 'second');
   }
 
   async guardarUsuario(llave: any, valor: any)
@@ -151,17 +155,21 @@ export class LoginPage implements OnInit {
         activos[i].key = i;
         if(this.empleado.codigo == activos[i].key)
         {
+          this.encontrado = 1;
           if(this.empleado.sesionIniciada){
             this.guardarUsuario('posicion', 'empleado')
             this.guardarUsuario('cedula', this.empleado.codigo);
           }
           this.datos.setCedula(this.empleado.codigo);
           this.datos.setClave(activos[i].CodigoActivacion);
-          this.router.navigate(['dashboard']);
-          this.encontrado = 1;
-        }else if(this.empleado.codigo != activos[i].key && this.encontrado == 0){
-          this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
+          this.router.navigate(['dashboard']).then(()=>{
+            this.encontrado = 0;
+          });
         }
+      }
+      if(this.encontrado == 0){
+
+        this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
       }
     })
   }
