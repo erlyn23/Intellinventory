@@ -20,6 +20,7 @@ export class DetallesProductoPage implements OnInit {
   ref: any;
   guardado: boolean = false;
   estado: any;
+  stock:any;
   constructor(private modalCtrl: ModalController,
     private alertCtrl: AlertController,
     private navCtrl: NavController,
@@ -46,20 +47,36 @@ export class DetallesProductoPage implements OnInit {
       }
     });
     this.estado = this.datos.getEstado();
+    this.setStocks(codigo);
   }
 
-  async abrirConfirmar()
+  setStocks(codigo: any)
+  { 
+    const clave = this.datos.getClave();
+    const cedula = this.datos.getCedula();
+    this.ref = this.db.object(clave+'/Stock/'+cedula+'/'+codigo);
+    this.ref.snapshotChanges().subscribe(data=>{
+      let stock = data.payload.val();
+      if(stock != null)
+      {
+        this.stock = stock;
+        this.abrirConfirmar(`Tenemos información de stock de esta mercancía, se compra por defecto una cantidad de ${this.stock.Cantidad} unidades.`)
+      }
+    });
+  }
+
+  async abrirConfirmar(mensaje:any)
   {
     const alert = await this.alertCtrl.create({
       cssClass:'customAlert',
       header: 'Información',
-      message: 'Aún no guardas los cambios, aunque puedas verlos debes guardarlos.',
+      message: mensaje,
       buttons:[
         {
           cssClass:'CancelarEliminar',
           role: 'cancel',
           text: 'Aceptar',
-          handler: ()=>{
+          handler: ()=>{ 
             this.alertCtrl.dismiss();
           }
         },
@@ -126,7 +143,7 @@ export class DetallesProductoPage implements OnInit {
   {
     if(!this.guardado && this.estado != 'Finalizado')
     {
-      this.abrirConfirmar();
+      this.abrirConfirmar('Aún no guardas los cambios, aunque puedas verlos debes guardarlos.');
     }else{
       this.navCtrl.pop().then(()=>{
         this.router.navigate(['administracion']);

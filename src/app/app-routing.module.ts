@@ -55,6 +55,14 @@ const routes: Routes = [
     path: 'editar-perfil-jefe',
     loadChildren: () => import('./paginas/Jefe/editar-perfil-jefe/editar-perfil-jefe.module').then( m => m.EditarPerfilJefePageModule)
   },
+  {
+    path: 'crear-stock',
+    loadChildren: () => import('./paginas/Empleado/crear-stock/crear-stock.module').then( m => m.CrearStockPageModule)
+  },
+  {
+    path: 'proveedores',
+    loadChildren: () => import('./paginas/Empleado/proveedores/proveedores.module').then( m => m.ProveedoresPageModule)
+  },
 ];
 
 @NgModule({

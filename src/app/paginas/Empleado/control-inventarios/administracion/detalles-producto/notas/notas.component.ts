@@ -46,4 +46,8 @@ export class NotasComponent implements OnInit {
     //Proceso completo para guardar artículo en la BD
   }
 
+  goBack(){
+    this.modalCtrl.dismiss();
+  }
+
 }

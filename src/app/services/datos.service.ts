@@ -11,6 +11,8 @@ export class DatosService {
   keyInventario: any;
   Codigo: any;
   estado:any;
+  operacion: any;
+  proveedor: any;
   constructor() { }
 
   //Métodos para obtener la clave del bar
@@ -69,4 +71,26 @@ export class DatosService {
       return this.estado;
     }
   //Métodos para obtener el estado del inventario
+
+  //Métodos para obtener el tipo de operación del proveedor
+    setOperacion(op: any)
+    {
+      this.operacion = op;
+    }
+    getOperacion()
+    {
+      return this.operacion;
+    }
+  //Métodos para obtener el tipo de operación del proveedor
+
+    //Métodos para obtener el proveedor
+    setProveedor(prov: any)
+    {
+      this.proveedor = prov;
+    }
+    getProveedor()
+    {
+      return this.proveedor;
+    }
+  //Métodos para obtener el proveedor
 }

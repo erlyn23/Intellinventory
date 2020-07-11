@@ -100,13 +100,13 @@ export class DashboardPage implements OnInit {
     switch(pagina)
     {
       case 'ctrlInventario':
-      this.router.navigate(['control-inventarios']);
+        this.router.navigate(['control-inventarios']);
       break;
       case 'stock':
-        //Aquí va la Stock
+        this.router.navigate(['crear-stock']);
       break;
       case 'proveedores':
-        //Aquí van los proveedores
+        this.router.navigate(['proveedores']);
       break;
       case 'calculadora':
         this.router.navigate(['calculadora']);

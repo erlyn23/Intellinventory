@@ -1,0 +1,27 @@
+<app-cabecera></app-cabecera>
+
+<ion-content color="secondary">
+  <ion-grid>
+    <ion-row *ngIf="stocks.length == 0">
+      <ion-col size="12" style="text-align: center; color: gray; font-style: italic;">
+        <ion-label>No hay productos registrados</ion-label>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-list style="background: white;">
+    <ion-item color="secondary" *ngFor="let stock of stocks, let i = index">
+      <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">
+        {{stock.Nombre}}
+      </ion-button>
+      <ion-button (click)="eliminarStock(i)" color="danger" fill="clear">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+  <ion-fab (click)="abrirModalStock()" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button>
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

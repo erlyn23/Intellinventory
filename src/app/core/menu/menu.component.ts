@@ -91,6 +91,24 @@ export class MenuComponent implements OnInit {
       console.log(err);
     })
   }
+
+  goToStock(){
+    this.router.navigate(['crear-stock'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
+  goToProveedores(){
+    this.router.navigate(['proveedores'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
   
   goToPerfil()
   {
