@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Push, PushObject, PushOptions } from '@ionic-native/push/ngx';
-import { Producto } from 'src/app/models/Producto';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
@@ -53,13 +51,14 @@ export class EntradaComponent implements OnInit {
     {
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
+        const sucursal = this.datos.getSucursal();
         const cedula = this.datos.getCedula();
         const llaveInventario = this.datos.getKey();
         const codigo = this.datos.getCode();
       //Variables que almacenan los datos necesarios para operar en la BD.
 
       //Proceso completo para guardar artículo en la BD
-        this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
+        this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
           Entrada: this.formulario.value.Cantidad
           }).then(()=>{
             this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');

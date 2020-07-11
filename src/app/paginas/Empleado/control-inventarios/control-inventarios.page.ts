@@ -27,7 +27,9 @@ export class ControlInventariosPage implements OnInit {
   ngOnInit() {
     const clave = this.datos.getClave();
     const cedula = this.datos.getCedula();
-    this.ref = this.db.object(clave+'/Inventarios/'+cedula);
+    const sucursal = this.datos.getSucursal();
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+'/'+cedula);
     this.ref.snapshotChanges().subscribe(data=>{
       let invrios = data.payload.val();
       this.inventarios = [];
@@ -73,7 +75,9 @@ export class ControlInventariosPage implements OnInit {
           role: 'confirm',
           cssClass: 'ConfirmarEliminar',
           handler: ()=>{
-            this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()+'/'+this.inventarios[i].key)
+            const claveBar = this.datos.getClave();
+            const sucursal = this.datos.getSucursal();
+            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+this.datos.getCedula()+'/'+this.inventarios[i].key)
             .remove().then(()=>{
               this.servicio.mensaje('toastSuccess', 'Se ha eliminado el inventario');
             }).catch((err)=>{

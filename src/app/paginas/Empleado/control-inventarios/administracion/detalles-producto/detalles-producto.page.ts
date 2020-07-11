@@ -31,11 +31,12 @@ export class DetallesProductoPage implements OnInit {
 
   ngOnInit() {
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
     const codigo = this.datos.getCode();
     
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo);
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo);
     this.ref.snapshotChanges().subscribe(data=>{
       let product = data.payload.val();
       if(product != null){
@@ -124,11 +125,12 @@ export class DetallesProductoPage implements OnInit {
   guardarCambios()
   {
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
     const codigo = this.datos.getCode();
 
-    this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
+    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
       SumaEntrada: this.producto.SumaEntrada,
       TotalExistencia: this.producto.TotalExistencia,
       Diferencia: this.producto.Diferencia,

@@ -32,8 +32,9 @@ export class AdministracionPage implements OnInit {
     const claveBar = this.datos.getClave();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
+    const sucursal = this.datos.getSucursal();
 
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario);
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario);
     this.ref.snapshotChanges().subscribe(data=>{
       let title = data.payload.val();
       if(title != null){
@@ -43,7 +44,7 @@ export class AdministracionPage implements OnInit {
       }
     });
 
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
       let products = data.payload.val();
       this.productos = [];
@@ -88,7 +89,12 @@ export class AdministracionPage implements OnInit {
           role: 'confirm',
           cssClass: 'ConfirmarEliminar',
           handler: ()=>{
-            this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()+'/'+this.datos.getKey()+'/Productos/'+this.productos[i].Codigo)
+            const claveBar = this.datos.getClave();
+            const sucursal = this.datos.getSucursal();
+            const cedula = this.datos.getCedula();
+            const llaveInventario = this.datos.getKey();
+
+            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.productos[i].Codigo)
             .remove().then(()=>{
               this.servicio.mensaje('toastSuccess', 'Se ha eliminado el producto');
             }).catch((err)=>{
@@ -104,11 +110,12 @@ export class AdministracionPage implements OnInit {
   buscarProducto(val:any)
   {
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
 
     this.esBusqueda = true;
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
       let products = data.payload.val();
       this.tempProducts = [];
@@ -139,8 +146,9 @@ export class AdministracionPage implements OnInit {
               const cedula = this.datos.getCedula();
               const clave = this.datos.getClave();
               const llave = this.datos.getKey();
+              const sucursal = this.datos.getSucursal();
               
-              this.db.database.ref(clave+'/Inventarios/'+cedula+'/'+llave).update({Estado: 'Finalizado'})
+              this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llave).update({Estado: 'Finalizado'})
               .then(()=>{
                 this.servicio.mensaje('toastSuccess','Inventario finalizado correctamente');
                 this.goBack();

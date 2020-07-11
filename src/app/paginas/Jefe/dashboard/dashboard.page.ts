@@ -87,7 +87,7 @@ export class DashboardPage implements OnInit {
   abrirEmpleado(i:number)
   {
     this.datos.setCedula(this.empleados[i].Cedula);
-    this.router.navigate(['control-inventarios-jefe']);
+    this.router.navigate(['sucursales-jefe']);
   }
 
 

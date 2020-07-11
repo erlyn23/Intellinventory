@@ -28,11 +28,12 @@ export class CrearProductoComponent implements OnInit {
 
   crearProducto(){
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
 
     if(this.form.valid){
-      this.servicio.insertarenlaBD(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.form.value.Codigo,
+      this.servicio.insertarenlaBD(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.form.value.Codigo,
       {
         Codigo: this.form.value.Codigo,
         Nombre: this.form.value.Nombre,
@@ -49,5 +50,11 @@ export class CrearProductoComponent implements OnInit {
         this.modalCtrl.dismiss();
       })
     }
+  }
+
+  leerCodigo(){
+    this.servicio.leerCodigo().then(codigo=>{
+      this.form.controls.Codigo.setValue(codigo);
+    })
   }
 }

@@ -13,6 +13,8 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 export class CrearInventarioComponent implements OnInit {
 
   form: FormGroup;
+  ref: any;
+  sucursales: any[] = [];
   constructor(private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
     private db: AngularFireDatabase,
@@ -21,15 +23,29 @@ export class CrearInventarioComponent implements OnInit {
 
   ngOnInit() {
     const fecha = new Date();
+    const clave = this.datos.getClave();
+
     this.form = this.formBuilder.group({
       Nombre: ["",[Validators.required, Validators.maxLength(30)]],
-      Fecha: [`${fecha.getDate()}/${(fecha.getMonth() + 1)}/${fecha.getFullYear()}`]
+      Fecha: [`${fecha.getDate()}/${(fecha.getMonth() + 1)}/${fecha.getFullYear()}`],
+      Sucursal: ["",[Validators.required]]
+    })
+    
+    this.ref = this.db.object(clave+'/Sucursales/');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let locales = data.payload.val();
+      this.sucursales = [];
+      for(let i in locales)
+      {
+        locales[i].key = i;
+        this.sucursales.push(locales[i]);
+      }
     })
   }
 
   crearInventario()
   {
-    this.db.database.ref(this.datos.getClave()+'/Inventarios/'+this.datos.getCedula()).push({
+    this.db.database.ref(this.datos.getClave()+'/Sucursales/'+this.form.value.Sucursal+'/Inventarios/'+this.datos.getCedula()).push({
       NombreInventario: this.form.value.Nombre,
       FechaInventario: this.form.value.Fecha,
       Estado: 'En progreso'
@@ -46,4 +62,7 @@ export class CrearInventarioComponent implements OnInit {
     return this.form.get('Nombre');
   }
 
+  get Sucursal(){
+    return this.form.get('Sucursal');
+  }
 }

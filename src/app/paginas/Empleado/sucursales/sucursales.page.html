@@ -1,0 +1,29 @@
+<app-cabecera></app-cabecera>
+
+<ion-content color="secondary">
+
+  <ion-grid>
+    <ion-row *ngIf="sucursales.length == 0">
+      <ion-col style="text-align: center; color: gray; font-style: italic;" size="12">
+        <ion-label>No hay sucursales registradas</ion-label>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-list style="background: white;">
+    <ion-item color="secondary" *ngFor="let sucursal of sucursales, let i = index">
+      <ion-button (click)="goToInventario(i)" color="primary" style="width: 100%;" fill="clear" >
+        {{sucursal.Nombre}}
+      </ion-button>
+      <ion-button (click)="eliminarSucursal(i)" fill="clear" color="danger">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" color="primary">
+    <ion-fab-button (click)="crearSucursal()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

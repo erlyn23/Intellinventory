@@ -62,6 +62,12 @@ export class StockModalComponent implements OnInit {
     }
   }
 
+  leerCodigo(){
+    this.servicio.leerCodigo().then(codigo=>{
+      this.formulario.controls.Codigo.setValue(codigo);
+    })
+  }
+
   goBack()
   {
     this.modalCtrl.dismiss();

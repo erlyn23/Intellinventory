@@ -15,8 +15,8 @@ import { AngularFireStorageModule } from '@angular/fire/storage';
 import { environment } from './../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MenuComponent } from './core/menu/menu.component';
-import { Push } from '@ionic-native/push/ngx';
-import { FileChooser } from '@ionic-native/file-chooser/ngx';
+import { Camera } from '@ionic-native/camera/ngx';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
@@ -32,8 +32,8 @@ import { FileChooser } from '@ionic-native/file-chooser/ngx';
   providers: [
     StatusBar,
     SplashScreen,
-    Push,
-    FileChooser,
+    Camera,
+    BarcodeScanner,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

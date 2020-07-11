@@ -13,6 +13,7 @@ export class DatosService {
   estado:any;
   operacion: any;
   proveedor: any;
+  sucursal: any;
   constructor() { }
 
   //Métodos para obtener la clave del bar
@@ -83,7 +84,7 @@ export class DatosService {
     }
   //Métodos para obtener el tipo de operación del proveedor
 
-    //Métodos para obtener el proveedor
+  //Métodos para obtener el proveedor
     setProveedor(prov: any)
     {
       this.proveedor = prov;
@@ -93,4 +94,15 @@ export class DatosService {
       return this.proveedor;
     }
   //Métodos para obtener el proveedor
+
+  //Métodos para obtener la sucursal
+    setSucursal(sucursal: any)
+    {
+      this.sucursal = sucursal;
+    }
+    getSucursal()
+    {
+      return this.sucursal;
+    }
+  //Métodos para obtener la sucursal
 }

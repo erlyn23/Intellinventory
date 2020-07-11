@@ -29,12 +29,13 @@ export class NotasComponent implements OnInit {
   {
     //Variables que almacenan los datos necesarios para operar en la BD.
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
     const codigo = this.datos.getCode();
     //Variables que almacenan los datos necesarios para operar en la BD.{
     //Proceso completo para guardar artículo en la BD
-    this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update(
+    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update(
     {
       Nota: this.formulario.value.Nota,
     }).then(()=>{

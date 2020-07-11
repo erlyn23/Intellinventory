@@ -26,10 +26,11 @@ export class AdministracionPage implements OnInit {
 
   ngOnInit() {
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
 
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario);
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario);
     this.ref.snapshotChanges().subscribe(data=>{
       let title = data.payload.val();
       if(title != null){
@@ -39,7 +40,7 @@ export class AdministracionPage implements OnInit {
       }
     });
 
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
       let products = data.payload.val();
       this.productos = [];
@@ -60,9 +61,10 @@ export class AdministracionPage implements OnInit {
     const claveBar = this.datos.getClave();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
+    const sucursal = this.datos.getSucursal();
 
     this.esBusqueda = true;
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
       let products = data.payload.val();
       this.tempProducts = [];

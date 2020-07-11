@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { Producto } from 'src/app/models/Producto';
 import { ModalController, AlertController } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
@@ -41,12 +40,13 @@ export class SalidaComponent implements OnInit {
     {
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
+        const sucursal = this.datos.getSucursal();
         const cedula = this.datos.getCedula();
         const llaveInventario = this.datos.getKey();
         const codigo = this.datos.getCode();
       //Variables que almacenan los datos necesarios para operar en la BD.{
         //Proceso completo para guardar artículo en la BD
-        this.db.database.ref(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update(
+        this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update(
         {
           Salida: this.formulario.value.Cantidad,
         }).then(()=>{

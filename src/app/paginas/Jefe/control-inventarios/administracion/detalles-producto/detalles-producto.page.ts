@@ -21,11 +21,12 @@ export class DetallesProductoPage implements OnInit {
 
   ngOnInit() {
     const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const llaveInventario = this.datos.getKey();
     const codigo = this.datos.getCode();
     
-    this.ref = this.db.object(claveBar+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo);
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo);
     this.ref.snapshotChanges().subscribe(data=>{
       let product = data.payload.val();
       if(product != null){

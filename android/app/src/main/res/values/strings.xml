@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Intellinventory</string>
+    <string name="title_activity_main">Intellinventory</string>
+    <string name="package_name">com.erlynetv.intellinventory</string>
+    <string name="custom_url_scheme">com.erlynetv.intellinventory</string>
+</resources>

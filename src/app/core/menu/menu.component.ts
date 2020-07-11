@@ -82,9 +82,9 @@ export class MenuComponent implements OnInit {
     })
   }
 
-  goToControl()
+  goToSucursales()
   {
-    this.router.navigate(['control-inventarios'])
+    this.router.navigate(['sucursales'])
     .then(()=>{
       this.menuCtrl.toggle();
     }).catch(err=>{

@@ -4,7 +4,9 @@ import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { AlertController, PopoverController } from '@ionic/angular';
-import { Plugins } from '@capacitor/core';
+import { Plugins} from '@capacitor/core';
+import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
+import * as firebase from 'firebase/app';
 
 const { Storage } = Plugins;
 
@@ -22,7 +24,8 @@ export class FotoPopoverComponent implements OnInit {
     private datos: DatosService,
     private servicio: GeneralService,
     private db: AngularFireDatabase,
-    private storage: AngularFireStorage) { }
+    private storage: AngularFireStorage, 
+    private camera: Camera) { }
 
   ngOnInit() {}
 
@@ -60,6 +63,42 @@ export class FotoPopoverComponent implements OnInit {
           })
         })
       }
+    })
+  }
+
+  tomarFoto(){
+    const options: CameraOptions ={
+      quality: 100,
+      destinationType: this.camera.DestinationType.FILE_URI,
+      encodingType: this.camera.EncodingType.JPEG,
+      mediaType: this.camera.MediaType.PICTURE
+    }
+
+    this.camera.getPicture(options).then(imageData=>{
+      let base64 = 'data:image/jpeg; base64,'+imageData;
+      this.getPosicion().then(pos=>{
+        if(pos.value == 'jefe'){
+          const uid = this.datos.getClave();
+          const storageRef = firebase.storage().ref().child(`PerfilJefe/${uid}`).putString(base64, firebase.storage.StringFormat.DATA_URL)
+          .then(()=>{
+            this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
+            this.popoverCtrl.dismiss();
+          }).catch(err=>{
+            this.servicio.mensaje('customToast', err);
+          })
+        }else{
+          const cedula = this.datos.getCedula();
+          const storageRef = firebase.storage().ref().child(`Perfil/${cedula}`).putString(base64, firebase.storage.StringFormat.DATA_URL)
+          .then(()=>{
+            this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
+            this.popoverCtrl.dismiss();
+          }).catch(err=>{
+            this.servicio.mensaje('customToast', err);
+          })
+        }
+        
+      })
+      
     })
   }
 

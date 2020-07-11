@@ -102,6 +102,9 @@ export class DashboardPage implements OnInit {
       case 'ctrlInventario':
         this.router.navigate(['control-inventarios']);
       break;
+      case 'sucursales':
+        this.router.navigate(['sucursales']);
+      break;
       case 'stock':
         this.router.navigate(['crear-stock']);
       break;

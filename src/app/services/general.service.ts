@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
+import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,8 @@ import { AngularFireDatabase } from '@angular/fire/database';
 export class GeneralService {
 
   constructor(private toastCtrl: ToastController,
-    private db:AngularFireDatabase) { }
+    private db:AngularFireDatabase,
+    private barcode: BarcodeScanner) { }
 
   async mensaje(clase:any,message:any)
   {
@@ -23,5 +25,9 @@ export class GeneralService {
   insertarenlaBD(ruta:any, datos:any)
   {
     return this.db.database.ref(ruta).set(datos);
+  }
+
+  async leerCodigo(){
+    return await this.barcode.scan();
   }
 }
