@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 
-import { Platform } from '@ionic/angular';
+import { Platform, AlertController } from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { ConnectionService } from 'ng-connection-service';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +11,16 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
+  hayConexion: boolean;
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
-    private statusBar: StatusBar
+    private statusBar: StatusBar,
+    private alertCtrl: AlertController,
+    private conexion: ConnectionService
   ) {
     this.initializeApp();
+    this.checkConnection();
   }
 
   initializeApp() {
@@ -23,5 +28,29 @@ export class AppComponent {
       this.statusBar.styleDefault();
       this.splashScreen.hide();
     });
+  }
+  
+  async alert(){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'customAlert',
+      header: 'Información',
+      message: 'Error: No se ha detectado conexión a internet',
+      buttons:[
+        {
+          cssClass: 'ConfirmarEliminar',
+          role: 'cancel',
+          text: 'Aceptar',
+        }
+      ]
+    })
+  }
+
+  checkConnection(){
+    this.conexion.monitor().subscribe(hayConexion=>{
+      this.hayConexion = hayConexion;
+      if(!this.hayConexion){
+        this.alert();
+      }
+    })
   }
 }

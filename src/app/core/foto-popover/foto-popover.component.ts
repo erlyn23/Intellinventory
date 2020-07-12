@@ -37,82 +37,6 @@ export class FotoPopoverComponent implements OnInit {
     return (await Storage.get({key: 'posicion'}));
   }
 
-  // obtenerPerfil()
-  // {
-  //   this.getPosicion().then(pos=>{
-  //     if(pos.value == 'jefe'){
-  //       const clave = this.datos.getClave();
-
-  //       this.ref = this.db.object(clave+'/Jefe/FotoPerfil');
-  //       this.ref.snapshotChanges().subscribe(data=>{
-  //         let foto = data.payload.val();
-  //         const directorioFoto = this.storage.ref(foto.Ruta);
-  //         directorioFoto.getDownloadURL().subscribe(url=>{
-  //           this.imagen = url;
-  //         })
-  //       })
-        
-  //     }else{
-  //       const clave = this.datos.getClave();
-  //       const cedula = this.datos.getCedula();
-    
-  //       this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
-  //       this.ref.snapshotChanges().subscribe(data=>{
-  //         let foto = data.payload.val();
-  //         const directorioFoto = this.storage.ref(foto.Ruta);
-  //         directorioFoto.getDownloadURL().subscribe(url=>{
-  //           this.imagen = url;
-  //         })
-  //       })
-  //     }
-  //   })
-  // }
-
-  tomarFoto(){
-    const options: CameraOptions ={
-      quality: 100,
-      destinationType: this.camera.DestinationType.FILE_URI,
-      encodingType: this.camera.EncodingType.JPEG,
-      mediaType: this.camera.MediaType.PICTURE
-    }
-
-    this.camera.getPicture(options).then(imageData=>{
-      let base64 = 'data:image/jpeg; base64,'+imageData;
-      this.getPosicion().then(pos=>{
-        if(pos.value == 'jefe'){
-          const uid = this.datos.getClave();
-          const storageRef = firebase.storage().ref().child(`PerfilJefe/${uid}`).putString(base64, firebase.storage.StringFormat.DATA_URL)
-          .then(()=>{
-            this.db.database.ref(uid+'/Jefe/FotoPerfil').set({
-              Ruta: `PerfilJefe/${uid}`
-            }).then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
-              this.popoverCtrl.dismiss();
-            })
-          }).catch(err=>{
-            this.servicio.mensaje('customToast', err);
-          })
-        }else{
-          const clave = this.datos.getClave();
-          const cedula = this.datos.getCedula();
-          const storageRef = firebase.storage().ref().child(`Perfil/${cedula}`).putString(base64, firebase.storage.StringFormat.DATA_URL)
-          .then(()=>{
-            this.db.database.ref(clave+'/Empleados/'+cedula+'/FotoPerfil').set({
-              Ruta: `Perfil/${cedula}`
-            }).then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
-              this.popoverCtrl.dismiss();
-            })
-          }).catch(err=>{
-            this.servicio.mensaje('customToast', err);
-          })
-        }
-        
-      })
-      
-    })
-  }
-
   async abrirAlert(ruta:any)
   {
     const alert = await this.alertCtrl.create({
@@ -145,7 +69,6 @@ export class FotoPopoverComponent implements OnInit {
                     this.popoverCtrl.dismiss();
                   }
                 });
-               // this.obtenerPerfil();
               }else{
                 const fileRef = this.storage.ref(ruta);
                 const tarea = this.storage.upload(ruta, this.imagen);
@@ -165,9 +88,8 @@ export class FotoPopoverComponent implements OnInit {
                 this.popoverCtrl.dismiss();
               }
             });
-            //this.obtenerPerfil();
-              }
-            })
+            }
+          })
           }
         },
         {

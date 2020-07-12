@@ -17,7 +17,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MenuComponent } from './core/menu/menu.component';
 import { Camera } from '@ionic-native/camera/ngx';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-
+import { ConnectionServiceModule } from 'ng-connection-service';
+ 
 @NgModule({
   declarations: [AppComponent, MenuComponent],
   entryComponents: [],
@@ -27,6 +28,7 @@ import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireStorageModule,
+    ConnectionServiceModule,
     AngularFireAuthModule,
     BrowserAnimationsModule],
   providers: [

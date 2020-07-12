@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController } from '@ionic/angular';
+import { MenuController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -24,11 +24,13 @@ export class LoginPage implements OnInit {
   encontrado: number = 0;
 
   constructor(private menuCtrl: MenuController,
+    private alertCtrl: AlertController,
     private servicio: GeneralService,
     private datos: DatosService,
     private auth:AngularFireAuth,
     private db: AngularFireDatabase,
-    private router: Router) { }
+    private router: Router,) { 
+    }
 
   ngOnInit() {
     this.encontrado = 0;
@@ -52,8 +54,9 @@ export class LoginPage implements OnInit {
         }else
         {
           this.getUsuario('cedula').then(ced=>{
-            this.ref = this.db.object('EmpleadosActivos/'+ced.value);
-            this.ref.snapshotChanges().subscribe(data=>{
+            if(ced.value != null){
+              this.ref = this.db.object('EmpleadosActivos/'+ced.value);
+              this.ref.snapshotChanges().subscribe(data=>{
               let activos = data.payload.val();
               if(activos != null)
               {
@@ -64,9 +67,10 @@ export class LoginPage implements OnInit {
                     this.encontrado = 0;
                   });
               }else{
-                this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema: '+ ced.value);
+                this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
               }
             })
+            }
           })
         }
       })
