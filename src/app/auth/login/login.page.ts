@@ -49,27 +49,22 @@ export class LoginPage implements OnInit {
           }).catch((err)=>{
             this.servicio.mensaje('customToast',err);
           })
-        }else if(pos.value == 'empleado')
+        }else
         {
           this.getUsuario('cedula').then(ced=>{
-            this.ref = this.db.object('EmpleadosActivos');
+            this.ref = this.db.object('EmpleadosActivos/'+ced.value);
             this.ref.snapshotChanges().subscribe(data=>{
               let activos = data.payload.val();
-              for(let i in activos)
+              if(activos != null)
               {
-                activos[i].key = i;
-                if(ced.value == activos[i].key)
-                {
-                  this.datos.setClave(activos[i].CodigoActivacion);
+                  this.datos.setClave(activos.CodigoActivacion);
                   this.datos.setCedula(ced.value);
                   this.encontrado = 1;
                   this.router.navigate(['dashboard']).then(()=>{
                     this.encontrado = 0;
                   });
-                }
-              }
-              if(this.encontrado == 0){
-                this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
+              }else{
+                this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema: '+ ced.value);
               }
             })
           })
@@ -147,31 +142,22 @@ export class LoginPage implements OnInit {
 
   iniciarEmpleado()
   {
-    this.ref = this.db.object('EmpleadosActivos');
+    this.ref = this.db.object('EmpleadosActivos/'+this.empleado.codigo);
     this.ref.snapshotChanges().subscribe(data=>{
       let activos = data.payload.val();
-      for(let i in activos)
+      if(activos != null)
       {
-        activos[i].key = i;
-        if(this.empleado.codigo == activos[i].key)
-        {
-          this.encontrado = 1;
-          if(this.empleado.sesionIniciada){
-            this.guardarUsuario('posicion', 'empleado')
-            this.guardarUsuario('cedula', this.empleado.codigo);
-          }
-          this.datos.setCedula(this.empleado.codigo);
-          this.datos.setClave(activos[i].CodigoActivacion);
-          this.router.navigate(['dashboard']).then(()=>{
-            this.encontrado = 0;
-          });
+        if(this.empleado.sesionIniciada){
+          this.guardarUsuario('cedula', this.empleado.codigo.toString());
         }
-      }
-      if(this.encontrado == 0){
-
+        this.guardarUsuario('posicion','empleado');
+        this.datos.setCedula(this.empleado.codigo);
+        this.datos.setClave(activos.CodigoActivacion);
+        this.router.navigate(['dashboard'])
+      }else{
         this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
       }
-    })
+    });
   }
 
 }

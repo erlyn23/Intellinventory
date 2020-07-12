@@ -17,7 +17,7 @@ export class DashboardPage implements OnInit {
 
   nombre: any;
   ref: any;
-  imagen: any;
+  imagen: any = "";
   constructor(private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private datos: DatosService,
@@ -50,6 +50,7 @@ export class DashboardPage implements OnInit {
     this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
     this.ref.snapshotChanges().subscribe(data=>{
       let foto = data.payload.val();
+      this.imagen = "";
       if(foto != null)
       {
         const directorioFoto = this.storage.ref(foto.Ruta);

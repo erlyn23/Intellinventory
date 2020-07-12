@@ -3,10 +3,11 @@ import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { AlertController, PopoverController } from '@ionic/angular';
+import { AlertController, PopoverController, ModalController } from '@ionic/angular';
 import { Plugins} from '@capacitor/core';
 import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
 import * as firebase from 'firebase/app';
+import { AlertPersonalizadoComponent } from '../alert-personalizado/alert-personalizado.component';
 
 const { Storage } = Plugins;
 
@@ -20,6 +21,7 @@ export class FotoPopoverComponent implements OnInit {
   imagen: any;
   ref: any;
   constructor(private alertCtrl: AlertController,
+    private modalCtrl: ModalController,
     private popoverCtrl:PopoverController,
     private datos: DatosService,
     private servicio: GeneralService,
@@ -35,36 +37,36 @@ export class FotoPopoverComponent implements OnInit {
     return (await Storage.get({key: 'posicion'}));
   }
 
-  obtenerPerfil()
-  {
-    this.getPosicion().then(pos=>{
-      if(pos.value == 'jefe'){
-        const clave = this.datos.getClave();
+  // obtenerPerfil()
+  // {
+  //   this.getPosicion().then(pos=>{
+  //     if(pos.value == 'jefe'){
+  //       const clave = this.datos.getClave();
 
-        this.ref = this.db.object(clave+'/Jefe/FotoPerfil');
-        this.ref.snapshotChanges().subscribe(data=>{
-          let foto = data.payload.val();
-          const directorioFoto = this.storage.ref(foto.Ruta);
-          directorioFoto.getDownloadURL().subscribe(url=>{
-            this.imagen = url;
-          })
-        })
+  //       this.ref = this.db.object(clave+'/Jefe/FotoPerfil');
+  //       this.ref.snapshotChanges().subscribe(data=>{
+  //         let foto = data.payload.val();
+  //         const directorioFoto = this.storage.ref(foto.Ruta);
+  //         directorioFoto.getDownloadURL().subscribe(url=>{
+  //           this.imagen = url;
+  //         })
+  //       })
         
-      }else{
-        const clave = this.datos.getClave();
-        const cedula = this.datos.getCedula();
+  //     }else{
+  //       const clave = this.datos.getClave();
+  //       const cedula = this.datos.getCedula();
     
-        this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
-        this.ref.snapshotChanges().subscribe(data=>{
-          let foto = data.payload.val();
-          const directorioFoto = this.storage.ref(foto.Ruta);
-          directorioFoto.getDownloadURL().subscribe(url=>{
-            this.imagen = url;
-          })
-        })
-      }
-    })
-  }
+  //       this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
+  //       this.ref.snapshotChanges().subscribe(data=>{
+  //         let foto = data.payload.val();
+  //         const directorioFoto = this.storage.ref(foto.Ruta);
+  //         directorioFoto.getDownloadURL().subscribe(url=>{
+  //           this.imagen = url;
+  //         })
+  //       })
+  //     }
+  //   })
+  // }
 
   tomarFoto(){
     const options: CameraOptions ={
@@ -81,17 +83,26 @@ export class FotoPopoverComponent implements OnInit {
           const uid = this.datos.getClave();
           const storageRef = firebase.storage().ref().child(`PerfilJefe/${uid}`).putString(base64, firebase.storage.StringFormat.DATA_URL)
           .then(()=>{
-            this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
-            this.popoverCtrl.dismiss();
+            this.db.database.ref(uid+'/Jefe/FotoPerfil').set({
+              Ruta: `PerfilJefe/${uid}`
+            }).then(()=>{
+              this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
+              this.popoverCtrl.dismiss();
+            })
           }).catch(err=>{
             this.servicio.mensaje('customToast', err);
           })
         }else{
+          const clave = this.datos.getClave();
           const cedula = this.datos.getCedula();
           const storageRef = firebase.storage().ref().child(`Perfil/${cedula}`).putString(base64, firebase.storage.StringFormat.DATA_URL)
           .then(()=>{
-            this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
-            this.popoverCtrl.dismiss();
+            this.db.database.ref(clave+'/Empleados/'+cedula+'/FotoPerfil').set({
+              Ruta: `Perfil/${cedula}`
+            }).then(()=>{
+              this.servicio.mensaje('toastSuccess', 'Foto subida correctamente');
+              this.popoverCtrl.dismiss();
+            })
           }).catch(err=>{
             this.servicio.mensaje('customToast', err);
           })
@@ -105,15 +116,16 @@ export class FotoPopoverComponent implements OnInit {
   async abrirAlert(ruta:any)
   {
     const alert = await this.alertCtrl.create({
-      cssClass: 'confirmarSubir',
+      cssClass: 'customAlert',
       header: 'Confirmar',
       message: '¿Estás seguro de querer subir este archivo?',
       buttons:[
         {
-          cssClass:'Confirmar',
+          cssClass:'CancelarEliminar',
           role: 'confirm',
           text: 'Confirmar',
           handler: ()=>{
+            this.cargando();
             this.getPosicion().then(pos=>{
               if(pos.value == 'jefe'){
                 const fileRef = this.storage.ref(ruta);
@@ -122,14 +134,18 @@ export class FotoPopoverComponent implements OnInit {
                   if(porcent == 100)
                   {
                     const clave = this.datos.getClave();
+                    this.modalCtrl.dismiss();
                     this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
+                    this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ''}).catch(err=>{
+                      this.servicio.mensaje('customToast',err);
+                    });
                     this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ruta}).catch(err=>{
                       this.servicio.mensaje('customToast',err);
                     });
                     this.popoverCtrl.dismiss();
                   }
                 });
-                this.obtenerPerfil();
+               // this.obtenerPerfil();
               }else{
                 const fileRef = this.storage.ref(ruta);
                 const tarea = this.storage.upload(ruta, this.imagen);
@@ -138,20 +154,24 @@ export class FotoPopoverComponent implements OnInit {
                   {
                     const clave = this.datos.getClave();
                     const cedula = this.datos.getCedula();
+                    this.modalCtrl.dismiss();
                     this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
+                    this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ''}).catch(err=>{
+                      this.servicio.mensaje('customToast', err);
+                    });
                     this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ruta}).catch(err=>{
                     this.servicio.mensaje('customToast',err);
                   });
                 this.popoverCtrl.dismiss();
               }
             });
-            this.obtenerPerfil();
+            //this.obtenerPerfil();
               }
             })
           }
         },
         {
-          cssClass:'Cancelar',
+          cssClass:'ConfirmarEliminar',
           role: 'cancel',
           text: 'Cancelar',
           handler: ()=>{
@@ -161,6 +181,14 @@ export class FotoPopoverComponent implements OnInit {
       ]
     });
     return await alert.present();
+  }
+
+  async cargando(){
+    const modal = await this.modalCtrl.create({
+      cssClass: 'alertDisfrazado',
+      component: AlertPersonalizadoComponent,
+    });
+    (await modal).present();
   }
 
   subirImagen(ev: any)

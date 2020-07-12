@@ -16,7 +16,7 @@ export class EditarPerfilPage implements OnInit {
 
   form: FormGroup;
   ref: any;
-  imagen: any;
+  imagen: any = "";
   constructor(private menuCtrl: MenuController,
     private popoverCtrl: PopoverController, 
     private formBuilder: FormBuilder,
@@ -54,6 +54,7 @@ export class EditarPerfilPage implements OnInit {
     this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
     this.ref.snapshotChanges().subscribe(data=>{
       let foto = data.payload.val();
+      this.imagen = "";
       const directorioFoto = this.storage.ref(foto.Ruta);
       directorioFoto.getDownloadURL().subscribe(url=>{
         this.imagen = url;

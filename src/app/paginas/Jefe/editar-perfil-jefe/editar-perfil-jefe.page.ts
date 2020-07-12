@@ -17,7 +17,7 @@ export class EditarPerfilJefePage implements OnInit {
 
   form: FormGroup;
   ref: any;
-  imagen: any;
+  imagen: any = "";
   constructor(private menuCtrl: MenuController,
     private modalCtrl: ModalController,
     private popoverCtrl: PopoverController, 
@@ -59,6 +59,7 @@ export class EditarPerfilJefePage implements OnInit {
     this.ref = this.db.object(clave+'/Jefe/FotoPerfil');
     this.ref.snapshotChanges().subscribe(data=>{
       let foto = data.payload.val();
+      this.imagen = "";
       if(foto != null)
       {
         const directorioFoto = this.storage.ref(foto.Ruta);

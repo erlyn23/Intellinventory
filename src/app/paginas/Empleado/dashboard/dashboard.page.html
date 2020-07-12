@@ -2,13 +2,20 @@
 <ion-content color="secondary">
     <ion-grid>
         <ion-row>
-            <ion-col size="3"> 
-                <img class="perfil" src="./../../../../assets/user.png" *ngIf="imagen == null">
-                <img class="perfil" [src]="imagen" *ngIf="imagen != null">
+            <ion-col size="4"></ion-col>
+            <ion-col size="4" style="display: flex; justify-content: center;"> 
+                <img class="perfil" src="./../../../../assets/user.png" *ngIf="imagen == ''">
+                <div style="background: url({{imagen}}); 
+                background-size: 100% 100%; 
+                width: 125px; 
+                height: 125px; 
+                border-radius: 100px;" *ngIf="imagen != ''"></div>
             </ion-col>
-            <ion-col size="9">
-                <ion-row>&nbsp;</ion-row>
-                <ion-title>Bienvenido, {{nombre}}</ion-title>
+            <ion-col size="4"></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12" style="text-align: center;">
+                <h1>Bienvenido, {{nombre}}</h1>
             </ion-col>
         </ion-row>
         <ion-row>
