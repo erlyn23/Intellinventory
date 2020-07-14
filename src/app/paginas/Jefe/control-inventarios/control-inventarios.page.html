@@ -3,6 +3,13 @@
 
 <ion-content color="secondary">
 
+  <ion-grid>
+    <ion-row>
+      <ion-col style="text-align: center;" size="12">
+        <ion-title>Listado de inventarios</ion-title>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   <ion-row *ngIf="inventarios.length == 0">
     <ion-col size="12" style="text-align: center; font-style: italic; color:gray;">
       <p>No hay inventarios registrados aún.</p>

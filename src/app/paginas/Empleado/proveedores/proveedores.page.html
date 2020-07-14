@@ -2,13 +2,17 @@
 
 <ion-content color="secondary">
   <ion-grid>
+    <ion-row>
+      <ion-col style="text-align: center;" size="12">
+        <ion-title>Listado de proveedores</ion-title>
+      </ion-col>
+    </ion-row>
     <ion-row *ngIf="proveedores.length == 0">
       <ion-col size="12" style="text-align: center; color: gray; font-style: italic;">
         <ion-label>No hay proveedores registrados</ion-label>
       </ion-col>
     </ion-row>
   </ion-grid>
-
   <ion-list style="background: white;">
     <ion-item color="secondary" *ngFor="let proveedor of proveedores, let i = index">
       <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">

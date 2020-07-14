@@ -1,6 +1,13 @@
 <app-cabecera-jefe></app-cabecera-jefe>
 
 <ion-content color="secondary">
+  <ion-grid>
+    <ion-row>
+      <ion-col style="text-align: center;" size="12">
+        <ion-title>Listado de empleados</ion-title>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
   <ion-list style="background: white;">
     <ion-item color="secondary" *ngFor="let emp of empleados, let i = index">
       <ion-button (click)="abrirEmpleado(i)" style="width: 100%;" expand="full" fill="clear">

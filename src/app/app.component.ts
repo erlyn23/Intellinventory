@@ -3,6 +3,9 @@ import { Platform, AlertController} from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { ConnectionService } from 'ng-connection-service';
+import { GeneralService } from './services/general.service';
+import { AngularFireDatabase } from '@angular/fire/database';
+
  
 @Component({
   selector: 'app-root',
@@ -11,12 +14,15 @@ import { ConnectionService } from 'ng-connection-service';
 })
 export class AppComponent {
   hayConexion: boolean;
+  ref: any;
   constructor(
     private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private alertCtrl: AlertController,
-    private conexion: ConnectionService
+    private conexion: ConnectionService,
+    private servicio: GeneralService,
+    private db: AngularFireDatabase
   ) {
     this.initializeApp();
     this.checkConnection();
@@ -28,7 +34,7 @@ export class AppComponent {
       this.splashScreen.hide();
     });
   }
-  
+
   async alert(){
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',

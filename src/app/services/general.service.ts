@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { Plugins } from '@capacitor/core';
+
+const { Storage } = Plugins;
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +28,10 @@ export class GeneralService {
   insertarenlaBD(ruta:any, datos:any)
   {
     return this.db.database.ref(ruta).set(datos);
+  }
+
+  async getDatos(llave:any){
+    return (await Storage).get({key: llave});
   }
 
   async leerCodigo(){

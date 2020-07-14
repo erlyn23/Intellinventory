@@ -41,6 +41,7 @@ export class LoginPage implements OnInit {
               if(usr.value != null && pss.value != null){
                 this.auth.signInWithEmailAndPassword(usr.value, pss.value).then(()=>{
                   this.auth.currentUser.then(usr=>{
+                    this.guardarUsuario('clave',usr.uid);
                     this.datos.setClave(usr.uid);
                     this.router.navigate(['dashboardjefe']);
                   });
@@ -125,6 +126,7 @@ export class LoginPage implements OnInit {
           this.guardarUsuario('password', this.jefe.password);
         }
         this.guardarUsuario('posicion','jefe');
+        this.guardarUsuario('clave',usr.uid);
         this.router.navigate(['dashboardjefe']).then(()=>{
           this.jefe.correo = "";
           this.jefe.password = "";

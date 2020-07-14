@@ -19,7 +19,6 @@ export class DashboardPage implements OnInit {
   empleados: any[];
   ref:any;
   constructor(private router: Router, 
-    private navCtrl: NavController,
     private modalCtrl: ModalController,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
@@ -28,9 +27,9 @@ export class DashboardPage implements OnInit {
     private datos:DatosService) { 
       LocalNotifications.requestPermission().then((hasPermission)=>{
         if(hasPermission.granted){
-
+  
         }
-      })
+      });
     }
 
   ngOnInit() {
@@ -43,21 +42,7 @@ export class DashboardPage implements OnInit {
         this.empleados.push(employees[i]);
       }
     })
-
-    this.ref = this.db.object(this.datos.getClave()+'/ParaNotificaciones/Entrada');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let datos = data.payload.val();
-      this.enviarNotificacion(datos.NombreEmpleado + ' hizo una entrada', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
-    })
-
-    this.ref = this.db.object(this.datos.getClave()+'/ParaNotificaciones/Salida');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let datos = data.payload.val();
-      this.enviarNotificacion(datos.NombreEmpleado + ' hizo una salida', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
-
-    })
   }
-
 
   async enviarNotificacion(titulo:any, mensaje:any){
     const notifs = await LocalNotifications.schedule({
@@ -75,6 +60,28 @@ export class DashboardPage implements OnInit {
     });
   }
 
+  notificacionesCerradas() {
+    this.servicio.getDatos('posicion').then(pos=>{
+      if(pos.value == 'jefe'){
+        this.servicio.getDatos('clave').then(clave=>{
+          if(clave.value != null || clave.value != ''){
+            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Entrada');
+            this.ref.snapshotChanges().subscribe(data=>{
+              let datos = data.payload.val();
+              this.enviarNotificacion(datos.NombreEmpleado + ':Entrada', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+            })
+        
+            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Salida');
+            this.ref.snapshotChanges().subscribe(data=>{
+              let datos = data.payload.val();
+              this.enviarNotificacion(datos.NombreEmpleado + ':Salida', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+        
+            })
+          }
+        })
+      }
+    })
+  }
   
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'second');
