@@ -44,6 +44,10 @@ export class CrearInventarioComponent implements OnInit {
     })
   }
 
+  goBack(){
+    this.modalCtrl.dismiss();
+  }
+
   get Nombre()
   {
     return this.form.get('Nombre');
