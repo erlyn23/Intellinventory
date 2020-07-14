@@ -4,10 +4,6 @@ import { ModalController, AlertController } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
-import { Plugins } from '@capacitor/core';
-
-const { Storage } = Plugins;
-
 @Component({
   selector: 'app-salida',
   templateUrl: './salida.component.html',
@@ -16,28 +12,55 @@ const { Storage } = Plugins;
 export class SalidaComponent implements OnInit {
 
   formulario: FormGroup;
+  ref: any;
+  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:''}
   constructor(private formBuilder:FormBuilder,
     private modalCtrl: ModalController,
-    private alertCtrl: AlertController,
     private datos:DatosService,
     private servicio: GeneralService,
     private db: AngularFireDatabase) { }
 
   ngOnInit() {
+
+    const clave = this.datos.getClave();
+    const cedula = this.datos.getCedula();
+    const sucursal = this.datos.getSucursal();
+    const inventario = this.datos.getKey();
+    const producto = this.datos.getCode();
+
     this.formulario = this.formBuilder.group({
       Cantidad: ["",[Validators.required]],
     });
+
+    this.ref = this.db.object(clave+'/Empleados/'+cedula);
+    this.ref.snapshotChanges().subscribe(data=>{
+      let nombre = data.payload.val();
+      this.datos.setNombreEmpleado(nombre.Nombre);
+    });
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/NombreInventario');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let nombre = data.payload.val();
+      this.datos.setNombreInventario(nombre);
+    });
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/Nombre');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let nombre = data.payload.val();
+      this.necesarios.nombreProducto = nombre;
+      this.datos.setNombreProducto(nombre);
+    });
   }
   
-  async getJefe(llave:any)
-  {
-    return (await Storage.get(llave));
-  }
-
   SalidaProducto()
   {
     if(this.formulario.valid)
     {
+      this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
+      this.necesarios.nombreInventario = this.datos.getNombreInventario();
+      this.necesarios.nombreProducto = this.datos.getNombreProducto();
+
+      console.log(this.necesarios);
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
@@ -51,13 +74,13 @@ export class SalidaComponent implements OnInit {
           Salida: this.formulario.value.Cantidad,
         }).then(()=>{
           this.servicio.mensaje('toastSuccess','Salida hecha correctamente');
-          this.modalCtrl.dismiss();
-          this.getJefe('posicion').then(data=>{
-            if(data.value == 'jefe')
-            {
-              //Aquí va el código de las notificaciones.
-            }
+          this.db.database.ref(claveBar+'/ParaNotificaciones/Salida').set({
+            NombreEmpleado: this.necesarios.nombreEmpleado,
+            NombreInventario: this.necesarios.nombreInventario,
+            NombreProducto: this.necesarios.nombreProducto,
+            Salida: this.formulario.value.Cantidad,
           });
+          this.modalCtrl.dismiss();
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });

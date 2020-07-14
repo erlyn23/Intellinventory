@@ -16,7 +16,6 @@ export class DatosService {
   operacion: any;
   proveedor: any;
   sucursal: any;
-  sendNot: any;
   constructor() { }
 
   //Métodos para obtener la clave del bar
@@ -108,4 +107,41 @@ export class DatosService {
       return this.sucursal;
     }
   //Métodos para obtener la sucursal
+
+  //Métodos para obtener datos necesarios
+    nombreEmpleado: any;
+    nombreInventario: any;
+    nombreProducto: any;
+
+    setNombreEmpleado(nombre:any)
+    {
+      this.nombreEmpleado = nombre;
+    }
+
+    setNombreInventario(nombre:any)
+    {
+      this.nombreInventario = nombre;
+    }
+
+    setNombreProducto(nombre:any)
+    {
+      this.nombreProducto = nombre;
+    }
+
+    getNombreEmpleado()
+    {
+      return this.nombreEmpleado;
+    }
+
+    getNombreInventario()
+    {
+      return this.nombreInventario;
+    }
+
+    getNombreProducto()
+    {
+      return this.nombreProducto;
+    }
+
+  //Métodos para obtener datos necesarios
 }

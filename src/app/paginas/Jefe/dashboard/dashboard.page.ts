@@ -5,6 +5,9 @@ import { ModalCrearComponent } from './modal-crear/modal-crear.component';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { DatosService } from 'src/app/services/datos.service';
+import { Plugins } from '@capacitor/core';
+
+const { LocalNotifications } = Plugins;
 
 @Component({
   selector: 'app-dashboard',
@@ -22,7 +25,13 @@ export class DashboardPage implements OnInit {
     private alertCtrl: AlertController,
     private db:AngularFireDatabase,
     private servicio: GeneralService,
-    private datos:DatosService) { }
+    private datos:DatosService) { 
+      LocalNotifications.requestPermission().then((hasPermission)=>{
+        if(hasPermission.granted){
+
+        }
+      })
+    }
 
   ngOnInit() {
     this.ref = this.db.object(this.datos.getClave()+'/Empleados')
@@ -34,7 +43,38 @@ export class DashboardPage implements OnInit {
         this.empleados.push(employees[i]);
       }
     })
+
+    this.ref = this.db.object(this.datos.getClave()+'/ParaNotificaciones/Entrada');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let datos = data.payload.val();
+      this.enviarNotificacion(datos.NombreEmpleado + ' hizo una entrada', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+    })
+
+    this.ref = this.db.object(this.datos.getClave()+'/ParaNotificaciones/Salida');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let datos = data.payload.val();
+      this.enviarNotificacion(datos.NombreEmpleado + ' hizo una salida', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+
+    })
   }
+
+
+  async enviarNotificacion(titulo:any, mensaje:any){
+    const notifs = await LocalNotifications.schedule({
+      notifications: [
+        {
+          title: titulo,
+          body: mensaje,
+          id: 1,
+          sound: null,
+          attachments: null,
+          actionTypeId: "",
+          extra: null
+        }
+      ]
+    });
+  }
+
   
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'second');
