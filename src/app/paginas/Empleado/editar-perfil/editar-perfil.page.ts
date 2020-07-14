@@ -55,10 +55,14 @@ export class EditarPerfilPage implements OnInit {
     this.ref.snapshotChanges().subscribe(data=>{
       let foto = data.payload.val();
       this.imagen = "";
-      const directorioFoto = this.storage.ref(foto.Ruta);
-      directorioFoto.getDownloadURL().subscribe(url=>{
-        this.imagen = url;
-      })
+      if(foto != null){
+        const directorioFoto = this.storage.ref(foto.Ruta);
+        if(foto.Ruta != ''){
+          directorioFoto.getDownloadURL().subscribe(url=>{
+            this.imagen = url;
+          })
+        }
+      }
     })
   }
 

@@ -17,6 +17,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MenuComponent } from './core/menu/menu.component';
 import { Camera } from '@ionic-native/camera/ngx';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { LocalNotifications } from '@ionic-native/local-notifications/ngx';
 import { ConnectionServiceModule } from 'ng-connection-service';
  
 @NgModule({
@@ -36,6 +37,7 @@ import { ConnectionServiceModule } from 'ng-connection-service';
     SplashScreen,
     Camera,
     BarcodeScanner,
+    LocalNotifications,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

@@ -21,7 +21,8 @@ export class CrearSucursalComponent implements OnInit {
 
   ngOnInit() {
     this.formulario = this.formBuilder.group({
-      Nombre: ["",[Validators.required, Validators.maxLength(30), Validators.minLength(3)]]
+      Nombre: ["",[Validators.required, Validators.maxLength(30), Validators.minLength(3)]],
+      Password: ["",[Validators.required, Validators.minLength(6), Validators.maxLength(12)]]
     });
   }
 
@@ -30,9 +31,12 @@ export class CrearSucursalComponent implements OnInit {
     if(this.formulario.valid)
     {
       const clave = this.datos.getClave();
+      const cedula = this.datos.getCedula();
 
       this.db.database.ref(clave+'/Sucursales').push({
-        Nombre: this.formulario.value.Nombre
+        Nombre: this.formulario.value.Nombre,
+        Jefe: cedula,
+        Password: this.formulario.value.Password
       }).then(()=>{
         this.servicio.mensaje('toastSuccess', 'Sucursal registrada correctamente');
         this.modalCtrl.dismiss();
@@ -45,6 +49,11 @@ export class CrearSucursalComponent implements OnInit {
   get Nombre()
   {
     return this.formulario.get('Nombre');
+  }
+  
+  get Password()
+  {
+    return this.formulario.get('Password');
   }
 
 }

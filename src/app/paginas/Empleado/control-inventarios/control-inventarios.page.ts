@@ -90,6 +90,40 @@ export class ControlInventariosPage implements OnInit {
     await alert.present();
   }
 
+  async eliminarSucursal()
+  {
+    const alert = await this.alertCtrl.create({
+      cssClass: 'customAlert',
+      header: 'Confirmar',
+      message: '¿Estás seguro de eliminar esta sucursal? No podrás recuperarla',
+      buttons:[
+        {
+          cssClass:'CancelarEliminar',
+          role:'cancel',
+          text:'Cancelar',
+          handler: ()=>{
+            this.alertCtrl.dismiss();
+          }
+        },
+        {
+          cssClass:'ConfirmarEliminar',
+          role:"confirm",
+          text: 'Confirmar',
+          handler: ()=>{
+            const clave = this.datos.getClave();
+            this.db.database.ref(clave+'/Sucursales/'+this.datos.getSucursal()).remove().then(()=>{
+              this.router.navigate(['sucursales']);
+              this.servicio.mensaje('toastSuccess', 'Sucursal eliminada correctamente');
+            }).catch(err=>{
+              this.servicio.mensaje('customToast',err);
+            })
+          }
+        }
+      ]
+    });
+    (await alert).present();
+  }
+
   async info(mensaje: string)
   {
     const alert = await this.alertCtrl.create({

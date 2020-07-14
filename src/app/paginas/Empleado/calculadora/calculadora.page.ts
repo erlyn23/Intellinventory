@@ -42,6 +42,12 @@ export class CalculadoraPage implements OnInit {
       this.resultado = this.valor1 / this.valor2;
       this.historial.push(`Resultado división: ${this.resultado}`);
       
+    }else if(operacion == 'descuento'){
+      let porciento = this.valor2 / 100;
+      let descuento = this.valor1 * porciento;
+      this.resultado = this.valor1 - descuento;
+
+      this.historial.push(`Descuento aplicado: ${this.resultado}`);
     }
   }
 

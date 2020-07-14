@@ -3,7 +3,7 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { EntradaComponent } from './entrada/entrada.component';
 import { SalidaComponent } from './salida/salida.component';
-import { ModalController, NavController, AlertController } from '@ionic/angular';
+import { Platform, ModalController, NavController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { InventarioActualComponent } from './inventario-actual/inventario-actual.component';
 import { NotasComponent } from './notas/notas.component';
@@ -22,12 +22,17 @@ export class DetallesProductoPage implements OnInit {
   estado: any;
   stock:any;
   constructor(private modalCtrl: ModalController,
+    private platform: Platform,
     private alertCtrl: AlertController,
     private navCtrl: NavController,
     private router: Router,
     private db:AngularFireDatabase,
     private datos: DatosService,
-    private servicio: GeneralService) { }
+    private servicio: GeneralService) {
+        this.platform.backButton.subscribeWithPriority(10, ()=>{
+          this.goBack();
+        })
+     }
 
   ngOnInit() {
     const claveBar = this.datos.getClave();

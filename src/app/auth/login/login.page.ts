@@ -24,7 +24,6 @@ export class LoginPage implements OnInit {
   encontrado: number = 0;
 
   constructor(private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
     private servicio: GeneralService,
     private datos: DatosService,
     private auth:AngularFireAuth,
@@ -126,7 +125,10 @@ export class LoginPage implements OnInit {
           this.guardarUsuario('password', this.jefe.password);
         }
         this.guardarUsuario('posicion','jefe');
-        this.router.navigate(['dashboardjefe']);
+        this.router.navigate(['dashboardjefe']).then(()=>{
+          this.jefe.correo = "";
+          this.jefe.password = "";
+        });
       }); 
     }).catch((err)=>{
         switch(err.code)
@@ -157,7 +159,9 @@ export class LoginPage implements OnInit {
         this.guardarUsuario('posicion','empleado');
         this.datos.setCedula(this.empleado.codigo);
         this.datos.setClave(activos.CodigoActivacion);
-        this.router.navigate(['dashboard'])
+        this.router.navigate(['dashboard']).then(()=>{
+          this.empleado.codigo = "";
+        })
       }else{
         this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
       }

@@ -5,32 +5,13 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Registrar Sucursal</ion-title>
+    <ion-title>Clave de la sucursal</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content color="secondary">
   <ion-grid>
     <form [formGroup]="formulario">
-      <ion-row>
-        <ion-col size="12">
-          <ion-item color="secondary">
-            <ion-label position="floating">Nombre</ion-label>
-            <ion-input formControlName="Nombre" type="text"></ion-input>
-          </ion-item>
-          <div *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
-            <ion-item lines="none" color="secondary" *ngIf="Nombre.errors.required">
-              <ion-label color="danger">Debes escribir un nombre</ion-label>
-            </ion-item>
-            <ion-item lines="none" color="secondary" *ngIf="Nombre.errors.minlength">
-              <ion-label color="danger">Escribe al menos 3 letras</ion-label>
-            </ion-item>
-            <ion-item lines="none" color="secondary" *ngIf="Nombre.errors.maxlength">
-              <ion-label color="danger">Escribe menos de 30 letras</ion-label>
-            </ion-item>
-          </div>
-        </ion-col>
-      </ion-row>
       <ion-row>
         <ion-col size="12">
           <ion-item color="secondary">
@@ -52,8 +33,8 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="registrarSucursal()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
-            Guardar Sucursal
+          <ion-button (click)="entrar()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
+            Entrar
           </ion-button>
         </ion-col>
       </ion-row>

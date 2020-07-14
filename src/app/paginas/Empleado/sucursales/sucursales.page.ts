@@ -5,6 +5,7 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { CrearSucursalComponent } from './crear-sucursal/crear-sucursal.component';
 import { GeneralService } from 'src/app/services/general.service';
 import { Router } from '@angular/router';
+import { PedirClaveComponent } from './pedir-clave/pedir-clave.component';
  
 @Component({
   selector: 'app-sucursales',
@@ -15,6 +16,7 @@ export class SucursalesPage implements OnInit {
 
   sucursales: any[] = [];
   ref: any;
+  esMiBar: boolean = false;
   constructor(private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private modalCtrl: ModalController,
@@ -49,42 +51,24 @@ export class SucursalesPage implements OnInit {
     (await modal).present();
   }
 
-  async eliminarSucursal(i: number)
-  {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de eliminar esta sucursal? No podrás recuperarla',
-      buttons:[
-        {
-          cssClass:'CancelarEliminar',
-          role:'cancel',
-          text:'Cancelar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          cssClass:'ConfirmarEliminar',
-          role:"confirm",
-          text: 'Confirmar',
-          handler: ()=>{
-            const clave = this.datos.getClave();
-            this.db.database.ref(clave+'/Sucursales/'+this.sucursales[i].key).remove().then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Sucursal eliminada correctamente');
-            }).catch(err=>{
-              this.servicio.mensaje('customToast',err);
-            })
-          }
-        }
-      ]
+  async pedirClave(){
+    const modal = this.modalCtrl.create({
+      cssClass: 'customModal',
+      component: PedirClaveComponent,
     });
-    (await alert).present();
+    (await modal).present();
   }
 
   goToInventario(i:number)
   {
-    this.datos.setSucursal(this.sucursales[i].key);
-    this.router.navigate(['control-inventarios']);
+    const cedula = this.datos.getCedula();
+    if(this.sucursales[i].Jefe == cedula)
+    {
+      this.datos.setSucursal(this.sucursales[i].key);
+      this.router.navigate(['control-inventarios']);
+    }else{
+      this.datos.setSucursal(this.sucursales[i].key);
+      this.pedirClave();
+    }
   }
 }

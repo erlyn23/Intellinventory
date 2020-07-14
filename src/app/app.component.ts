@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-
-import { Platform, AlertController } from '@ionic/angular';
+import { Platform, AlertController} from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { ConnectionService } from 'ng-connection-service';
-
+ 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -34,15 +33,18 @@ export class AppComponent {
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
       header: 'Información',
-      message: 'Error: No se ha detectado conexión a internet',
+      message: 'Error: No se ha detectado conexión a internet.',
       buttons:[
         {
           cssClass: 'ConfirmarEliminar',
           role: 'cancel',
           text: 'Aceptar',
+          handler: ()=>{
+          }
         }
       ]
     })
+    await alert.present();
   }
 
   checkConnection(){
@@ -50,6 +52,8 @@ export class AppComponent {
       this.hayConexion = hayConexion;
       if(!this.hayConexion){
         this.alert();
+      }else{
+        console.log('hay conexión');
       }
     })
   }

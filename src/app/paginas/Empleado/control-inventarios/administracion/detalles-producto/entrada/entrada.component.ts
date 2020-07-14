@@ -8,6 +8,7 @@ import { Plugins } from '@capacitor/core';
 import { AlertPersonalizadoComponent } from 'src/app/core/alert-personalizado/alert-personalizado.component';
 
 const { Storage } = Plugins;
+
 @Component({
   selector: 'app-entrada',
   templateUrl: './entrada.component.html',
@@ -63,12 +64,6 @@ export class EntradaComponent implements OnInit {
           }).then(()=>{
             this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
             this.modalCtrl.dismiss();
-            this.getJefe('posicion').then(data=>{
-              if(data.value == 'jefe')
-              {
-                //Aquí va el código de las notificaciones.
-              }
-            });
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });

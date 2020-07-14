@@ -9,6 +9,7 @@ import { AdministracionPageRoutingModule } from './administracion-routing.module
 import { AdministracionPage } from './administracion.page';
 import { AlertPersonalizadoComponent } from 'src/app/core/alert-personalizado/alert-personalizado.component';
 import { CrearProductoComponent } from './crear-producto/crear-producto.component';
+import { ImportarProductosComponent } from './importar-productos/importar-productos.component';
 
 @NgModule({
   imports: [
@@ -18,6 +19,6 @@ import { CrearProductoComponent } from './crear-producto/crear-producto.componen
     IonicModule,
     AdministracionPageRoutingModule
   ],
-  declarations: [AdministracionPage, AlertPersonalizadoComponent, CrearProductoComponent]
+  declarations: [AdministracionPage, AlertPersonalizadoComponent, CrearProductoComponent, ImportarProductosComponent]
 })
 export class AdministracionPageModule {}

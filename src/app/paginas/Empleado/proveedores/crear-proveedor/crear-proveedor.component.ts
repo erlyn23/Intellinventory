@@ -24,7 +24,8 @@ export class CrearProveedorComponent implements OnInit {
     this.formulario = this.formBuilder.group({
       Nombre: ["",[Validators.required]],
       Producto: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
-      Cantidad: ["",[Validators.required]]
+      Cantidad: ["",[Validators.required]],
+      Telefono: ["",[Validators.maxLength(10), Validators.minLength(10), Validators.pattern('[0-9]*')]]
     });
 
     if(this.datos.getOperacion() == 'modificar' && this.datos.getProveedor() != null)
@@ -33,6 +34,7 @@ export class CrearProveedorComponent implements OnInit {
       this.formulario.controls.Nombre.setValue(this.proveedor.Nombre);
       this.formulario.controls.Producto.setValue(this.proveedor.Producto);
       this.formulario.controls.Cantidad.setValue(this.proveedor.Cantidad);
+      this.formulario.controls.Telefono.setValue(this.proveedor.Telefono);
     }
   }
 
@@ -44,7 +46,8 @@ export class CrearProveedorComponent implements OnInit {
       this.db.database.ref(clave+'/Proveedores').push({
         Nombre: this.formulario.value.Nombre,
         Producto: this.formulario.value.Producto,
-        Cantidad: this.formulario.value.Cantidad
+        Cantidad: this.formulario.value.Cantidad,
+        Telefono: this.formulario.value.Telefono
       }).then(()=>{
         this.servicio.mensaje('toastSuccess', 'Proveedor guardado correctamente');
         this.modalCtrl.dismiss();
@@ -62,7 +65,8 @@ export class CrearProveedorComponent implements OnInit {
       this.db.database.ref(clave+'/Proveedores/'+this.proveedor.key).set({
         Nombre: this.formulario.value.Nombre,
         Producto: this.formulario.value.Producto,
-        Cantidad: this.formulario.value.Cantidad
+        Cantidad: this.formulario.value.Cantidad,
+        Telefono: this.formulario.value.Telefono
       }).then(()=>{
         this.servicio.mensaje('toastSuccess', 'Proveedor modificado correctamente');
         this.modalCtrl.dismiss();
@@ -88,5 +92,9 @@ export class CrearProveedorComponent implements OnInit {
 
   get Cantidad(){
     return this.formulario.get('Cantidad');
+  }
+
+  get Telefono(){
+    return this.formulario.get('Telefono');
   }
 }

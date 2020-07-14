@@ -34,19 +34,6 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-item color="secondary">
-            <ion-label>Sucursal</ion-label>
-            <ion-select formControlName="Sucursal" interface="popover">
-              <ion-select-option *ngFor="let sucursal of sucursales" [value]="sucursal.key">{{sucursal.Nombre}}</ion-select-option>
-            </ion-select>
-          </ion-item>
-          <ion-item lines="none" color="secondary" *ngIf="Sucursal.invalid && (Sucursal.touched || Sucursal.dirty)">
-            <ion-label color="danger" *ngIf="Sucursal.errors.required">Debes seleccionar una sucursal</ion-label>
-          </ion-item>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="12">
           <ion-button (click)="crearInventario()" style="width: 100%;" color="primary" shape="round" [disabled]="form.invalid">
             Crear inventario
           </ion-button>

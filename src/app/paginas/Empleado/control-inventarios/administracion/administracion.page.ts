@@ -5,6 +5,7 @@ import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { CrearProductoComponent } from './crear-producto/crear-producto.component';
+import { ImportarProductosComponent } from './importar-productos/importar-productos.component';
 
 @Component({
   selector: 'app-administracion',
@@ -65,6 +66,15 @@ export class AdministracionPage implements OnInit {
     const modal = await this.modalCtrl.create({
       cssClass: 'customModal',
       component: CrearProductoComponent
+    });
+    await modal.present();
+  }
+
+  async abrirImportar()
+  {
+    const modal = await this.modalCtrl.create({
+      cssClass: 'customModal',
+      component: ImportarProductosComponent
     });
     await modal.present();
   }

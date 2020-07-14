@@ -66,6 +66,25 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Teléfono</ion-label>
+            <ion-input type="text" formControlName="Telefono"></ion-input>
+          </ion-item>
+          <div *ngIf="Telefono.invalid && (Telefono.touched || Telefono.dirty)">
+            <ion-item *ngIf="Telefono.errors.maxlength" color="secondary" lines="none">
+              <ion-label color="danger">Debes insertar solo 10 números</ion-label>
+            </ion-item>
+            <ion-item *ngIf="Telefono.errors.minlength" color="secondary" lines="none">
+              <ion-label color="danger">Debes insertar solo 10 números</ion-label>
+            </ion-item>
+            <ion-item *ngIf="Telefono.errors.pattern" color="secondary" lines="none">
+              <ion-label color="danger">Debes insertar solo números</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
           <ion-button (click)="guardarProveedor()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
             Guardar proveedor
           </ion-button>
@@ -122,6 +141,25 @@
           <div *ngIf="Cantidad.invalid && (Cantidad.touched || Cantidad.dirty)">
             <ion-item *ngIf="Cantidad.errors.required" color="secondary" lines="none">
               <ion-label color="danger">Debes insertar una cantidad</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="secondary">
+            <ion-label position="floating">Teléfono</ion-label>
+            <ion-input type="text" formControlName="Telefono"></ion-input>
+          </ion-item>
+          <div *ngIf="Telefono.invalid && (Telefono.touched || Telefono.dirty)">
+            <ion-item *ngIf="Telefono.errors.maxlength" color="secondary" lines="none">
+              <ion-label color="danger">Debes insertar solo 10 números</ion-label>
+            </ion-item>
+            <ion-item *ngIf="Telefono.errors.minlength" color="secondary" lines="none">
+              <ion-label color="danger">Debes insertar solo 10 números</ion-label>
+            </ion-item>
+            <ion-item *ngIf="Telefono.errors.pattern" color="secondary" lines="none">
+              <ion-label color="danger">Debes insertar solo números</ion-label>
             </ion-item>
           </div>
         </ion-col>

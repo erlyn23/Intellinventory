@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { Plugins } from '@capacitor/core';
+
+const { Storage } = Plugins;
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,7 @@ export class DatosService {
   operacion: any;
   proveedor: any;
   sucursal: any;
+  sendNot: any;
   constructor() { }
 
   //Métodos para obtener la clave del bar

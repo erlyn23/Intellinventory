@@ -41,7 +41,6 @@ export class DashboardPage implements OnInit {
     this.menuCtrl.enable(true, 'first');
   }
 
-  
   obtenerPerfil()
   {
     const clave = this.datos.getClave();
@@ -51,12 +50,13 @@ export class DashboardPage implements OnInit {
     this.ref.snapshotChanges().subscribe(data=>{
       let foto = data.payload.val();
       this.imagen = "";
-      if(foto != null)
-      {
+      if(foto != null){
         const directorioFoto = this.storage.ref(foto.Ruta);
-        directorioFoto.getDownloadURL().subscribe(url=>{
-          this.imagen = url;
-        })
+        if(foto.Ruta != ''){
+          directorioFoto.getDownloadURL().subscribe(url=>{
+            this.imagen = url;
+          })
+        }
       }
     })
   }
