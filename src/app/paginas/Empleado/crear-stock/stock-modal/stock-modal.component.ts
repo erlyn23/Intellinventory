@@ -4,6 +4,9 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Plugins } from '@capacitor/core';
+
+const { Clipboard } = Plugins; 
 
 @Component({
   selector: 'app-stock-modal',
@@ -61,10 +64,11 @@ export class StockModalComponent implements OnInit {
       })
     }
   }
-
   leerCodigo(){
-    this.servicio.leerCodigo().then(codigo=>{
-      this.formulario.controls.Codigo.setValue(codigo);
+    this.servicio.leerCodigo().then(async (codigo)=>{
+
+      let code = await Clipboard.read(); 
+      this.formulario.controls.Codigo.setValue(code.value);
     })
   }
 

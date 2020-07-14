@@ -32,6 +32,7 @@ export class EntradaComponent implements OnInit {
 
     this.formulario = this.formBuilder.group({
       Cantidad: ["",[Validators.required]],
+      Nota: ["",[Validators.required]]
     });
 
     this.ref = this.db.object(clave+'/Empleados/'+cedula);
@@ -70,8 +71,6 @@ export class EntradaComponent implements OnInit {
       this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
       this.necesarios.nombreInventario = this.datos.getNombreInventario();
       this.necesarios.nombreProducto = this.datos.getNombreProducto();
-
-      console.log(this.necesarios);
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
@@ -91,6 +90,9 @@ export class EntradaComponent implements OnInit {
               NombreProducto: this.necesarios.nombreProducto,
               Entrada: this.formulario.value.Cantidad
             });
+            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo+'/NotasEntrada').push({
+              Nota: this.formulario.value.Nota
+            })
             this.modalCtrl.dismiss();
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);

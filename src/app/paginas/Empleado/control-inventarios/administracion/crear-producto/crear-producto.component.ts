@@ -4,6 +4,9 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
+import { Plugins } from '@capacitor/core';
+
+const { Clipboard } = Plugins;
 
 @Component({
   selector: 'app-crear-producto',
@@ -53,8 +56,10 @@ export class CrearProductoComponent implements OnInit {
   }
 
   leerCodigo(){
-    this.servicio.leerCodigo().then(codigo=>{
-      this.form.controls.Codigo.setValue(codigo);
+    this.servicio.leerCodigo().then(async (codigo)=>{
+
+      let code = await Clipboard.read(); 
+      this.form.controls.Codigo.setValue(code.value);
     })
   }
 }

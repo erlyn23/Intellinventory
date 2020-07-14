@@ -94,6 +94,14 @@
         </ion-card>
       </ion-col>
     </ion-row>
+    <ion-row>
+      <ion-col size="12">
+        <ion-button (click)="exportarAexcel()" color="success" style="width: 100%;" shape="round" *ngIf="estado == 'Finalizado'">
+          <ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+          Exportar inventario a excel
+        </ion-button>
+      </ion-col>
+    </ion-row>
   </ion-grid>
   <ion-fab (click)="abrirCrear()" vertical="bottom" horizontal="end" slot="fixed" *ngIf="estado != 'Finalizado'">
     <ion-fab-button>

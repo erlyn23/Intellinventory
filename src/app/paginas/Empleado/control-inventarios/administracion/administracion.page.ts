@@ -175,6 +175,13 @@ export class AdministracionPage implements OnInit {
     await alert.present();
   }
 
+  exportarAexcel()
+  {
+    this.servicio.exportarExcel(this.productos, 'Inventario').then(()=>{
+      this.servicio.mensaje('toastSuccess', 'Archivo exportado correctamente');
+    });
+  }
+
   goToDetails(i:number)
   {
     if(this.tempProducts != undefined)

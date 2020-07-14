@@ -8,6 +8,8 @@ import { Router } from '@angular/router';
 import { InventarioActualComponent } from './inventario-actual/inventario-actual.component';
 import { NotasComponent } from './notas/notas.component';
 import { GeneralService } from 'src/app/services/general.service';
+import { NotasEntradaComponent } from './notas-entrada/notas-entrada.component';
+import { NotasSalidaComponent } from './notas-salida/notas-salida.component';
 
 @Component({
   selector: 'app-detalles-producto',
@@ -99,6 +101,25 @@ export class DetallesProductoPage implements OnInit {
     });
     await modal.present();
   }
+
+  async abrirNotasEntrada()
+  {
+    const modal = await this.modalCtrl.create({
+      cssClass:'customModal',
+      component: NotasEntradaComponent,
+    });
+    await modal.present();
+  }
+
+  async abrirNotasSalida()
+  {
+    const modal = await this.modalCtrl.create({
+      cssClass:'customModal',
+      component: NotasSalidaComponent,
+    });
+    await modal.present();
+  }
+
   async abrirSalida()
   {
     const modal = await this.modalCtrl.create({

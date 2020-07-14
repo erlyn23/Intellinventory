@@ -11,6 +11,8 @@ import { EntradaComponent } from './entrada/entrada.component';
 import { SalidaComponent } from './salida/salida.component';
 import { InventarioActualComponent } from './inventario-actual/inventario-actual.component';
 import { NotasComponent } from './notas/notas.component';
+import { NotasEntradaComponent } from './notas-entrada/notas-entrada.component';
+import { NotasSalidaComponent } from './notas-salida/notas-salida.component';
 
 @NgModule({
   imports: [
@@ -20,6 +22,12 @@ import { NotasComponent } from './notas/notas.component';
     IonicModule,
     DetallesProductoPageRoutingModule
   ],
-  declarations: [DetallesProductoPage, EntradaComponent, SalidaComponent, InventarioActualComponent, NotasComponent]
+  declarations: [DetallesProductoPage, 
+    EntradaComponent, 
+    NotasEntradaComponent,
+    NotasSalidaComponent,
+    SalidaComponent, 
+    InventarioActualComponent, 
+    NotasComponent]
 })
 export class DetallesProductoPageModule {}

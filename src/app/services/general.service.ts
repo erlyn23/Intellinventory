@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
-import { Plugins } from '@capacitor/core';
+import { Plugins} from '@capacitor/core';
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
 
 const { Storage } = Plugins;
 
@@ -36,5 +38,19 @@ export class GeneralService {
 
   async leerCodigo(){
     return await this.barcode.scan();
+  }
+
+  async exportarExcel(json: any[], NombreArchivo: string){
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+    const workbook: XLSX.WorkBook = { Sheets: {'data':worksheet}, SheetNames: ['data'] };
+    const ExcelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    return await this.guardarExcel(ExcelBuffer, NombreArchivo);    
+  }
+
+  guardarExcel(buffer: any, nombreArchivo: string)
+  {
+    const data: Blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'});
+
+    FileSaver.saveAs(data, nombreArchivo + '__Export__'+ Date.now() +'.xlsx');
   }
 }

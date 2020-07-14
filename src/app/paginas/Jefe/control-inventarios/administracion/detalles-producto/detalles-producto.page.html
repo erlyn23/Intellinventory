@@ -28,10 +28,22 @@
                 <h4>Entrada: {{producto.Entrada}}</h4>
               </ion-item>
               <ion-item color="primary">
+                <h4>Notas de entrada:</h4>
+                <ion-button (click)="abrirNotasEntrada()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <ion-item color="primary">
                 <h4>Cantidad incial + entrada: {{producto.SumaEntrada}}</h4>
               </ion-item>
               <ion-item color="primary">
                 <h4>Salida: {{producto.Salida}}</h4>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Notas de salida:</h4>
+                <ion-button (click)="abrirNotasSalida()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+                </ion-button>
               </ion-item>
               <ion-item color="primary">
                 <h4>Total de existencia: {{producto.TotalExistencia}}</h4>

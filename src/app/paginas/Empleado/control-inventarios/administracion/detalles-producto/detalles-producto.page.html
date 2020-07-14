@@ -31,12 +31,24 @@
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
+                <h4>Notas de entrada:</h4>
+                <ion-button (click)="abrirNotasEntrada()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <ion-item color="primary">
                 <h4>Cantidad incial + entrada: {{producto.SumaEntrada}}</h4>
               </ion-item>
               <ion-item color="primary">
                 <h4>Salida: {{producto.Salida}}</h4>
                 <ion-button (click)="abrirSalida()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
                   <ion-icon slot="icon-only" name="add-circle"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <ion-item color="primary">
+                <h4>Notas de salida:</h4>
+                <ion-button (click)="abrirNotasSalida()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                  <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
@@ -52,7 +64,7 @@
                 <h4>Diferencia: {{producto.Diferencia}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{producto.Nota}}</h4>
+                <h4>Nota Final: {{producto.Nota}}</h4>
                 <ion-button (click)="abrirNotas()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
                   <ion-icon slot="icon-only" name="add-circle"></ion-icon>
                 </ion-button>

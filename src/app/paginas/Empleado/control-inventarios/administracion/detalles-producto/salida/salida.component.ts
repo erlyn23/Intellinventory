@@ -30,6 +30,7 @@ export class SalidaComponent implements OnInit {
 
     this.formulario = this.formBuilder.group({
       Cantidad: ["",[Validators.required]],
+      Nota: ["",[Validators.required]]
     });
 
     this.ref = this.db.object(clave+'/Empleados/'+cedula);
@@ -59,8 +60,6 @@ export class SalidaComponent implements OnInit {
       this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
       this.necesarios.nombreInventario = this.datos.getNombreInventario();
       this.necesarios.nombreProducto = this.datos.getNombreProducto();
-
-      console.log(this.necesarios);
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
@@ -80,10 +79,14 @@ export class SalidaComponent implements OnInit {
             NombreProducto: this.necesarios.nombreProducto,
             Salida: this.formulario.value.Cantidad,
           });
+          this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo+'/NotasSalidas').push({
+            NotaSalida: this.formulario.value.Nota
+          })
           this.modalCtrl.dismiss();
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });
+
       //Proceso completo para guardar artículo en la BD
     }
   }
