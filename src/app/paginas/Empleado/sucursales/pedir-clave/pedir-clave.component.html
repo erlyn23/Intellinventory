@@ -9,23 +9,23 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
   <ion-grid>
     <form [formGroup]="formulario">
       <ion-row>
         <ion-col size="12">
-          <ion-item color="secondary">
+          <ion-item color="tertiary">
             <ion-label position="floating">Contraseña</ion-label>
             <ion-input formControlName="Password" type="password"></ion-input>
           </ion-item>
           <div *ngIf="Password.invalid && (Password.touched || Password.dirty)">
-            <ion-item lines="none" color="secondary" *ngIf="Password.errors.required">
+            <ion-item lines="none" color="tertiary" *ngIf="Password.errors.required">
               <ion-label color="danger">Debes escribir una contraseña</ion-label>
             </ion-item>
-            <ion-item lines="none" color="secondary" *ngIf="Password.errors.minlength">
+            <ion-item lines="none" color="tertiary" *ngIf="Password.errors.minlength">
               <ion-label color="danger">Escribe al menos 6 letras</ion-label>
             </ion-item>
-            <ion-item lines="none" color="secondary" *ngIf="Password.errors.maxlength">
+            <ion-item lines="none" color="tertiary" *ngIf="Password.errors.maxlength">
               <ion-label color="danger">Escribe menos de 12 letras</ion-label>
             </ion-item>
           </div>
@@ -34,6 +34,7 @@
       <ion-row>
         <ion-col size="12">
           <ion-button (click)="entrar()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
+            <ion-icon slot="start" name="log-in-outline"></ion-icon>
             Entrar
           </ion-button>
         </ion-col>

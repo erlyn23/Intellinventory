@@ -1,6 +1,6 @@
 {
-  "appId": "com.erlynetv.intellinventory",
-  "appName": "Intellinventory",
+  "appId": "com.erlynetv.inventorybar",
+  "appName": "InventoryBar",
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "www",

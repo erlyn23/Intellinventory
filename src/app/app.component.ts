@@ -21,8 +21,6 @@ export class AppComponent {
     private statusBar: StatusBar,
     private alertCtrl: AlertController,
     private conexion: ConnectionService,
-    private servicio: GeneralService,
-    private db: AngularFireDatabase
   ) {
     this.initializeApp();
     this.checkConnection();
@@ -30,7 +28,7 @@ export class AppComponent {
 
   initializeApp() {
     this.platform.ready().then(() => {
-      this.statusBar.styleDefault();
+      this.statusBar.backgroundColorByHexString('#0d2c42')
       this.splashScreen.hide();
     });
   }

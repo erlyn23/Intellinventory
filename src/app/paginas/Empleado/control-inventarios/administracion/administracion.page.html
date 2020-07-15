@@ -9,11 +9,11 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
   <ion-grid>
     <ion-row>
       <ion-col size="12">
-        <ion-searchbar color="secondary" placeholder="Buscar un producto..." (ionChange)="buscarProducto($event)"></ion-searchbar>
+        <ion-searchbar color="tertiary" placeholder="Buscar un producto..." (ionChange)="buscarProducto($event)"></ion-searchbar>
       </ion-col>
     </ion-row>
     <ion-row *ngIf="productos.length == 0">
@@ -22,7 +22,7 @@
       </ion-col>
     </ion-row>
     <ion-list style="background: white;" *ngIf="esBusqueda == false && estado != 'Finalizado'">
-      <ion-item color="secondary" *ngFor="let prod of productos, let i = index">
+      <ion-item color="tertiary" *ngFor="let prod of productos, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
           {{prod.Nombre}}
         </ion-button>
@@ -32,7 +32,7 @@
       </ion-item>
     </ion-list>
     <ion-list style="background: white;" *ngIf="esBusqueda == true && estado != 'Finalizado'">
-      <ion-item color="secondary" *ngFor="let prod of tempProducts, let i = index">
+      <ion-item color="tertiary" *ngFor="let prod of tempProducts, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
           {{prod.Nombre}}
         </ion-button>
@@ -52,6 +52,7 @@
     <ion-row>
       <ion-col size="12">
         <ion-button (click)="finalizarInventario()" style="width: 100%;" color="success" shape="round" *ngIf="estado != 'Finalizado'">
+          <ion-icon slot="start" name="checkmark-circle"></ion-icon>
           Finalizar inventario
         </ion-button>
       </ion-col>

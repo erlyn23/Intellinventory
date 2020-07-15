@@ -1,7 +1,15 @@
-<app-cabecera-jefe></app-cabecera-jefe>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Inventory Bar</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-
-<ion-content color="secondary">
+<ion-content color="tertiary">
 
   <ion-grid>
     <ion-row>
@@ -16,7 +24,7 @@
     </ion-col>
   </ion-row>
   <ion-list style="background: white;">
-    <ion-item color="secondary" *ngFor="let inv of inventarios, let i = index">
+    <ion-item color="tertiary" *ngFor="let inv of inventarios, let i = index">
       <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
         {{inv.NombreInventario}} - {{inv.FechaInventario}}
       </ion-button>

@@ -1,17 +1,19 @@
 <ion-content color="primary">
     <ion-grid>
       <ion-row>
-        <div class="bajar">
-        <ion-col style="text-align: center;" size="12">
-          <h1 color="secondary">Intellinventory - Iniciar Sesión</h1>
+        <ion-col size="12">
+          <img src="./../../../assets/icon/icon.png" alt="">
         </ion-col>
-        </div>
       </ion-row>
-      
-      <ion-row *ngIf="seleccionado == 0">
-          <div class="centro">
+      <ion-row>
+        <ion-col style="text-align: center;" size="12">
+          <ion-title color="secondary">Inventory Bar - Iniciar Sesión</ion-title>
+        </ion-col>
+      </ion-row>
+
+      <form>
+        <ion-row *ngIf="seleccionado == 0">
             <ion-col size="12">
-              <form>
                 <ion-item color="primary">
                   <ion-label>Selecciona tu posición</ion-label>
                   <ion-select style="width: 100%" [(ngModel)]="Posicion" name="posicion" (ionChange)="cambiarRol($event)" interface="popover">
@@ -19,55 +21,69 @@
                     <ion-select-option value="Empleado">Empleado</ion-select-option>
                   </ion-select>
                 </ion-item>
-              </form>
             </ion-col>
-          </div>
-      </ion-row>
-
-      <ion-row *ngIf="seleccionado == 1">
-        <div class="centro">
-          <ion-col size="12">
-            <form>
-              <ion-item color="primary">
-                <ion-label position="floating">Correo</ion-label>
-                <ion-input type="text" [(ngModel)]="jefe.correo" name="correo"></ion-input>
-              </ion-item>
+        </ion-row>
+    </form>
+    <form  *ngIf="seleccionado == 1">
+          <ion-row>
+              <ion-col size="12">
+                <ion-item color="primary">
+                  <ion-label position="floating">Correo</ion-label>
+                  <ion-input type="text" [(ngModel)]="jefe.correo" name="correo"></ion-input>
+                </ion-item>
+              </ion-col>
+          </ion-row>
+          <ion-row>
+              <ion-col size="12">
               <ion-item color="primary">
                 <ion-label position="floating">Contraseña</ion-label>
                 <ion-input type="password" [(ngModel)]="jefe.password" name="password"></ion-input>
               </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
               <ion-item lines="none" color="primary">
                 <ion-checkbox color="secondary" value="true" [(ngModel)]="jefe.sesionIniciada" name="iniciada"></ion-checkbox>&nbsp; &nbsp;
                 <ion-label>Mantener mi sesión iniciada</ion-label>
               </ion-item>
-              <ion-button (click)="iniciarSesion()" style="--background: white; color:black; margin-top: 30px;" expand="block" fill="full" shape="round">
-                <ion-icon name="enter-outline"></ion-icon>&nbsp;
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <ion-button (click)="iniciarSesion()" style="--background: black; color:white; width: 100%;" shape="round">
+                <ion-icon slot="start" name="enter-outline"></ion-icon>
                 Entrar
               </ion-button>
-            </form>
-          </ion-col>
-        </div>
-      </ion-row>
-      <ion-row *ngIf="seleccionado == 2">
-        <div class="centro">
+            </ion-col>
+          </ion-row>
+    </form>
+    <form *ngIf="seleccionado == 2">
+      <ion-row>
           <ion-col size="12">
-            <form>
               <ion-item color="primary">
                 <ion-label position="floating">Código de empleado</ion-label>
                 <ion-input type="number" [(ngModel)]="empleado.codigo" name="codigo"></ion-input>
               </ion-item>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
               <ion-item lines="none" color="primary">
                 <ion-checkbox color="secondary" value="true" [(ngModel)]="empleado.sesionIniciada" name="iniciada"></ion-checkbox>&nbsp; &nbsp;
                 <ion-label>Mantener mi sesión iniciada</ion-label>
               </ion-item>
-              <ion-button (click)="iniciarEmpleado()" style="--background: white; color:black; margin-top: 30px;" expand="block" fill="full" shape="round">
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col size="12">
+              <ion-button (click)="iniciarEmpleado()" style="--background: black; color:white; width: 100%;" expand="block" fill="full" shape="round">
                 <ion-icon name="enter-outline"></ion-icon>&nbsp;
                 Entrar
               </ion-button>
-            </form>
-          </ion-col>
-        </div>
-      </ion-row>
+            </ion-col>
+          </ion-row>
+    </form>
       <ion-row *ngIf="seleccionado != 0">
         <ion-col size="12" *ngIf="Posicion == 'Jefe'">
           <ion-button color="secondary" (click)="Volver()" expand="block" fill="clear" shape="round">

@@ -1,6 +1,6 @@
 <app-cabecera></app-cabecera>
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
     <ion-row>
       <ion-col style="text-align: center;" size="12">
         <ion-title>Listado de sucursales</ion-title>
@@ -15,7 +15,7 @@
   </ion-grid>
 
   <ion-list style="background: white;">
-    <ion-item color="secondary" *ngFor="let sucursal of sucursales, let i = index">
+    <ion-item color="tertiary" *ngFor="let sucursal of sucursales, let i = index">
       <ion-button (click)="goToInventario(i)" color="primary" style="width: 100%;" fill="clear" >
         {{sucursal.Nombre}}
       </ion-button>

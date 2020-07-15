@@ -154,4 +154,8 @@ export class ControlInventariosPage implements OnInit {
       this.router.navigate(['administracion']);
     }
   }
+
+  goBack(){
+    this.router.navigate(['sucursales']);
+  }
 }

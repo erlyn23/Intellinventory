@@ -46,6 +46,10 @@ export class CrearSucursalComponent implements OnInit {
     }
   }
 
+  goBack(){
+    this.modalCtrl.dismiss();
+  }
+
   get Nombre()
   {
     return this.formulario.get('Nombre');

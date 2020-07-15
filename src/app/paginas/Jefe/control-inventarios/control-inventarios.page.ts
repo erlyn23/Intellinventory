@@ -38,6 +38,10 @@ export class ControlInventariosPage implements OnInit {
     this.menuCtrl.enable(true, 'second');
   }
 
+  goBack(){
+    this.router.navigate(['sucursales-jefe']);
+  }
+
   goToAdministracion(i:number)
   {
     this.datos.setKey(this.inventarios[i].key);

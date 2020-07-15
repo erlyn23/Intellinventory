@@ -55,6 +55,10 @@ export class CrearProductoComponent implements OnInit {
     }
   }
 
+  goBack(){
+    this.modalCtrl.dismiss();
+  }
+
   leerCodigo(){
     this.servicio.leerCodigo().then(async (codigo)=>{
 

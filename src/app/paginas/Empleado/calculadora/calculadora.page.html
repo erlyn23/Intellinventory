@@ -1,11 +1,11 @@
 <app-cabecera></app-cabecera>
 
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
   <ion-grid fixed>
     <ion-row>
       <ion-col size="12">
-        <ion-item color="secondary">
+        <ion-item color="tertiary">
           <ion-label position="floating">Primer valor</ion-label>
           <ion-input class="tabla" type="number" [(ngModel)]="valor1" name="valor1"></ion-input>
         </ion-item>
@@ -13,7 +13,7 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-item color="secondary">
+        <ion-item color="tertiary">
           <ion-label position="floating">Segundo Valor</ion-label>
           <ion-input class="tabla" type="number" [(ngModel)]="valor2" name="valor2"></ion-input>
         </ion-item>
@@ -21,7 +21,7 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-item color="secondary">
+        <ion-item color="tertiary">
           <ion-input class="tabla" type="number" [(ngModel)]="resultado" name="resultado" placeholder="resultado" readonly></ion-input>
         </ion-item>
       </ion-col>
@@ -70,7 +70,7 @@
       </ion-col>
     </ion-row>
     <ion-list style="background: white; font-size: 20px;">
-      <ion-item color="secondary" *ngFor="let hist of historial">
+      <ion-item color="tertiary" *ngFor="let hist of historial">
         <ion-label>{{hist}}</ion-label>
       </ion-item>
     </ion-list>

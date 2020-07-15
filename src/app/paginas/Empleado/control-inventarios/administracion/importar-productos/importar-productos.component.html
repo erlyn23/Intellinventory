@@ -9,12 +9,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
   <ion-grid>
     <form [formGroup]="formulario">
       <ion-row>
         <ion-col size="12">
-          <ion-item color="secondary">
+          <ion-item color="tertiary">
             <ion-label>Selecciona un inventario</ion-label>
             <ion-select formControlName="Inventarios" interface="popover" (ionChange)="buscarProductos($event)">
               <ion-select-option *ngFor="let inv of inventarios" [value]="inv.key">{{inv.NombreInventario}}</ion-select-option>
@@ -25,6 +25,7 @@
       <ion-row>
         <ion-col size="12">
           <ion-button (click)="importarProductos()" style="width: 100%;" shape="round">
+            <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
             Importar Productos
           </ion-button>
         </ion-col>

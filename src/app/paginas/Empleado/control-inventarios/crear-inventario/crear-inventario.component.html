@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar color="primary">
     <ion-buttons slot="start">
-      <ion-button>
+      <ion-button (click)="goBack()">
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -35,6 +35,7 @@
       <ion-row>
         <ion-col size="12">
           <ion-button (click)="crearInventario()" style="width: 100%;" color="primary" shape="round" [disabled]="form.invalid">
+            <ion-icon slot="start" name="add-circle"></ion-icon>
             Crear inventario
           </ion-button>
         </ion-col>

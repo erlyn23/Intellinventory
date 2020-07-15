@@ -1,8 +1,8 @@
 {
-  "name": "intellinventory",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "name": "inventorybar",
+  "version": "1.0.0",
+  "author": "Erlyn Taveras",
+  "homepage": "",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -71,5 +71,5 @@
     "inquirer": "^6.2.2",
     "inquirer-autocomplete-prompt": "^1.0.1"
   },
-  "description": "An Ionic project"
+  "description": "Una app para pasar inventarios orientada para bares"
 }

@@ -1,6 +1,6 @@
 <app-cabecera></app-cabecera>
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
   <ion-grid>
     <ion-row>
       <ion-col style="text-align: center;" size="12">
@@ -14,7 +14,7 @@
     </ion-row>
   </ion-grid>
   <ion-list style="background: white;">
-    <ion-item color="secondary" *ngFor="let stock of stocks, let i = index">
+    <ion-item color="tertiary" *ngFor="let stock of stocks, let i = index">
       <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">
         {{stock.Nombre}}
       </ion-button>
