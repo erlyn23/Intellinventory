@@ -9,16 +9,16 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content color="secondary">
+<ion-content color="tertiary">
   <ion-grid>
     <form [formGroup]="form">
       <ion-row>
         <ion-col size="12">
-          <ion-item color="secondary">
+          <ion-item color="tertiary">
             <ion-label position="floating">Nombre del inventario</ion-label>
             <ion-input formControlName="Nombre" ype="text"></ion-input>
           </ion-item>
-          <ion-item lines="none" color="secondary" *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
+          <ion-item lines="none" color="tertiary" *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
             <ion-label color="danger" *ngIf="Nombre.errors.required">Escribe un nombre</ion-label>
             <ion-label color="danger" *ngIf="Nombre.errors.maxlength">Nombre muy largo</ion-label>
           </ion-item>
@@ -26,7 +26,7 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-item color="secondary">
+          <ion-item color="tertiary">
             <ion-label position="floating">Fecha de creación</ion-label>
             <ion-input formControlName="Fecha" ype="text" readonly></ion-input>
           </ion-item>

@@ -53,7 +53,7 @@ export class AdministracionPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.menuCtrl.enable(true, 'second');
+    this.menuCtrl.enable(false, 'second');
   }
 
   buscarProducto(val:any)

@@ -12,11 +12,12 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireDatabaseModule } from '@angular/fire/database';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireStorageModule } from '@angular/fire/storage';
-import { environment } from './../environments/environment';
+import { environment } from './../environments/environment.prod';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MenuComponent } from './core/menu/menu.component';
 import { Camera } from '@ionic-native/camera/ngx';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
+import { File } from '@ionic-native/file/ngx';
 import { ConnectionServiceModule } from 'ng-connection-service';
  
 @NgModule({
@@ -36,6 +37,7 @@ import { ConnectionServiceModule } from 'ng-connection-service';
     SplashScreen,
     Camera,
     BarcodeScanner,
+    File,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

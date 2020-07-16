@@ -30,6 +30,7 @@ export class DashboardPage implements OnInit {
   
         }
       });
+      this.notificacionesCerradas();
     }
 
   ngOnInit() {

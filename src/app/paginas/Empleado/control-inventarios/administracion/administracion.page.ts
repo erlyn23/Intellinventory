@@ -177,9 +177,7 @@ export class AdministracionPage implements OnInit {
 
   exportarAexcel()
   {
-    this.servicio.exportarExcel(this.productos, 'Inventario').then(()=>{
-      this.servicio.mensaje('toastSuccess', 'Archivo exportado correctamente');
-    });
+    this.servicio.exportarExcel(this.productos, 'Inventario');
   }
 
   goToDetails(i:number)

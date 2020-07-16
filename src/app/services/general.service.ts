@@ -3,8 +3,10 @@ import { ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { Plugins} from '@capacitor/core';
+import { File } from '@ionic-native/file/ngx';
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
+
 
 const { Storage } = Plugins;
 
@@ -13,9 +15,11 @@ const { Storage } = Plugins;
 })
 export class GeneralService {
 
+
   constructor(private toastCtrl: ToastController,
     private db:AngularFireDatabase,
-    private barcode: BarcodeScanner) { }
+    private barcode: BarcodeScanner,
+    private file: File) { }
 
   async mensaje(clase:any,message:any)
   {
@@ -40,17 +44,22 @@ export class GeneralService {
     return await this.barcode.scan();
   }
 
-  async exportarExcel(json: any[], NombreArchivo: string){
+  exportarExcel(json: any[], NombreArchivo: string){
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
     const workbook: XLSX.WorkBook = { Sheets: {'data':worksheet}, SheetNames: ['data'] };
     const ExcelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    return await this.guardarExcel(ExcelBuffer, NombreArchivo);    
+    this.guardarExcel(ExcelBuffer, NombreArchivo);    
   }
 
   guardarExcel(buffer: any, nombreArchivo: string)
   {
     const data: Blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'});
-
-    FileSaver.saveAs(data, nombreArchivo + '__Export__'+ Date.now() +'.xlsx');
+    const name = nombreArchivo + '-'+ Date.now() +'.xlsx';
+    this.file.writeFile(this.file.externalRootDirectory,name, data).then(()=>{
+      this.mensaje('toastSuccess', 'Excel exportado correctamente');
+      this.mensaje('toastSuccess', 'Archivo guardado en el directorio raíz del dispositivo')
+    }).catch(err=>{
+      this.mensaje('customToast', err.message);
+    });
   }
 }

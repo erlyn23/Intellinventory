@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
-import { NavController, ModalController } from '@ionic/angular';
+import { NavController, ModalController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { NotasEntradaComponent } from 'src/app/paginas/Empleado/control-inventarios/administracion/detalles-producto/notas-entrada/notas-entrada.component';
@@ -18,6 +18,7 @@ export class DetallesProductoPage implements OnInit {
   ref: any;
   constructor(private navCtrl: NavController,
     private modalCtrl: ModalController,
+    private menuCtrl: MenuController,
     private router: Router,
     private db:AngularFireDatabase,
     private servicio: GeneralService,
@@ -42,6 +43,9 @@ export class DetallesProductoPage implements OnInit {
         this.producto.Nota = product.Nota;
       }
     });
+  }
+  ionViewWillEnter() {
+    this.menuCtrl.enable(false, 'second');
   }
 
   async abrirNotasEntrada()

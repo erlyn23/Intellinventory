@@ -35,7 +35,7 @@ export class ControlInventariosPage implements OnInit {
     })
   }
   ionViewWillEnter() {
-    this.menuCtrl.enable(true, 'second');
+    this.menuCtrl.enable(false, 'second');
   }
 
   goBack(){
