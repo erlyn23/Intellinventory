@@ -1,6 +1,9 @@
 <app-cabecera></app-cabecera>
 
 <ion-content color="tertiary">
+  <ion-refresher slot="fixed" (ionRefresh)="Refrescar($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
     <ion-row>
       <ion-col style="text-align: center;" size="12">
         <ion-title>Listado de sucursales</ion-title>

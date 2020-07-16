@@ -15,7 +15,7 @@ export class EntradaComponent implements OnInit {
 
   formulario: FormGroup;
   ref: any;
-  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:''}
+  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal:''}
   constructor(private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
     private datos:DatosService,
@@ -53,6 +53,13 @@ export class EntradaComponent implements OnInit {
       this.necesarios.nombreProducto = nombre;
       this.datos.setNombreProducto(nombre);
     });
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Nombre');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let nombre = data.payload.val();
+      this.necesarios.nombreProducto = nombre;
+      this.datos.setNombreSucursal(nombre);
+    });
   }
   async cargando()
   {
@@ -71,6 +78,7 @@ export class EntradaComponent implements OnInit {
       this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
       this.necesarios.nombreInventario = this.datos.getNombreInventario();
       this.necesarios.nombreProducto = this.datos.getNombreProducto();
+      this.necesarios.nombreSucursal = this.datos.getNombresucursal();
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
@@ -84,11 +92,11 @@ export class EntradaComponent implements OnInit {
           Entrada: this.formulario.value.Cantidad
           }).then(()=>{
             this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
-            this.db.database.ref(claveBar+'/ParaNotificaciones/Entrada').set({
+            this.db.database.ref(claveBar+'/ParaNotificaciones/Entradas').push({
               NombreEmpleado: this.necesarios.nombreEmpleado,
               NombreInventario: this.necesarios.nombreInventario,
               NombreProducto: this.necesarios.nombreProducto,
-              Entrada: this.formulario.value.Cantidad
+              NombreSucursal: this.necesarios.nombreSucursal,
             });
             this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo+'/NotasEntrada').push({
               Nota: this.formulario.value.Nota

@@ -112,6 +112,7 @@ export class DatosService {
     nombreEmpleado: any;
     nombreInventario: any;
     nombreProducto: any;
+    nombreSucursal: any;
 
     setNombreEmpleado(nombre:any)
     {
@@ -128,6 +129,11 @@ export class DatosService {
       this.nombreProducto = nombre;
     }
 
+    setNombreSucursal(sucursal: any)
+    {
+      this.nombreSucursal = sucursal;
+    }
+
     getNombreEmpleado()
     {
       return this.nombreEmpleado;
@@ -141,6 +147,11 @@ export class DatosService {
     getNombreProducto()
     {
       return this.nombreProducto;
+    }
+
+    getNombresucursal()
+    {
+      return this.nombreSucursal;
     }
 
   //Métodos para obtener datos necesarios

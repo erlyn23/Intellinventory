@@ -71,13 +71,13 @@ export class DashboardPage implements OnInit {
     }  
   }
 
-  async enviarNotificacion(titulo:any, mensaje:any){
+  async enviarNotificacion(titulo:any, mensaje:any, id: any){
     const notifs = await LocalNotifications.schedule({
       notifications: [
         {
           title: titulo,
           body: mensaje,
-          id: 1,
+          id: id,
           sound: null,
           attachments: null,
           actionTypeId: "",
@@ -88,21 +88,37 @@ export class DashboardPage implements OnInit {
   }
 
   notificacionesCerradas() {
+    let contador = 0;
     this.servicio.getDatos('posicion').then(pos=>{
       if(pos.value == 'jefe'){
         this.servicio.getDatos('clave').then(clave=>{
           if(clave.value != null || clave.value != ''){
-            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Entrada');
+            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Entradas');
             this.ref.snapshotChanges().subscribe(data=>{
               let datos = data.payload.val();
-              this.enviarNotificacion(datos.NombreEmpleado + ': Entrada', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+              for(let i in datos)
+              {
+                datos[i].key = i;
+                this.enviarNotificacion(datos[i].NombreEmpleado + ': Entrada', datos[i].NombreSucursal + ': En el inventario ' 
+                + datos[i].NombreInventario + ' al producto ' 
+                + datos[i].NombreProducto, contador);
+                contador++;
+                this.db.database.ref(clave.value+'/ParaNotificaciones/Entradas/'+datos[i].key).remove();
+              }
             })
         
-            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Salida');
+            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Salidas');
             this.ref.snapshotChanges().subscribe(data=>{
               let datos = data.payload.val();
-              this.enviarNotificacion(datos.NombreEmpleado + ': Salida', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
-        
+              for(let i in datos)
+              {
+                datos[i].key = i;
+                this.enviarNotificacion(datos[i].NombreEmpleado + ': Salida', datos[i].NombreSucursal + ': En el inventario ' 
+                + datos[i].NombreInventario + ' al producto ' 
+                + datos[i].NombreProducto, contador);
+                contador++;
+                this.db.database.ref(clave.value+'/ParaNotificaciones/Salidas/'+datos[i].key).remove();
+              }        
             })
           }
         })

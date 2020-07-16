@@ -28,6 +28,13 @@ export class SucursalesPage implements OnInit {
     }
 
   ngOnInit() {
+    this.buscarSucursales();
+  }
+  ionViewWillEnter() {
+    this.menuCtrl.enable(true, 'first');
+  }
+
+  buscarSucursales(){
     const clave = this.datos.getClave();
     
     this.ref = this.db.object(clave+'/Sucursales');
@@ -41,8 +48,12 @@ export class SucursalesPage implements OnInit {
       }
     });
   }
-  ionViewWillEnter() {
-    this.menuCtrl.enable(true, 'first');
+
+  Refrescar(event){
+    setTimeout(()=>{
+      this.buscarSucursales();
+      event.target.complete();
+    }, 2000);
   }
 
   async crearSucursal(){

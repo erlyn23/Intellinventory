@@ -51,7 +51,6 @@ export class DetallesProductoPage implements OnInit {
   async abrirNotasEntrada()
   {
     const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
       component: NotasEntradaComponent,
     });
     await modal.present();
@@ -60,7 +59,6 @@ export class DetallesProductoPage implements OnInit {
   async abrirNotasSalida()
   {
     const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
       component: NotasSalidaComponent,
     });
     await modal.present();

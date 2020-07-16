@@ -13,7 +13,7 @@ export class SalidaComponent implements OnInit {
 
   formulario: FormGroup;
   ref: any;
-  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:''}
+  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal: ''}
   constructor(private formBuilder:FormBuilder,
     private modalCtrl: ModalController,
     private datos:DatosService,
@@ -48,8 +48,13 @@ export class SalidaComponent implements OnInit {
     this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/Nombre');
     this.ref.snapshotChanges().subscribe(data=>{
       let nombre = data.payload.val();
-      this.necesarios.nombreProducto = nombre;
       this.datos.setNombreProducto(nombre);
+    });
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Nombre');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let nombre = data.payload.val();
+      this.datos.setNombreSucursal(nombre);
     });
   }
   
@@ -60,6 +65,7 @@ export class SalidaComponent implements OnInit {
       this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
       this.necesarios.nombreInventario = this.datos.getNombreInventario();
       this.necesarios.nombreProducto = this.datos.getNombreProducto();
+      this.necesarios.nombreSucursal = this.datos.getNombresucursal();
       //Variables que almacenan los datos necesarios para operar en la BD.
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
@@ -73,11 +79,11 @@ export class SalidaComponent implements OnInit {
           Salida: this.formulario.value.Cantidad,
         }).then(()=>{
           this.servicio.mensaje('toastSuccess','Salida hecha correctamente');
-          this.db.database.ref(claveBar+'/ParaNotificaciones/Salida').set({
+          this.db.database.ref(claveBar+'/ParaNotificaciones/Salidas').push({
             NombreEmpleado: this.necesarios.nombreEmpleado,
             NombreInventario: this.necesarios.nombreInventario,
             NombreProducto: this.necesarios.nombreProducto,
-            Salida: this.formulario.value.Cantidad,
+            NombreSucursal: this.necesarios.nombreSucursal,
           });
           this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo+'/NotasSalidas').push({
             NotaSalida: this.formulario.value.Nota

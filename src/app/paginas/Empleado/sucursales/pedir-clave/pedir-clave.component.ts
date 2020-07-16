@@ -38,6 +38,7 @@ export class PedirClaveComponent implements OnInit {
       if(sucursal != null){
         if(this.formulario.value.Password == sucursal.Password){
           this.datos.setSucursal(sucursalA);
+          this.datos.setCedula(sucursal.Jefe);
           this.router.navigate(['control-inventarios']);
           this.modalCtrl.dismiss();
         }else{
