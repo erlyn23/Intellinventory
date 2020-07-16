@@ -26,7 +26,8 @@
   <ion-list style="background: white;">
     <ion-item color="tertiary" *ngFor="let inv of inventarios, let i = index">
       <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
-        {{inv.NombreInventario}} - {{inv.FechaInventario}}
+        {{inv.NombreInventario}}<br> 
+        {{inv.FechaInventario}}
       </ion-button>
       <ion-button color="success" fill="clear" *ngIf="inv.Estado == 'Finalizado'">
         <ion-icon slot="icon-only" name="checkmark-circle"></ion-icon>

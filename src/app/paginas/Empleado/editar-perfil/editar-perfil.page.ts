@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, PopoverController } from '@ionic/angular';
+import { MenuController, PopoverController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FotoPopoverComponent } from './../../../core/foto-popover/foto-popover.component';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-editar-perfil',
@@ -18,12 +19,18 @@ export class EditarPerfilPage implements OnInit {
   ref: any;
   imagen: any = "";
   constructor(private menuCtrl: MenuController,
+    private router: Router,
+    private platform: Platform,
     private popoverCtrl: PopoverController, 
     private formBuilder: FormBuilder,
     private datos: DatosService,
     private servicio: GeneralService,
     private db: AngularFireDatabase,
-    private storage: AngularFireStorage) { }
+    private storage: AngularFireStorage) { 
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.router.navigate(['dashboard']);
+      })
+    }
 
   ngOnInit() {
     const clave = this.datos.getClave();

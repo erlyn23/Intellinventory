@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatosService } from 'src/app/services/datos.service';
-import { ModalController, MenuController } from '@ionic/angular';
+import { ModalController, MenuController, Platform } from '@ionic/angular';
 import { MenuComponent } from 'src/app/core/menu/menu.component';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Router } from '@angular/router';
@@ -15,9 +15,14 @@ export class SucursalesJefePage implements OnInit {
   sucursales: any[] = [];
   ref: any;
   constructor(private menuCtrl: MenuController,
+    private platform: Platform,
     private datos: DatosService,
     private db: AngularFireDatabase,
-    private router: Router) { }
+    private router: Router) { 
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.router.navigate(['dashboard-jefe']);
+      })
+    }
 
   ngOnInit() {
     const clave = this.datos.getClave();

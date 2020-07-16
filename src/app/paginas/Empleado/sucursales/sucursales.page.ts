@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, ModalController, AlertController } from '@ionic/angular';
+import { MenuController, ModalController, AlertController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { CrearSucursalComponent } from './crear-sucursal/crear-sucursal.component';
-import { GeneralService } from 'src/app/services/general.service';
 import { Router } from '@angular/router';
 import { PedirClaveComponent } from './pedir-clave/pedir-clave.component';
  
@@ -18,12 +17,15 @@ export class SucursalesPage implements OnInit {
   ref: any;
   esMiBar: boolean = false;
   constructor(private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
+    private platform: Platform,
     private modalCtrl: ModalController,
     private datos: DatosService,
-    private servicio: GeneralService,
     private db: AngularFireDatabase,
-    private router: Router) { }
+    private router: Router) { 
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.router.navigate(['dashboard']);
+      })
+    }
 
   ngOnInit() {
     const clave = this.datos.getClave();

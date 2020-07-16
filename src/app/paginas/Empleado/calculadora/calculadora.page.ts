@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController } from '@ionic/angular';
+import { MenuController, Platform } from '@ionic/angular';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-calculadora',
@@ -12,7 +13,12 @@ export class CalculadoraPage implements OnInit {
   valor2:number;
   resultado:number;
   historial: any[] = [];
-  constructor(private menuCtrl:MenuController) { }
+  constructor(private menuCtrl:MenuController,
+    private platform: Platform, private router: Router) { 
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.router.navigate(['dashboard']);
+      })
+    }
 
   ngOnInit() {
   }

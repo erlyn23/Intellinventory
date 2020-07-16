@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { ModalController, AlertController, MenuController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { DetallesProveedorComponent } from './detalles-proveedor/detalles-proveedor.component';
 import { CrearProveedorComponent } from './crear-proveedor/crear-proveedor.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -17,11 +18,17 @@ export class ProveedoresPage implements OnInit {
   ref: any;
   proveedores: any[] = [];
   constructor(private modalCtrl: ModalController,
+    private platform: Platform,
+    private router: Router,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private datos: DatosService,
     private general: GeneralService,
-    private db: AngularFireDatabase) { }
+    private db: AngularFireDatabase) {
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.router.navigate(['dashboard']);
+      })
+     }
 
   ngOnInit() {
     this.obtenerProveedores();

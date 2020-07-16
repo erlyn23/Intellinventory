@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, AlertController } from '@ionic/angular';
+import { MenuController, AlertController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Router } from '@angular/router';
@@ -19,11 +19,16 @@ export class DashboardPage implements OnInit {
   ref: any;
   imagen: any = "";
   constructor(private menuCtrl: MenuController,
+    private platform: Platform,
     private alertCtrl: AlertController,
     private datos: DatosService,
     private router: Router,
     private db: AngularFireDatabase,
-    private storage: AngularFireStorage) { }
+    private storage: AngularFireStorage) {
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.salir();
+      })
+     }
 
   ngOnInit() { 
     const cedula = this.datos.getCedula();

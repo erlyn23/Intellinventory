@@ -3,10 +3,7 @@ import { Platform, AlertController} from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { ConnectionService } from 'ng-connection-service';
-import { GeneralService } from './services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
 
- 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -15,20 +12,18 @@ import { AngularFireDatabase } from '@angular/fire/database';
 export class AppComponent {
   hayConexion: boolean;
   ref: any;
-  constructor(
-    private platform: Platform,
+  constructor(private platform: Platform,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private alertCtrl: AlertController,
     private conexion: ConnectionService,
-  ) {
-    this.initializeApp();
+  ) {this.initializeApp();
     this.checkConnection();
   }
 
   initializeApp() {
     this.platform.ready().then(() => {
-      this.statusBar.backgroundColorByHexString('#0d2c42')
+      this.statusBar.backgroundColorByHexString('#0d2c42');
       this.splashScreen.hide();
     });
   }

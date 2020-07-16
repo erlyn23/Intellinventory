@@ -70,12 +70,12 @@ export class ImportarProductosComponent implements OnInit {
       this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+this.productos[i].Codigo).update({
         Codigo: this.productos[i].Codigo,
         Nombre: this.productos[i].Nombre,
-        CantidadInicial: this.productos[i].CantidadInicial,
-        Entrada: this.productos[i].Entrada,
+        CantidadInicial: this.productos[i].InventarioActual,
+        Entrada: 0,
         SumaEntrada: this.productos[i].SumaEntrada,
-        Salida: this.productos[i].Salida,
+        Salida: 0,
         TotalExistencia: this.productos[i].TotalExistencia,
-        InventarioActual: this.productos[i].InventarioActual,
+        InventarioActual: 0,
         Diferencia: this.productos[i].Diferencia,
         Nota: this.productos[i].Nota
       })

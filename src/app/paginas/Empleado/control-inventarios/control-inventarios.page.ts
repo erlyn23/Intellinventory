@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { ModalController, AlertController, MenuController, Platform } from '@ionic/angular';
 import { CrearInventarioComponent } from './crear-inventario/crear-inventario.component';
 import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { Router } from '@angular/router';
-import { Button } from 'protractor';
 
 @Component({
   selector: 'app-control-inventarios',
@@ -17,12 +16,17 @@ export class ControlInventariosPage implements OnInit {
   inventarios: any[] = [];
   ref: any;
   constructor(private modalCtrl: ModalController,
+    private platform: Platform,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private datos: DatosService,
     private servicio: GeneralService,
     private db:AngularFireDatabase,
-    private router: Router) { }
+    private router: Router) { 
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.goBack();
+      })
+    }
 
   ngOnInit() {
     const clave = this.datos.getClave();

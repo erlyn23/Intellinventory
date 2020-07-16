@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { ModalController, AlertController, MenuController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { StockModalComponent } from './stock-modal/stock-modal.component';
 import { DetallesStockComponent } from './detalles-stock/detalles-stock.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-crear-stock',
@@ -16,11 +17,17 @@ export class CrearStockPage implements OnInit {
   ref: any;
   stocks: any[] = [];
   constructor(private modalCtrl: ModalController,
+    private router: Router,
+    private platform: Platform,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private datos: DatosService,
     private general: GeneralService,
-    private db: AngularFireDatabase) { }
+    private db: AngularFireDatabase) {
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.router.navigate(['dashboard']);
+      })
+     }
 
   ngOnInit() {
     this.obtenerStocks();

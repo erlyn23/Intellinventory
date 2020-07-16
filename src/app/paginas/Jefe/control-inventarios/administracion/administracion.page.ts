@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { ModalController, MenuController, NavController, AlertController } from '@ionic/angular';
+import { ModalController, MenuController, NavController, AlertController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
@@ -19,10 +19,15 @@ export class AdministracionPage implements OnInit {
   tempProducts: any[];
   esBusqueda: boolean = false;
   constructor(private navCtrl: NavController, 
+    private platform: Platform,
     private menuCtrl: MenuController,
     private datos:DatosService,
     private db: AngularFireDatabase,
-    private router: Router) { }
+    private router: Router) { 
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.goBack();
+      })
+    }
 
   ngOnInit() {
     const claveBar = this.datos.getClave();

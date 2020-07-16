@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, AlertController, MenuController, NavController } from '@ionic/angular';
+import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { Platform } from '@ionic/angular';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { ModalCrearComponent } from './modal-crear/modal-crear.component';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { DatosService } from 'src/app/services/datos.service';
+
 import { Plugins } from '@capacitor/core';
 
+const { Storage } = Plugins;
 const { LocalNotifications } = Plugins;
 
 @Component({
@@ -19,6 +23,8 @@ export class DashboardPage implements OnInit {
   empleados: any[];
   ref:any;
   constructor(private router: Router, 
+    private bckgMode: BackgroundMode,
+    private platform: Platform,
     private modalCtrl: ModalController,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
@@ -30,6 +36,14 @@ export class DashboardPage implements OnInit {
   
         }
       });
+      this.platform.backButton.subscribeWithPriority(10, ()=>{
+        this.salir()
+      })
+      if(this.platform.pause.isStopped){
+        this.bckgMode.enable();
+        this.bckgMode.moveToBackground();
+        this.notificacionesCerradas();
+      }  
       this.notificacionesCerradas();
     }
 
@@ -43,6 +57,18 @@ export class DashboardPage implements OnInit {
         this.empleados.push(employees[i]);
       }
     })
+  }
+  
+  ionViewWillEnter() {
+    this.menuCtrl.enable(true, 'second');
+  }
+
+  ngOnDestroy(): void {
+    if(this.platform.pause.isStopped){
+      this.bckgMode.enable();
+      this.bckgMode.moveToBackground();
+      this.notificacionesCerradas();
+    }  
   }
 
   async enviarNotificacion(titulo:any, mensaje:any){
@@ -69,23 +95,19 @@ export class DashboardPage implements OnInit {
             this.ref = this.db.object(clave.value+'/ParaNotificaciones/Entrada');
             this.ref.snapshotChanges().subscribe(data=>{
               let datos = data.payload.val();
-              this.enviarNotificacion(datos.NombreEmpleado + ':Entrada', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+              this.enviarNotificacion(datos.NombreEmpleado + ': Entrada', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
             })
         
             this.ref = this.db.object(clave.value+'/ParaNotificaciones/Salida');
             this.ref.snapshotChanges().subscribe(data=>{
               let datos = data.payload.val();
-              this.enviarNotificacion(datos.NombreEmpleado + ':Salida', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
+              this.enviarNotificacion(datos.NombreEmpleado + ': Salida', 'En el inventario ' + datos.NombreInventario + ' al producto ' + datos.NombreProducto);
         
             })
           }
         })
       }
     })
-  }
-  
-  ionViewWillEnter() {
-    this.menuCtrl.enable(true, 'second');
   }
 
   async abrirModal()
@@ -131,6 +153,41 @@ export class DashboardPage implements OnInit {
     });
     await alert.present();
   }
+
+  async limpiarUser(){
+    return (await Storage).clear();
+  }
+
+  async salir()
+  {
+    const alert = await this.alertCtrl.create({
+      header: 'Confirmar',
+      message: '¿Estás seguro de querer salir?',
+      cssClass: 'customAlert',
+      buttons:
+      [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          cssClass: 'CancelarEliminar',
+          handler: ()=>{
+            this.alertCtrl.dismiss();
+          }
+        },
+        {
+          text: 'Confirmar',
+          role: 'confirm',
+          cssClass: 'ConfirmarEliminar',
+          handler: ()=>{
+            this.bckgMode.enable();
+            this.bckgMode.moveToBackground();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
 
   abrirEmpleado(i:number)
   {
