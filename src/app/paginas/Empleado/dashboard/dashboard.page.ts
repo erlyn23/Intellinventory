@@ -123,6 +123,12 @@ export class DashboardPage implements OnInit {
       case 'editar':
         this.router.navigate(['editar-perfil']);
       break;
+      case 'manual':
+        this.router.navigate(['manual']);
+      break;
+      case 'informacion':
+        this.router.navigate(['informacion']);
+      break;
       case 'salir':
         this.salir();
       break;

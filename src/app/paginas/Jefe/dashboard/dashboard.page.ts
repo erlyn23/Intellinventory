@@ -10,8 +10,10 @@ import { DatosService } from 'src/app/services/datos.service';
 
 import { Plugins } from '@capacitor/core';
 
-const { Storage } = Plugins;
-const { LocalNotifications } = Plugins;
+const { Storage, 
+LocalNotifications,
+App, 
+BackgroundTask } = Plugins;
 
 @Component({
   selector: 'app-dashboard',
@@ -30,21 +32,16 @@ export class DashboardPage implements OnInit {
     private alertCtrl: AlertController,
     private db:AngularFireDatabase,
     private servicio: GeneralService,
-    private datos:DatosService) { 
+    private datos:DatosService) {
       LocalNotifications.requestPermission().then((hasPermission)=>{
         if(hasPermission.granted){
-  
+          BackgroundTask.requestPermissions();
+          this.notificacionesCerradas();
         }
       });
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.salir()
-      })
-      if(this.platform.pause.isStopped){
-        this.bckgMode.enable();
-        this.bckgMode.moveToBackground();
-        this.notificacionesCerradas();
-      }  
-      this.notificacionesCerradas();
+      });
     }
 
   ngOnInit() {
@@ -57,6 +54,8 @@ export class DashboardPage implements OnInit {
         this.empleados.push(employees[i]);
       }
     })
+    this.notificacionesCerradas();
+    this.ModoBackground();
   }
   
   ionViewWillEnter() {
@@ -64,11 +63,20 @@ export class DashboardPage implements OnInit {
   }
 
   ngOnDestroy(): void {
-    if(this.platform.pause.isStopped){
-      this.bckgMode.enable();
-      this.bckgMode.moveToBackground();
-      this.notificacionesCerradas();
-    }  
+    this.ModoBackground(); 
+  }
+
+  ModoBackground(){
+    App.addListener('appStateChange', state=>{
+      if(!state.isActive){
+        let taskId= BackgroundTask.beforeExit(async ()=>{
+          await this.notificacionesCerradas();
+          BackgroundTask.finish({
+            taskId
+          })
+        });
+      }
+    })
   }
 
   async enviarNotificacion(titulo:any, mensaje:any, id: any){
@@ -79,6 +87,7 @@ export class DashboardPage implements OnInit {
           body: mensaje,
           id: id,
           sound: null,
+          smallIcon: 'public/assets/icon/ic_launcher.png',
           attachments: null,
           actionTypeId: "",
           extra: null
