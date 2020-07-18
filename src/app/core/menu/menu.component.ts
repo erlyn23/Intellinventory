@@ -2,9 +2,6 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MenuController, AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { Plugins } from '@capacitor/core';
-import { DatosService } from 'src/app/services/datos.service';
-import { AngularFireDatabase } from '@angular/fire/database';
-import { AngularFireStorage } from '@angular/fire/storage';
 
 const { Storage } = Plugins;
 
@@ -85,6 +82,24 @@ export class MenuComponent implements OnInit {
   goToSucursales()
   {
     this.router.navigate(['sucursales'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
+  goToEntradaRapida(){
+    this.router.navigate(['entrada-rapida'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    })
+  }
+
+  goToSalidaRapida(){
+    this.router.navigate(['salida-rapida'])
     .then(()=>{
       this.menuCtrl.toggle();
     }).catch(err=>{

@@ -28,6 +28,22 @@
         </ion-row>
         <ion-row>
             <ion-col size="12">
+                <ion-button (click)="goToPage('entradarapida')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <ion-icon slot="start" name="enter-outline"></ion-icon>
+                Entrada rápida
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('salidarapida')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <ion-icon slot="start" name="exit-outline"></ion-icon>
+                Salida rápida
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
                 <ion-button (click)="goToPage('stock')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline" shape="round">
                     <ion-icon slot="start" name="cube-outline"></ion-icon>
                     Crear Stock

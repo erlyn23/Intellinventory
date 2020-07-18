@@ -39,6 +39,12 @@ export class DashboardPage implements OnInit {
           this.notificacionesCerradas();
         }
       });
+      if(this.platform.pause.isStopped){
+        this.bckgMode.enable();
+        this.bckgMode.on('activate').subscribe(()=>{
+          this.notificacionesCerradas();
+        })
+      }
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.salir()
       });
@@ -87,7 +93,7 @@ export class DashboardPage implements OnInit {
           body: mensaje,
           id: id,
           sound: null,
-          smallIcon: 'public/assets/icon/ic_launcher.png',
+          smallIcon: 'app/src/main/assets/public/assets/icon/ic_launcher.png',
           attachments: null,
           actionTypeId: "",
           extra: null

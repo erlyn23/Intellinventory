@@ -1,0 +1,83 @@
+<app-cabecera></app-cabecera>
+
+<ion-content color="tertiary">
+  <ion-grid>
+    <form [formGroup]="formulario">
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="tertiary">
+            <ion-label>Sucursal</ion-label>
+            <ion-select interface="popover" formControlName="Sucursal" (ionChange)="buscarSucursal($event)">
+              <ion-select-option *ngFor="let sucursal of sucursales" [value]="sucursal.key">{{sucursal.Nombre}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="tertiary" *ngIf="necesitaClave">
+            <ion-label position="floating">Contraseña</ion-label>
+            <ion-input type="password" formControlName="Password" (ionChange)="inventarioAjeno($event)"></ion-input>
+          </ion-item>
+          <div *ngIf="necesitaClave">
+            <ion-item color="tertiary" lines="none" *ngIf="errorMessage !=''">
+              <ion-label color="danger">{{errorMessage}}</ion-label>
+            </ion-item>
+          </div>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="tertiary">
+            <ion-label>Inventario</ion-label>
+            <ion-select interface="popover" formControlName="Inventario" (ionChange)="buscarInventario($event)">
+              <ion-select-option *ngFor="let inv of inventarios" [value]="inv.key">{{inv.NombreInventario}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="9">
+          <ion-item color="tertiary">
+            <ion-label position="floating">Código</ion-label>
+            <ion-input type="number" formControlName="Codigo" (ionChange)="getProducto($event)"></ion-input>
+          </ion-item>
+        </ion-col>
+        <ion-col size="3">
+          <ion-button (click)="leerCodigo()">
+            <ion-icon slot="icon-only" name="barcode"></ion-icon>
+          </ion-button>
+        </ion-col>
+        <div *ngIf="errorMessage2 != ''">
+          <ion-item color="tertiary" lines="none">
+            <ion-label color="danger">{{errorMessage2}}</ion-label>
+          </ion-item>
+        </div>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="tertiary">
+            <ion-label position="floating">Cantidad</ion-label>
+            <ion-input type="number" formControlName="Cantidad"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-item color="tertiary">
+            <ion-label position="floating">¿De dónde viene la entrada?</ion-label>
+            <ion-input type="text" formControlName="NotaEntrada"></ion-input>
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
+          <ion-button (click)="darEntrada()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
+            <ion-icon slot="start" name="enter-outline"></ion-icon>
+            Dar entrada
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+  </ion-grid>
+</ion-content>
