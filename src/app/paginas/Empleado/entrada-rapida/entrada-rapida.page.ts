@@ -82,20 +82,23 @@ export class EntradaRapidaPage implements OnInit {
     this.Password.setValue('');
     this.Codigo.setValue('');
     this.errorMessage = "";
-    this.ref = this.db.object(claveBar+'/Sucursales/'+val.detail.value);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let sucursals = data.payload.val();
-      this.sucursal = "";
-      this.sucursal = sucursals;
-      if(cedula != this.sucursal.Jefe)
-      {
-        this.necesitaClave = true;
-      }else{
-        this.necesitaClave = false;
-      }
-    });
-    this.datos.setSucursal(val.detail.value);
-    this.getInventarios(val.detail.value, 0);
+    if(val.detail.value != '')
+    {
+        this.ref = this.db.object(claveBar+'/Sucursales/'+val.detail.value);
+        this.ref.snapshotChanges().subscribe(data=>{
+        let sucursals = data.payload.val();
+        this.sucursal = "";
+        this.sucursal = sucursals;
+        if(cedula != this.sucursal.Jefe)
+        {
+          this.necesitaClave = true;
+        }else{
+          this.necesitaClave = false;
+        }
+      });
+      this.datos.setSucursal(val.detail.value);
+      this.getInventarios(val.detail.value, 0);
+    }
   }
 
   getInventarios(sucursal: any, ced: any){
@@ -146,23 +149,26 @@ export class EntradaRapidaPage implements OnInit {
     const cedula = this.datos.getCedula();
     const sucursal = this.datos.getSucursal();
 
-    if(this.cedulaAjena != undefined && this.necesitaClave)
+    if(val.detail.value != '')
     {
-      this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+val.detail.value);
-      this.ref.snapshotChanges().subscribe(data=>{
-        let inventorys = data.payload.val();
-        this.inventario = "";
-        this.inventario = inventorys;
-      });
-      this.datos.setKey(val.detail.value);
-    }else{
-      this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+val.detail.value);
-      this.ref.snapshotChanges().subscribe(data=>{
-        let inventorys = data.payload.val();
-        this.inventario = "";
-        this.inventario = inventorys;
-      });
-      this.datos.setKey(val.detail.value);
+      if(this.cedulaAjena != undefined && this.necesitaClave)
+      {
+          this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+val.detail.value);
+          this.ref.snapshotChanges().subscribe(data=>{
+          let inventorys = data.payload.val();
+          this.inventario = "";
+          this.inventario = inventorys;
+        });
+        this.datos.setKey(val.detail.value);
+      }else{
+        this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+val.detail.value);
+        this.ref.snapshotChanges().subscribe(data=>{
+          let inventorys = data.payload.val();
+          this.inventario = "";
+          this.inventario = inventorys;
+        });
+        this.datos.setKey(val.detail.value);
+      }
     }
   }
 
@@ -173,31 +179,36 @@ export class EntradaRapidaPage implements OnInit {
     const sucursal = this.Sucursal.value;
     let codigo = val.detail.value;
     
-    if(this.cedulaAjena != undefined && this.necesitaClave)
+    if(codigo != '')
     {
-      this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+codigo);
-      this.ref.snapshotChanges().subscribe(data=>{
-        let producto = data.payload.val();
-        this.producto = "";
-        if(producto != null){
-          this.producto = producto;
-          this.errorMessage2 = "";
-        }else{
-          this.errorMessage2 = "El producto no existe."
-        }
-      })
-    }else{
-      this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+codigo);
-      this.ref.snapshotChanges().subscribe(data=>{
-        let producto = data.payload.val();
-        this.producto = "";
-        if(producto != null){
-          this.producto = producto;
-          this.errorMessage2 = "";
-        }else{
-          this.errorMessage2 = "El producto no existe.";
-        }
-      })
+      if(this.cedulaAjena != undefined && this.necesitaClave)
+      {
+        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+codigo);
+        this.ref.snapshotChanges().subscribe(data=>{
+          let producto = data.payload.val();
+          this.producto = "";
+          if(producto != null){
+            this.producto = producto;
+            this.datos.setNombreProducto(this.producto.Nombre);
+            this.errorMessage2 = "";
+          }else{
+            this.errorMessage2 = "El producto no existe."
+          }
+        })
+      }else{
+        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+codigo);
+        this.ref.snapshotChanges().subscribe(data=>{
+          let producto = data.payload.val();
+          this.producto = "";
+          if(producto != null){
+            this.producto = producto;
+            this.datos.setNombreProducto(this.producto.Nombre);
+            this.errorMessage2 = "";
+          }else{
+            this.errorMessage2 = "El producto no existe.";
+          }
+        })
+      }
     }
   }
 
@@ -216,8 +227,7 @@ export class EntradaRapidaPage implements OnInit {
     const inventario = this.formulario.value.Inventario;
     const producto = this.formulario.value.Codigo;
 
-
-      if(this.formulario.valid){
+      if(this.formulario.valid && this.errorMessage2 == ""){
         if(this.necesitaClave){
             this.Password.setValidators(Validators.required);
             this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto)
@@ -228,14 +238,16 @@ export class EntradaRapidaPage implements OnInit {
                 NombreEmpleado: this.datos.getNombreEmpleado(),
                 NombreSucursal: this.sucursal.Nombre,
                 NombreInventario: this.inventario.NombreInventario,
-                NombreProducto: this.producto.Nombre
+                NombreProducto: this.datos.getNombreProducto()
               });
               
               this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto+'/NotasEntrada').push({
                 Nota: this.formulario.value.NotaEntrada
               });
-              this.servicio.mensaje('toastSuccess', 'Entrada hecha correctamente');
-              this.formulario.reset();
+              this.servicio.mensaje('toastSuccess', 'Entrada hecha correctamente').then(()=>{
+                this.formulario.reset();
+                this.necesitaClave = false;
+              })
             }).catch(err=>{
               this.servicio.mensaje('customToast', err);
             })
@@ -249,18 +261,22 @@ export class EntradaRapidaPage implements OnInit {
                 NombreEmpleado: this.datos.getNombreEmpleado(),
                 NombreSucursal: this.sucursal.Nombre,
                 NombreInventario: this.inventario.NombreInventario,
-                NombreProducto: this.producto.Nombre
+                NombreProducto: this.datos.getNombreProducto()
               });
               
               this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/NotasEntrada').push({
                 Nota: this.formulario.value.NotaEntrada
               });
-              this.servicio.mensaje('toastSuccess', 'Entrada hecha correctamente');
-              this.formulario.reset();
+              this.servicio.mensaje('toastSuccess', 'Entrada hecha correctamente').then(()=>{
+                this.formulario.reset();
+                this.necesitaClave = false;
+              });
             }).catch(err=>{
               this.servicio.mensaje('customToast', err);
             })
         } 
+      }else{
+        this.servicio.mensaje('customToast', 'La contraseña es incorrecta o el producto no existe');
       }
   }
 
