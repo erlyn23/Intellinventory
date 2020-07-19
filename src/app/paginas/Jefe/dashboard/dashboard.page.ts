@@ -171,8 +171,10 @@ export class DashboardPage implements OnInit {
           role: 'confirm',
           cssClass: 'ConfirmarEliminar',
           handler: ()=>{
-            this.bckgMode.enable();
-            this.bckgMode.moveToBackground();
+            this.router.navigate(['login']).then(()=>{
+              this.limpiarUser();
+              this.menuCtrl.toggle();
+            });
           }
         }
       ]

@@ -117,8 +117,11 @@ export class SalidaRapidaPage implements OnInit {
         let inventorys = data.payload.val();
         this.inventarios = [];
         for(let i in inventorys){
-          inventorys[i].key = i;
-          this.inventarios.push(inventorys[i]);
+          if(inventorys[i].Estado != 'Finalizado')
+          {
+            inventorys[i].key = i;
+            this.inventarios.push(inventorys[i]);
+          }
         }
       });
     }else{
@@ -127,8 +130,11 @@ export class SalidaRapidaPage implements OnInit {
         let inventorys = data.payload.val();
         this.inventarios = [];
         for(let i in inventorys){
-          inventorys[i].key = i;
-          this.inventarios.push(inventorys[i]);
+          if(inventorys[i].Estado != 'Finalizado')
+          {
+            inventorys[i].key = i;
+            this.inventarios.push(inventorys[i]);
+          }
         }
       });
     }
