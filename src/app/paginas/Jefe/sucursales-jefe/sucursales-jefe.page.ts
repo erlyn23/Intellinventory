@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DatosService } from 'src/app/services/datos.service';
-import { ModalController, MenuController, Platform } from '@ionic/angular';
-import { MenuComponent } from 'src/app/core/menu/menu.component';
+import { MenuController, Platform } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { Router } from '@angular/router';
 
@@ -44,6 +43,7 @@ export class SucursalesJefePage implements OnInit {
 
   goToInventario(i:number){
     this.datos.setSucursal(this.sucursales[i].key);
+    this.datos.setCedula(this.sucursales[i].Jefe);
     this.router.navigate(['control-inventarios-jefe']);
   }
 }

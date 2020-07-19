@@ -1,26 +1,54 @@
 <app-cabecera-jefe></app-cabecera-jefe>
-
 <ion-content color="tertiary">
-  <ion-grid>
-    <ion-row>
-      <ion-col style="text-align: center;" size="12">
-        <ion-title>Listado de empleados</ion-title>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-  <ion-list style="background: white;">
-    <ion-item color="tertiary" *ngFor="let emp of empleados, let i = index">
-      <ion-button (click)="abrirEmpleado(i)" style="width: 100%;" expand="full" fill="clear">
-        {{emp.Nombre}}
-      </ion-button>
-      <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
-        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-      </ion-button>
-    </ion-item>
-  </ion-list>
-  <ion-fab (click)="goToCreateEmployee()" vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button>
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+    <ion-grid>
+        <ion-row>
+            <ion-col size="3"></ion-col>
+            <ion-col size="6" style="display: flex; justify-content: center;"> 
+                <img class="perfil" src="./../../../../assets/user.png" *ngIf="imagen == ''">
+                <div style="background: url({{imagen}}); 
+                background-size: 100% 100%; 
+                width: 125px; 
+                height: 125px; 
+                border-radius: 100px;" *ngIf="imagen != ''"></div>
+            </ion-col>
+            <ion-col size="3"></ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12" style="text-align: center;">
+                <h1>Bienvenido, {{jefe}}</h1>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('empleados')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                  <ion-icon slot="start" name="person-circle-outline"></ion-icon>
+                Empleados
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('sucursales')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <i class="fas fa-store"></i>&nbsp;
+                Sucursales
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('editarperfil')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <ion-icon slot="start" name="settings-outline"></ion-icon>
+                Editar Perfil
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col size="12">
+                <ion-button (click)="goToPage('salir')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                    <ion-icon slot="start" name="log-out-outline"></ion-icon>
+                    Salir
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-content>

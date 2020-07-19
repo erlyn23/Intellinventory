@@ -79,6 +79,10 @@ const routes: Routes = [
     path: 'salida-rapida',
     loadChildren: () => import('./paginas/Empleado/salida-rapida/salida-rapida.module').then( m => m.SalidaRapidaPageModule)
   },
+  {
+    path: 'empleados',
+    loadChildren: () => import('./paginas/Jefe/empleados/empleados.module').then( m => m.EmpleadosPageModule)
+  },
 ];
 
 @NgModule({

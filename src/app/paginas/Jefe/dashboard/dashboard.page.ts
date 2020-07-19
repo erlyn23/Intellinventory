@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { AlertController, MenuController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
-import { ModalCrearComponent } from './modal-crear/modal-crear.component';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { DatosService } from 'src/app/services/datos.service';
 
 import { Plugins } from '@capacitor/core';
+import { AngularFireStorage } from '@angular/fire/storage';
 
 const { Storage, 
 LocalNotifications,
@@ -22,15 +22,16 @@ BackgroundTask } = Plugins;
 })
 export class DashboardPage implements OnInit {
 
-  empleados: any[];
+  jefe: any = "";
+  imagen: any = "";
   ref:any;
   constructor(private router: Router, 
     private bckgMode: BackgroundMode,
     private platform: Platform,
-    private modalCtrl: ModalController,
     private menuCtrl: MenuController,
     private alertCtrl: AlertController,
     private db:AngularFireDatabase,
+    private storage: AngularFireStorage,
     private servicio: GeneralService,
     private datos:DatosService) {
       LocalNotifications.requestPermission().then((hasPermission)=>{
@@ -51,13 +52,17 @@ export class DashboardPage implements OnInit {
     }
 
   ngOnInit() {
-    this.ref = this.db.object(this.datos.getClave()+'/Empleados')
+    this.ref = this.db.object(this.datos.getClave()+'/Jefe')
     this.ref.snapshotChanges().subscribe(data=>{
-      let employees = data.payload.val();
-      this.empleados = [];
-      for(let i in employees)
+      let jefe = data.payload.val();
+      this.jefe = "";
+      if(jefe != null)
       {
-        this.empleados.push(employees[i]);
+        this.jefe = jefe.DatosPersonales.Nombre;
+        this.imagen = "";
+        this.storage.ref(jefe.FotoPerfil.Ruta).getDownloadURL().subscribe(data=>{
+          this.imagen = data;
+        })
       }
     })
     this.notificacionesCerradas();
@@ -141,50 +146,6 @@ export class DashboardPage implements OnInit {
     })
   }
 
-  async abrirModal()
-  {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: ModalCrearComponent,
-    });
-    return await modal.present();
-  }
-
-  async abrirAlert(i: number){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer eliminar este empleado? No podrás recuperarlo',
-      buttons:
-      [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Eliminar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.db.database.ref('EmpleadosActivos/'+this.empleados[i].Cedula).remove();
-            this.db.database.ref(this.datos.getClave()+'/Empleados/'+this.empleados[i].Cedula).remove()
-            .then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el empleado');
-              this.router.navigate(['dashboardjefe'])
-            }).catch((err)=>{
-              this.servicio.mensaje('toastCustom',err);
-            });
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
-
   async limpiarUser(){
     return (await Storage).clear();
   }
@@ -219,16 +180,22 @@ export class DashboardPage implements OnInit {
     await alert.present();
   }
 
-
-  abrirEmpleado(i:number)
+  goToPage(page: string)
   {
-    this.datos.setCedula(this.empleados[i].Cedula);
-    this.router.navigate(['sucursales-jefe']);
+    switch(page)
+    {
+      case 'empleados':
+        this.router.navigate(['empleados']);
+      break;  
+      case 'sucursales':
+        this.router.navigate(['sucursales-jefe']);
+      break;
+      case 'editarperfil':
+        this.router.navigate(['editar-perfil-jefe']);
+      break;
+      case 'salir':
+        this.salir();
+      break;
+    }
   }
-
-
-  goToCreateEmployee(){
-    this.abrirModal();
-  }
-
 }

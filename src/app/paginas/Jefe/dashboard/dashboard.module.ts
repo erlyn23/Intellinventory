@@ -8,7 +8,6 @@ import { DashboardPageRoutingModule } from './dashboard-routing.module';
 
 import { DashboardPage } from './dashboard.page';
 import { CabeceraJefeComponent } from 'src/app/core/cabecera-jefe/cabecera-jefe.component';
-import { ModalCrearComponent } from './modal-crear/modal-crear.component';
 
 @NgModule({
   imports: [
@@ -18,6 +17,6 @@ import { ModalCrearComponent } from './modal-crear/modal-crear.component';
     IonicModule,
     DashboardPageRoutingModule
   ],
-  declarations: [DashboardPage, CabeceraJefeComponent, ModalCrearComponent]
+  declarations: [DashboardPage, CabeceraJefeComponent]
 })
 export class DashboardPageModule {}

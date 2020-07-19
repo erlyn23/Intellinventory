@@ -88,6 +88,14 @@ export class MenuComponent implements OnInit {
       console.log(err);
     })
   }
+  goToSucursalesJefe(){
+    this.router.navigate(['sucursales-jefe'])
+    .then(()=>{
+      this.menuCtrl.toggle();
+    }).catch(err=>{
+      console.log(err);
+    }) 
+  }
 
   goToEntradaRapida(){
     this.router.navigate(['entrada-rapida'])
