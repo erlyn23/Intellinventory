@@ -15,7 +15,8 @@ export class EntradaComponent implements OnInit {
 
   formulario: FormGroup;
   ref: any;
-  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal:''}
+  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal:''};
+  EntradaAnterior: number;
   constructor(private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
     private datos:DatosService,
@@ -60,6 +61,13 @@ export class EntradaComponent implements OnInit {
       this.necesarios.nombreProducto = nombre;
       this.datos.setNombreSucursal(nombre);
     });
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/Entrada');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let cantidad = data.payload.val();
+      this.EntradaAnterior = 0;
+      this.EntradaAnterior = cantidad;
+    });
   }
   async cargando()
   {
@@ -73,6 +81,7 @@ export class EntradaComponent implements OnInit {
 
   EntradaProducto()
   {
+    console.log(this.EntradaAnterior);
     if(this.formulario.valid)
     {
       this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
@@ -89,7 +98,7 @@ export class EntradaComponent implements OnInit {
 
       //Proceso completo para guardar artículo en la BD
         this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
-          Entrada: this.formulario.value.Cantidad
+          Entrada: this.EntradaAnterior + this.formulario.value.Cantidad
           }).then(()=>{
             this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
             this.db.database.ref(claveBar+'/ParaNotificaciones/Entradas').push({

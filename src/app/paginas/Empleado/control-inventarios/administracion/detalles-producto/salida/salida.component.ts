@@ -13,7 +13,8 @@ export class SalidaComponent implements OnInit {
 
   formulario: FormGroup;
   ref: any;
-  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal: ''}
+  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal: ''};
+  SalidaAnterior: number = 0;
   constructor(private formBuilder:FormBuilder,
     private modalCtrl: ModalController,
     private datos:DatosService,
@@ -56,6 +57,13 @@ export class SalidaComponent implements OnInit {
       let nombre = data.payload.val();
       this.datos.setNombreSucursal(nombre);
     });
+
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/Salida');
+    this.ref.snapshotChanges().subscribe(data=>{
+      let cantidad = data.payload.val();
+      this.SalidaAnterior = 0;
+      this.SalidaAnterior = cantidad;
+    });
   }
   
   SalidaProducto()
@@ -76,7 +84,7 @@ export class SalidaComponent implements OnInit {
         //Proceso completo para guardar artículo en la BD
         this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update(
         {
-          Salida: this.formulario.value.Cantidad,
+          Salida: this.SalidaAnterior + this.formulario.value.Cantidad,
         }).then(()=>{
           this.servicio.mensaje('toastSuccess','Salida hecha correctamente');
           this.db.database.ref(claveBar+'/ParaNotificaciones/Salidas').push({

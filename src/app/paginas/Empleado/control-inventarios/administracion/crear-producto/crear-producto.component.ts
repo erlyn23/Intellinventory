@@ -65,5 +65,7 @@ export class CrearProductoComponent implements OnInit {
       let code = await Clipboard.read(); 
       this.form.controls.Codigo.setValue(code.value);
     })
+    
+    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 }

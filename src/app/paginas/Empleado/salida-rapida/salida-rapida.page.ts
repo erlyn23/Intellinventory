@@ -26,6 +26,7 @@ export class SalidaRapidaPage implements OnInit {
   sucursal: any = "";
   producto: any = "";
   inventario: any = "";
+  SalidaAnterior: number = 0;
   constructor(private menuCtrl: MenuController,
     private formBuilder: FormBuilder,
     private datos: DatosService,
@@ -209,6 +210,12 @@ export class SalidaRapidaPage implements OnInit {
             this.errorMessage2 = "El producto no existe."
           }
         })
+        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+val.detail.value+'/Salida');
+        this.ref.snapshotChanges().subscribe(data=>{
+          let cantidad = data.payload.val();
+          this.SalidaAnterior = 0;
+          this.SalidaAnterior = cantidad;
+        });
       }
     }else{
       if(val.detail.value != '')
@@ -225,6 +232,12 @@ export class SalidaRapidaPage implements OnInit {
             this.errorMessage2 = "El producto no existe.";
           }
         })
+        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+val.detail.value+'/Salida');
+        this.ref.snapshotChanges().subscribe(data=>{
+          let cantidad = data.payload.val();
+          this.SalidaAnterior = 0;
+          this.SalidaAnterior = cantidad;
+        });
       }
     }
   }
@@ -235,6 +248,7 @@ export class SalidaRapidaPage implements OnInit {
       let code = await Clipboard.read(); 
       this.formulario.controls.Codigo.setValue(code.value);
     })
+    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 
   darSalida(){
@@ -249,7 +263,7 @@ export class SalidaRapidaPage implements OnInit {
         if(this.necesitaClave){
           this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto)
           .update({
-            Salida: this.Cantidad.value
+            Salida: this.SalidaAnterior + this.Cantidad.value
           }).then(()=>{
             this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto+'/NotasSalidas').push({
               Nota: this.NotaSalida.value
@@ -273,7 +287,7 @@ export class SalidaRapidaPage implements OnInit {
       {
           this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto)
             .update({
-              Salida: this.Cantidad.value
+              Salida: this.SalidaAnterior + this.Cantidad.value
             }).then(()=>{
               this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/NotasSalidas').push({
                 Nota: this.NotaSalida.value

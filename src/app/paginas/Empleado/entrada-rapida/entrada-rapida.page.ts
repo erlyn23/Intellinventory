@@ -26,6 +26,7 @@ export class EntradaRapidaPage implements OnInit {
   sucursal: any = "";
   producto: any = "";
   inventario: any = "";
+  EntradaAnterior: number = 0;
   constructor(private menuCtrl: MenuController,
     private formBuilder: FormBuilder,
     private datos: DatosService,
@@ -200,6 +201,12 @@ export class EntradaRapidaPage implements OnInit {
           }else{
             this.errorMessage2 = "El producto no existe."
           }
+          this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+codigo+'/Entrada');
+          this.ref.snapshotChanges().subscribe(data=>{
+            let cantidad = data.payload.val();
+            this.EntradaAnterior = 0;
+            this.EntradaAnterior = cantidad;
+          });
         })
       }else{
         this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+codigo);
@@ -214,6 +221,12 @@ export class EntradaRapidaPage implements OnInit {
             this.errorMessage2 = "El producto no existe.";
           }
         })
+        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+codigo+'/Entrada');
+        this.ref.snapshotChanges().subscribe(data=>{
+          let cantidad = data.payload.val();
+          this.EntradaAnterior = 0;
+          this.EntradaAnterior = cantidad;
+        });
       }
     }
   }
@@ -223,7 +236,9 @@ export class EntradaRapidaPage implements OnInit {
 
       let code = await Clipboard.read(); 
       this.formulario.controls.Codigo.setValue(code.value);
-    })
+    });
+    
+    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 
   darEntrada(){
@@ -232,13 +247,13 @@ export class EntradaRapidaPage implements OnInit {
     const sucursal = this.formulario.value.Sucursal;
     const inventario = this.formulario.value.Inventario;
     const producto = this.formulario.value.Codigo;
-
+    console.log(this.EntradaAnterior);
       if(this.formulario.valid && this.errorMessage2 == ""){
         if(this.necesitaClave){
             this.Password.setValidators(Validators.required);
             this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto)
             .update({
-              Entrada: this.formulario.value.Cantidad
+              Entrada: this.EntradaAnterior + this.Cantidad.value
             }).then(()=>{
               this.db.database.ref(clave+'/ParaNotificaciones/Entradas').push({
                 NombreEmpleado: this.datos.getNombreEmpleado(),
@@ -261,7 +276,7 @@ export class EntradaRapidaPage implements OnInit {
           this.Password.clearValidators();
           this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto)
             .update({
-              Entrada: this.formulario.value.Cantidad
+              Entrada: this.EntradaAnterior + this.Cantidad.value
             }).then(()=>{
               this.db.database.ref(clave+'/ParaNotificaciones/Entradas').push({
                 NombreEmpleado: this.datos.getNombreEmpleado(),

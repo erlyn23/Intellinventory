@@ -65,11 +65,13 @@ export class StockModalComponent implements OnInit {
     }
   }
   leerCodigo(){
-    this.servicio.leerCodigo().then(async (codigo)=>{
+    this.servicio.leerCodigo().then(async ()=>{
 
       let code = await Clipboard.read(); 
       this.formulario.controls.Codigo.setValue(code.value);
     })
+    
+    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 
   goBack()

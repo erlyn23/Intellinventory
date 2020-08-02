@@ -55,7 +55,7 @@ export class GeneralService {
   {
     const data: Blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'});
     const name = nombreArchivo + '-'+ Date.now() +'.xlsx';
-    this.file.writeFile(this.file.externalRootDirectory,name, data).then(()=>{
+    this.file.writeFile(this.file.externalApplicationStorageDirectory,name, data).then(()=>{
       this.mensaje('toastSuccess', 'Excel exportado correctamente');
       this.mensaje('toastSuccess', 'Archivo guardado en el directorio raíz del dispositivo')
     }).catch(err=>{
