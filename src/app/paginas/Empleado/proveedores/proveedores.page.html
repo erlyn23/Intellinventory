@@ -15,9 +15,11 @@
   </ion-grid>
   <ion-list style="background: white;">
     <ion-item color="tertiary" *ngFor="let proveedor of proveedores, let i = index">
-      <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">
-        {{proveedor.Nombre}}
-      </ion-button>
+      <ion-col size="8">
+        <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">
+          {{proveedor.Nombre}}
+        </ion-button>
+      </ion-col>
       <ion-button (click)="modificarProveedor(i)" color="primary" fill="clear">
         <ion-icon slot="icon-only" name="create-outline"></ion-icon>
       </ion-button>

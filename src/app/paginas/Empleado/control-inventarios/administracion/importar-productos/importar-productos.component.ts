@@ -19,7 +19,6 @@ export class ImportarProductosComponent implements OnInit {
   constructor(private modalCtrl: ModalController, 
     private formBuilder: FormBuilder,
     private datos: DatosService,
-    private servicio: GeneralService,
     private db: AngularFireDatabase) { }
 
   ngOnInit() {

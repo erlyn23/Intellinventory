@@ -32,6 +32,17 @@ export class LoginPage implements OnInit {
     }
 
   ngOnInit() {
+    this.loginAutomatico();
+  }
+
+  ionViewWillEnter() {
+    // this.clearUsuario();
+    this.menuCtrl.enable(false,'first');
+    this.menuCtrl.enable(false, 'second');
+  }
+
+  loginAutomatico()
+  {
     this.encontrado = 0;
       this.getUsuario('posicion').then(pos=>{
         if(pos.value == 'jefe')
@@ -76,12 +87,6 @@ export class LoginPage implements OnInit {
       })
   }
 
-  ionViewWillEnter() {
-    // this.clearUsuario();
-    this.menuCtrl.enable(false,'first');
-    this.menuCtrl.enable(false, 'second');
-  }
-
   async guardarUsuario(llave: any, valor: any)
   {
     await Storage.set({key: llave, value: valor});
@@ -90,11 +95,6 @@ export class LoginPage implements OnInit {
   {
     return (await Storage.get({key: llave}));
   }
-
-  // async clearUsuario()
-  // {
-  //   return (await Storage.clear());
-  // }
 
   cambiarRol(val:any)
   {
@@ -136,10 +136,10 @@ export class LoginPage implements OnInit {
         switch(err.code)
         {
           case "auth/invalid-email":
-            this.servicio.mensaje('customToast',"Email inválido")
+            this.servicio.mensaje('customToast',"Correo o contraseña incorrecta")
             break;
           case "auth/wrong-password":
-            this.servicio.mensaje('customToast',"Contraseña incorrecta");
+            this.servicio.mensaje('customToast',"Correo o contraseña incorrecta");
             break;
           case "auth/user-not-found":
             this.servicio.mensaje('customToast',"El usuario no existe");

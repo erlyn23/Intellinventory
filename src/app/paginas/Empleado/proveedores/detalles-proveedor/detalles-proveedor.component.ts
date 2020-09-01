@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
@@ -14,9 +15,12 @@ export class DetallesProveedorComponent implements OnInit {
   ref: any;
   proveedor: any ='';
   constructor(private modalCtrl: ModalController,
+    private platform: Platform,
     private db: AngularFireDatabase,
     private datos: DatosService,
-  ) { }
+  ) { 
+    this.platform.backButton.subscribeWithPriority(10, ()=>{this.goBack()});
+  }
 
   ngOnInit() {
     const clave = this.datos.getClave();
