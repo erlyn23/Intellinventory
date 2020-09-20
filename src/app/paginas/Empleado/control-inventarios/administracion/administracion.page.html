@@ -22,21 +22,21 @@
       </ion-col>
     </ion-row>
     <ion-list style="background: white;" *ngIf="esBusqueda == false && estado != 'Finalizado'">
-      <ion-item color="tertiary" *ngFor="let prod of productos, let i = index">
+      <ion-item color="tertiary" *ngFor="let producto of productos, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
-          {{prod.Nombre}}
+          {{producto.Nombre}}
         </ion-button>
-        <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+        <ion-button (click)="abrirConfirmarEliminarProducto(i)" color="danger" fill="clear">
           <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
         </ion-button>
       </ion-item>
     </ion-list>
     <ion-list style="background: white;" *ngIf="esBusqueda == true && estado != 'Finalizado'">
-      <ion-item color="tertiary" *ngFor="let prod of tempProducts, let i = index">
+      <ion-item color="tertiary" *ngFor="let producto of productosTemporales, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
-          {{prod.Nombre}}
+          {{producto.Nombre}}
         </ion-button>
-        <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+        <ion-button (click)="confirmarEliminarProducto(i)" color="danger" fill="clear">
           <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
         </ion-button>
       </ion-item>
@@ -51,25 +51,25 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="finalizarInventario()" style="width: 100%;" color="success" shape="round" *ngIf="estado != 'Finalizado'">
+        <ion-button (click)="confirmarFinalizarInventario()" style="width: 100%;" color="success" shape="round" *ngIf="estado != 'Finalizado'">
           <ion-icon slot="start" name="checkmark-circle"></ion-icon>
           Finalizar inventario
         </ion-button>
       </ion-col>
     </ion-row>
     <ion-row *ngIf="esBusqueda == false && estado == 'Finalizado'">
-      <ion-col size="12" *ngFor="let prod of productos">
+      <ion-col size="12" *ngFor="let producto of productos">
         <ion-card color="primary">
           <ion-card-content>
             <ion-list style="background: #3a93c9">
               <ion-item color="primary">
-                <h4>Producto: {{prod.Nombre}}</h4>
+                <h4>Producto: {{producto.Nombre}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{prod.Diferencia}}</h4>
+                <h4>Diferencia: {{producto.Diferencia}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{prod.Nota}}</h4>
+                <h4>Nota: {{producto.Nota}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>
@@ -77,18 +77,18 @@
       </ion-col>
     </ion-row>
     <ion-row *ngIf="esBusqueda == true && estado == 'Finalizado'">
-      <ion-col size="12" *ngFor="let prod of tempProducts">
+      <ion-col size="12" *ngFor="let producto of productosTemporales">
         <ion-card color="primary">
           <ion-card-content>
             <ion-list style="background: #3a93c9">
               <ion-item color="primary">
-                <h4>Producto: {{prod.Nombre}}</h4>
+                <h4>Producto: {{producto.Nombre}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{prod.Diferencia}}</h4>
+                <h4>Diferencia: {{producto.Diferencia}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{prod.Nota}}</h4>
+                <h4>Nota: {{producto.Nota}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>

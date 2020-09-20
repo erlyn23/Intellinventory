@@ -12,10 +12,10 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 })
 export class CrearInventarioComponent implements OnInit {
 
-  form: FormGroup;
+  formulario: FormGroup;
   ref: any;
   constructor(private modalCtrl: ModalController,
-    private formBuilder: FormBuilder,
+    private constructorFormulario: FormBuilder,
     private db: AngularFireDatabase,
     private general: GeneralService,
     private datos: DatosService) { }
@@ -23,7 +23,7 @@ export class CrearInventarioComponent implements OnInit {
   ngOnInit() {
     const fecha = new Date();
 
-    this.form = this.formBuilder.group({
+    this.formulario = this.constructorFormulario.group({
       Nombre: ["",[Validators.required, Validators.maxLength(30)]],
       Fecha: [`${fecha.getDate()}/${(fecha.getMonth() + 1)}/${fecha.getFullYear()}`],
     })
@@ -31,11 +31,14 @@ export class CrearInventarioComponent implements OnInit {
 
   crearInventario()
   {
-    this.db.database.ref(this.datos.getClave()+'/Sucursales/'+this.datos.getSucursal()+'/Inventarios/'+this.datos.getCedula()).push({
-      NombreInventario: this.form.value.Nombre,
-      FechaInventario: this.form.value.Fecha,
-      Estado: 'En progreso',
-      
+    const clave = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
+    const cedula = this.datos.getCedula();
+
+    this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula).push({
+      NombreInventario: this.formulario.value.Nombre,
+      FechaInventario: this.formulario.value.Fecha,
+      Estado: 'En progreso'
     }).then(()=>{
       this.general.mensaje('toastSuccess','Se ha creado el inventario');
       this.modalCtrl.dismiss();
@@ -50,6 +53,6 @@ export class CrearInventarioComponent implements OnInit {
 
   get Nombre()
   {
-    return this.form.get('Nombre');
+    return this.formulario.get('Nombre');
   }
 }

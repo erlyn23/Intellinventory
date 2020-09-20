@@ -28,7 +28,7 @@ export class LoginPage implements OnInit {
     private datos: DatosService,
     private auth:AngularFireAuth,
     private db: AngularFireDatabase,
-    private router: Router,) { 
+    private router: Router) { 
     }
 
   ngOnInit() {
@@ -36,7 +36,6 @@ export class LoginPage implements OnInit {
   }
 
   ionViewWillEnter() {
-    // this.clearUsuario();
     this.menuCtrl.enable(false,'first');
     this.menuCtrl.enable(false, 'second');
   }
@@ -62,17 +61,18 @@ export class LoginPage implements OnInit {
           }).catch((err)=>{
             this.servicio.mensaje('customToast',err);
           })
-        }else
+        }
+        else
         {
-          this.getUsuario('cedula').then(ced=>{
-            if(ced.value != null){
-              this.ref = this.db.object('EmpleadosActivos/'+ced.value);
+          this.getUsuario('cedula').then(cedula=>{
+            if(cedula.value != null){
+              this.ref = this.db.object('EmpleadosActivos/'+cedula.value);
               this.ref.snapshotChanges().subscribe(data=>{
               let activos = data.payload.val();
               if(activos != null)
               {
                   this.datos.setClave(activos.CodigoActivacion);
-                  this.datos.setCedula(ced.value);
+                  this.datos.setCedula(cedula.value);
                   this.encontrado = 1;
                   this.router.navigate(['dashboard']).then(()=>{
                     this.encontrado = 0;
@@ -148,7 +148,7 @@ export class LoginPage implements OnInit {
     })
   }
 
-  iniciarEmpleado()
+  iniciarSesionEmpleado()
   {
     this.ref = this.db.object('EmpleadosActivos/'+this.empleado.codigo);
     this.ref.snapshotChanges().subscribe(data=>{

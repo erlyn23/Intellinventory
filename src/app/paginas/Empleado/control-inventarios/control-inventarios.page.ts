@@ -35,12 +35,12 @@ export class ControlInventariosPage implements OnInit {
 
     this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+'/'+cedula);
     this.ref.snapshotChanges().subscribe(data=>{
-      let invrios = data.payload.val();
+      let bdInventarios = data.payload.val();
       this.inventarios = [];
-      for(let i in invrios)
+      for(let i in bdInventarios)
       {
-        invrios[i].key = i;
-        this.inventarios.push(invrios[i]);
+        bdInventarios[i].key = i;
+        this.inventarios.push(bdInventarios[i]);
       }
     })
   }
@@ -59,7 +59,7 @@ export class ControlInventariosPage implements OnInit {
     await modal.present();
   }
 
-  async abrirAlert(i: number){
+  async abrirAlert(indice: number){
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
       header: 'Confirmar',
@@ -79,14 +79,7 @@ export class ControlInventariosPage implements OnInit {
           role: 'confirm',
           cssClass: 'ConfirmarEliminar',
           handler: ()=>{
-            const claveBar = this.datos.getClave();
-            const sucursal = this.datos.getSucursal();
-            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+this.datos.getCedula()+'/'+this.inventarios[i].key)
-            .remove().then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el inventario');
-            }).catch((err)=>{
-              this.servicio.mensaje('toastCustom',err);
-            });
+            this.eliminarInventario(indice);
           }
         }
       ]
@@ -94,7 +87,21 @@ export class ControlInventariosPage implements OnInit {
     await alert.present();
   }
 
-  async eliminarSucursal()
+  eliminarInventario(indice: number){
+    const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
+    const cedula = this.datos.getCedula();
+    const inventario = this.inventarios[indice].key;
+
+    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario)
+    .remove().then(()=>{
+      this.servicio.mensaje('toastSuccess', 'Se ha eliminado el inventario');
+    }).catch((err)=>{
+      this.servicio.mensaje('toastCustom',err);
+    });
+  }
+
+  async confirmarEliminarSucursal()
   {
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
@@ -114,13 +121,7 @@ export class ControlInventariosPage implements OnInit {
           role:"confirm",
           text: 'Confirmar',
           handler: ()=>{
-            const clave = this.datos.getClave();
-            this.db.database.ref(clave+'/Sucursales/'+this.datos.getSucursal()).remove().then(()=>{
-              this.router.navigate(['sucursales']);
-              this.servicio.mensaje('toastSuccess', 'Sucursal eliminada correctamente');
-            }).catch(err=>{
-              this.servicio.mensaje('customToast',err);
-            })
+            this.eliminarSucursal();
           }
         }
       ]
@@ -128,6 +129,31 @@ export class ControlInventariosPage implements OnInit {
     (await alert).present();
   }
 
+  eliminarSucursal(){
+    const clave = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
+
+    this.db.database.ref(clave+'/Sucursales/'+sucursal).remove().then(()=>{
+      this.router.navigate(['sucursales']);
+      this.servicio.mensaje('toastSuccess', 'Sucursal eliminada correctamente');
+    }).catch(err=>{
+      this.servicio.mensaje('customToast',err);
+    })
+  }
+
+  goToAdministracion(indice:number)
+  {
+    if(this.inventarios[indice].Estado == 'Finalizado')
+    {
+      this.info('Este inventario ha sido marcado como finalizado, así que solo puede ver información sobre él');
+      this.datos.setKey(this.inventarios[indice].key);
+      this.router.navigate(['administracion']);
+    }else{
+      this.datos.setKey(this.inventarios[indice].key);
+      this.router.navigate(['administracion']);
+    }
+  }
+  
   async info(mensaje: string)
   {
     const alert = await this.alertCtrl.create({
@@ -144,19 +170,6 @@ export class ControlInventariosPage implements OnInit {
       ]
     });
     await alert.present();
-  }
-
-  goToAdministracion(i:number)
-  {
-    if(this.inventarios[i].Estado == 'Finalizado')
-    {
-      this.info('Este inventario ha sido marcado como finalizado, así que solo puede ver información sobre él');
-      this.datos.setKey(this.inventarios[i].key);
-      this.router.navigate(['administracion']);
-    }else{
-      this.datos.setKey(this.inventarios[i].key);
-      this.router.navigate(['administracion']);
-    }
   }
 
   goBack(){

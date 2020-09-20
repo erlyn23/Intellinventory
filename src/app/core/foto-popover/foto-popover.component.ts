@@ -22,12 +22,10 @@ export class FotoPopoverComponent implements OnInit {
   ref: any;
   constructor(private alertCtrl: AlertController,
     private modalCtrl: ModalController,
-    private popoverCtrl:PopoverController,
+    private popoverCtrl: PopoverController,
     private datos: DatosService,
     private servicio: GeneralService,
-    private db: AngularFireDatabase,
-    private storage: AngularFireStorage, 
-    private camera: Camera) { }
+    private storage: AngularFireStorage) { }
 
   ngOnInit() {}
 
@@ -35,6 +33,26 @@ export class FotoPopoverComponent implements OnInit {
   async getPosicion()
   {
     return (await Storage.get({key: 'posicion'}));
+  }
+
+  subirImagen(datosImagen: any)
+  {
+    this.getPosicion().then(pos=>{
+      if(pos.value == 'jefe')
+      {
+        const idJefe = this.datos.getClave();
+        this.imagen = datosImagen.target.files[0];
+        const rutaArchivo = `PerfilJefe/${idJefe}`;
+        this.abrirAlert(rutaArchivo);
+      }
+      else
+      {
+        const cedula = this.datos.getCedula();
+        this.imagen = datosImagen.target.files[0];
+        const rutaArchivo = `Perfil/${cedula}`;
+        this.abrirAlert(rutaArchivo);
+      }
+    });
   }
 
   async abrirAlert(ruta:any)
@@ -50,46 +68,7 @@ export class FotoPopoverComponent implements OnInit {
           text: 'Confirmar',
           handler: ()=>{
             this.cargando();
-            this.getPosicion().then(pos=>{
-              if(pos.value == 'jefe'){
-                const fileRef = this.storage.ref(ruta);
-                const tarea = this.storage.upload(ruta, this.imagen);
-                tarea.percentageChanges().subscribe(porcent=>{
-                  if(porcent == 100)
-                  {
-                    const clave = this.datos.getClave();
-                    this.modalCtrl.dismiss();
-                    this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
-                    this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ''}).catch(err=>{
-                      this.servicio.mensaje('customToast',err);
-                    });
-                    this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ruta}).catch(err=>{
-                      this.servicio.mensaje('customToast',err);
-                    });
-                    this.popoverCtrl.dismiss();
-                  }
-                });
-              }else{
-                const fileRef = this.storage.ref(ruta);
-                const tarea = this.storage.upload(ruta, this.imagen);
-                tarea.percentageChanges().subscribe(porcent=>{
-                  if(porcent == 100)
-                  {
-                    const clave = this.datos.getClave();
-                    const cedula = this.datos.getCedula();
-                    this.modalCtrl.dismiss();
-                    this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
-                    this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ''}).catch(err=>{
-                      this.servicio.mensaje('customToast', err);
-                    });
-                    this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ruta}).catch(err=>{
-                    this.servicio.mensaje('customToast',err);
-                  });
-                this.popoverCtrl.dismiss();
-              }
-            });
-            }
-          })
+            this.guardarImagenEnLaBD(ruta);
           }
         },
         {
@@ -113,22 +92,46 @@ export class FotoPopoverComponent implements OnInit {
     (await modal).present();
   }
 
-  subirImagen(ev: any)
-  {
-    this.getPosicion().then(pos=>{
-      if(pos.value == 'jefe')
-      {
-        const uid = this.datos.getClave();
-        this.imagen = ev.target.files[0];
-        const rutaArchivo = `PerfilJefe/${uid}`;
-        this.abrirAlert(rutaArchivo);
-      }else{
-        const cedula = this.datos.getCedula();
-        this.imagen = ev.target.files[0];
-        const rutaArchivo = `Perfil/${cedula}`;
-        this.abrirAlert(rutaArchivo);
+  guardarImagenEnLaBD(ruta: string){
+      this.getPosicion().then(pos=>{
+        if(pos.value == 'jefe'){
+          const referenciaArchivo = this.storage.ref(ruta);
+          const tareaDeSubida = this.storage.upload(ruta, this.imagen);
+          tareaDeSubida.percentageChanges().subscribe(porcentaje=>{
+            if(porcentaje == 100)
+            {
+              const clave = this.datos.getClave();
+              this.modalCtrl.dismiss();
+              this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
+              this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ''}).catch(err=>{
+                this.servicio.mensaje('customToast',err);
+              });
+              this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ruta}).catch(err=>{
+                this.servicio.mensaje('customToast',err);
+              });
+              this.popoverCtrl.dismiss();
+            }
+          });
+        }else{
+          const referenciaArchivo = this.storage.ref(ruta);
+          const tareaDeSubida = this.storage.upload(ruta, this.imagen);
+          tareaDeSubida.percentageChanges().subscribe(porcentaje=>{
+            if(porcentaje == 100)
+            {
+              const clave = this.datos.getClave();
+              const cedula = this.datos.getCedula();
+              this.modalCtrl.dismiss();
+              this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
+              this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ''}).catch(err=>{
+                this.servicio.mensaje('customToast', err);
+              });
+              this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ruta}).catch(err=>{
+              this.servicio.mensaje('customToast',err);
+            });
+          this.popoverCtrl.dismiss();
+        }
+      });
       }
     })
   }
-
 }

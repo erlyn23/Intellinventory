@@ -18,7 +18,7 @@ export class AdministracionPage implements OnInit {
   estado: any;
   ref: any;
   productos: any[] = [];
-  tempProducts: any[];
+  productosTemporales: any[];
   esBusqueda: boolean = false;
   constructor(private modalCtrl: ModalController,
     private platform: Platform,
@@ -42,22 +42,22 @@ export class AdministracionPage implements OnInit {
 
     this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario);
     this.ref.snapshotChanges().subscribe(data=>{
-      let title = data.payload.val();
-      if(title != null){
-        this.titulo = title.NombreInventario;
-        this.estado = title.Estado;
+      let infoInventario = data.payload.val();
+      if(infoInventario != null){
+        this.titulo = infoInventario.NombreInventario;
+        this.estado = infoInventario.Estado;
         this.datos.setEstado(this.estado);
       }
     });
 
     this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
-      let products = data.payload.val();
+      let bdProductos = data.payload.val();
       this.productos = [];
-      for(let i in products)
+      for(let i in bdProductos)
       {
-        products[i].key = i;
-        this.productos.push(products[i]);
+        bdProductos[i].key = i;
+        this.productos.push(bdProductos[i]);
       }
     });
   }
@@ -84,7 +84,7 @@ export class AdministracionPage implements OnInit {
     await modal.present();
   }
 
-  async abrirAlert(i: number){
+  async confirmarEliminarProducto(indice: number){
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
       header: 'Confirmar',
@@ -104,17 +104,7 @@ export class AdministracionPage implements OnInit {
           role: 'confirm',
           cssClass: 'ConfirmarEliminar',
           handler: ()=>{
-            const claveBar = this.datos.getClave();
-            const sucursal = this.datos.getSucursal();
-            const cedula = this.datos.getCedula();
-            const llaveInventario = this.datos.getKey();
-
-            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.productos[i].Codigo)
-            .remove().then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el producto');
-            }).catch((err)=>{
-              this.servicio.mensaje('toastCustom',err);
-            });
+            this.eliminarProducto(indice);
           }
         }
       ]
@@ -122,7 +112,22 @@ export class AdministracionPage implements OnInit {
     await alert.present();
   }
 
-  buscarProducto(val:any)
+  eliminarProducto(indice: number){
+    const claveBar = this.datos.getClave();
+    const sucursal = this.datos.getSucursal();
+    const cedula = this.datos.getCedula();
+    const llaveInventario = this.datos.getKey();
+    const producto = this.productos[indice].Codigo;
+
+    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+producto)
+    .remove().then(()=>{
+      this.servicio.mensaje('toastSuccess', 'Se ha eliminado el producto');
+    }).catch((err)=>{
+      this.servicio.mensaje('toastCustom',err);
+    });
+  }
+
+  buscarProducto(busqueda:any)
   {
     const claveBar = this.datos.getClave();
     const sucursal = this.datos.getSucursal();
@@ -132,14 +137,14 @@ export class AdministracionPage implements OnInit {
     this.esBusqueda = true;
     this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
-      let products = data.payload.val();
-      this.tempProducts = [];
-      for(let i in products)
+      let bdProductos = data.payload.val();
+      this.productosTemporales = [];
+      for(let i in bdProductos)
       {
-        if(products[i].Nombre.includes(val.detail.value))
+        if(bdProductos[i].Nombre.includes(busqueda.detail.value))
         {
-          this.tempProducts.push(products[i]);
-        }else if(val.detail.value == "")
+          this.productosTemporales.push(bdProductos[i]);
+        }else if(busqueda.detail.value == "")
         {
           this.esBusqueda = false;
         }
@@ -147,7 +152,7 @@ export class AdministracionPage implements OnInit {
     });
   }
 
-  async finalizarInventario(){
+  async confirmarFinalizarInventario(){
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
       header: 'Confirmar',
@@ -158,16 +163,7 @@ export class AdministracionPage implements OnInit {
           text: 'Confirmar',
           role: 'confirm',
           handler: ()=>{
-              const cedula = this.datos.getCedula();
-              const clave = this.datos.getClave();
-              const llave = this.datos.getKey();
-              const sucursal = this.datos.getSucursal();
-              
-              this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llave).update({Estado: 'Finalizado'})
-              .then(()=>{
-                this.servicio.mensaje('toastSuccess','Inventario finalizado correctamente');
-                this.goBack();
-              });
+              this.finalizarInventario();
           }
         },
         {
@@ -180,19 +176,32 @@ export class AdministracionPage implements OnInit {
     await alert.present();
   }
 
+  finalizarInventario(){
+    const cedula = this.datos.getCedula();
+    const clave = this.datos.getClave();
+    const llave = this.datos.getKey();
+    const sucursal = this.datos.getSucursal();
+    
+    this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llave).update({Estado: 'Finalizado'})
+    .then(()=>{
+      this.servicio.mensaje('toastSuccess','Inventario finalizado correctamente');
+      this.goBack();
+    });
+  }
+
   exportarAexcel()
   {
     this.servicio.exportarExcel(this.productos, 'Inventario');
   }
 
-  goToDetails(i:number)
+  goToDetails(indice:number)
   {
-    if(this.tempProducts != undefined)
+    if(this.productosTemporales != undefined)
     {
-      this.datos.setCode(this.tempProducts[i].Codigo);
+      this.datos.setCode(this.productosTemporales[indice].Codigo);
       this.router.navigate(['detalles-producto']);
     }else{
-      this.datos.setCode(this.productos[i].Codigo);
+      this.datos.setCode(this.productos[indice].Codigo);
       this.router.navigate(['detalles-producto'])
     } 
   }

@@ -22,6 +22,7 @@ export class CalculadoraPage implements OnInit {
 
   ngOnInit() {
   }
+  
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
   }
