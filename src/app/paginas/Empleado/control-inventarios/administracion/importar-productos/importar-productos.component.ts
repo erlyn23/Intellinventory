@@ -42,12 +42,12 @@ export class ImportarProductosComponent implements OnInit {
     })
   }
 
-  buscarProductos(val:any){
+  buscarProductos(busqueda:any){
     const claveBar = this.datos.getClave();
     const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
 
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+val.detail.value+'/Productos');
+    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+busqueda.detail.value+'/Productos');
     this.ref.snapshotChanges().subscribe(data=>{
       let productos = data.payload.val();
       this.productos = [];
@@ -63,20 +63,21 @@ export class ImportarProductosComponent implements OnInit {
     const sucursal = this.datos.getSucursal();
     const cedula = this.datos.getCedula();
     const inventario = this.datos.getKey();
-
+    
     for(let i in this.productos)
     {
-      this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+this.productos[i].Codigo).update({
-        Codigo: this.productos[i].Codigo,
-        Nombre: this.productos[i].Nombre,
-        CantidadInicial: this.productos[i].InventarioActual,
+      let producto = this.productos[i].Codigo;
+      this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto).update({
+        Codigo: producto.Codigo,
+        Nombre: producto.Nombre,
+        CantidadInicial: producto.InventarioActual,
         Entrada: 0,
-        SumaEntrada: this.productos[i].SumaEntrada,
+        SumaEntrada: producto.SumaEntrada,
         Salida: 0,
-        TotalExistencia: this.productos[i].TotalExistencia,
+        TotalExistencia: producto.TotalExistencia,
         InventarioActual: 0,
-        Diferencia: this.productos[i].Diferencia,
-        Nota: this.productos[i].Nota
+        Diferencia: producto.Diferencia,
+        Nota: producto.Nota
       })
     }
     this.modalCtrl.dismiss();

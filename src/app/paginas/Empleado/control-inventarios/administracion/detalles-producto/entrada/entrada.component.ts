@@ -42,13 +42,15 @@ export class EntradaComponent implements OnInit {
       this.datos.setNombreEmpleado(nombre.Nombre);
     });
 
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/NombreInventario');
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
+    inventario+'/NombreInventario');
     this.ref.snapshotChanges().subscribe(data=>{
       let nombre = data.payload.val();
       this.datos.setNombreInventario(nombre);
     });
 
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/Nombre');
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
+    inventario+'/Productos/'+producto+'/Nombre');
     this.ref.snapshotChanges().subscribe(data=>{
       let nombre = data.payload.val();
       this.necesarios.nombreProducto = nombre;
@@ -62,7 +64,8 @@ export class EntradaComponent implements OnInit {
       this.datos.setNombreSucursal(nombre);
     });
 
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/Entrada');
+    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
+    inventario+'/Productos/'+producto+'/Entrada');
     this.ref.snapshotChanges().subscribe(data=>{
       let cantidad = data.payload.val();
       this.EntradaAnterior = 0;
@@ -79,25 +82,23 @@ export class EntradaComponent implements OnInit {
     (await alert).present();
   }
 
-  EntradaProducto()
+  darEntradaProducto()
   {
-    console.log(this.EntradaAnterior);
     if(this.formulario.valid)
     {
-      this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
-      this.necesarios.nombreInventario = this.datos.getNombreInventario();
-      this.necesarios.nombreProducto = this.datos.getNombreProducto();
-      this.necesarios.nombreSucursal = this.datos.getNombresucursal();
-      //Variables que almacenan los datos necesarios para operar en la BD.
+        this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
+        this.necesarios.nombreInventario = this.datos.getNombreInventario();
+        this.necesarios.nombreProducto = this.datos.getNombreProducto();
+        this.necesarios.nombreSucursal = this.datos.getNombresucursal();
+
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
         const cedula = this.datos.getCedula();
         const llaveInventario = this.datos.getKey();
         const codigo = this.datos.getCode();
-      //Variables que almacenan los datos necesarios para operar en la BD.
 
-      //Proceso completo para guardar artículo en la BD
-        this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
+        this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
+        llaveInventario+'/Productos/'+codigo).update({
           Entrada: this.EntradaAnterior + this.formulario.value.Cantidad
           }).then(()=>{
             this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
@@ -107,14 +108,18 @@ export class EntradaComponent implements OnInit {
               NombreProducto: this.necesarios.nombreProducto,
               NombreSucursal: this.necesarios.nombreSucursal,
             });
-            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo+'/NotasEntrada').push({
-              Nota: this.formulario.value.Nota
+            const fecha = new Date();
+            const cadenaFecha =  `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}`;
+            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
+            llaveInventario+'/Productos/'+codigo+'/NotasEntrada').push({
+              Nota: this.formulario.value.Nota,
+              Cantidad: this.formulario.value.Cantidad,
+              Fecha: cadenaFecha
             })
             this.modalCtrl.dismiss();
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });
-      //Proceso completo para guardar artículo en la BD
     }
   }
 

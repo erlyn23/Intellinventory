@@ -70,18 +70,15 @@ export class SalidaComponent implements OnInit {
   {
     if(this.formulario.valid)
     {
-      this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
-      this.necesarios.nombreInventario = this.datos.getNombreInventario();
-      this.necesarios.nombreProducto = this.datos.getNombreProducto();
-      this.necesarios.nombreSucursal = this.datos.getNombresucursal();
-      //Variables que almacenan los datos necesarios para operar en la BD.
+        this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
+        this.necesarios.nombreInventario = this.datos.getNombreInventario();
+        this.necesarios.nombreProducto = this.datos.getNombreProducto();
+        this.necesarios.nombreSucursal = this.datos.getNombresucursal();
         const claveBar = this.datos.getClave();
         const sucursal = this.datos.getSucursal();
         const cedula = this.datos.getCedula();
         const llaveInventario = this.datos.getKey();
         const codigo = this.datos.getCode();
-      //Variables que almacenan los datos necesarios para operar en la BD.{
-        //Proceso completo para guardar artículo en la BD
         this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update(
         {
           Salida: this.SalidaAnterior + this.formulario.value.Cantidad,
@@ -93,15 +90,17 @@ export class SalidaComponent implements OnInit {
             NombreProducto: this.necesarios.nombreProducto,
             NombreSucursal: this.necesarios.nombreSucursal,
           });
+          const fecha = new Date();
+          const fechaConFormato = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours()}: ${fecha.getMinutes()}`;
           this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo+'/NotasSalidas').push({
-            NotaSalida: this.formulario.value.Nota
-          })
+            NotaSalida: this.formulario.value.Nota,
+            Cantidad: this.formulario.value.Cantidad,
+            Fecha: fechaConFormato
+          });
           this.modalCtrl.dismiss();
         }).catch((err)=>{
         this.servicio.mensaje('customToast',err);
         });
-
-      //Proceso completo para guardar artículo en la BD
     }
   }
 

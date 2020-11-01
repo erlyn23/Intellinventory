@@ -40,6 +40,9 @@ export class DashboardPage implements OnInit {
           this.notificacionesCerradas();
         }
       });
+      LocalNotifications.addListener('localNotificationReceived', ()=>{
+
+      });
       if(this.platform.pause.isStopped){
         this.bckgMode.enable();
         this.bckgMode.on('activate').subscribe(()=>{
@@ -90,7 +93,7 @@ export class DashboardPage implements OnInit {
     })
   }
 
-  async enviarNotificacion(titulo:any, mensaje:any, id: any){
+  async enviarNotificacion(titulo:string, mensaje:string, id: number){
     const notifs = await LocalNotifications.schedule({
       notifications: [
         {
@@ -101,7 +104,6 @@ export class DashboardPage implements OnInit {
           smallIcon: 'app/src/main/assets/public/assets/icon/ic_launcher.png',
           attachments: null,
           actionTypeId: "",
-          extra: null
         }
       ]
     });

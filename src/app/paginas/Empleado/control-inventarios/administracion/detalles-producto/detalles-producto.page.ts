@@ -73,7 +73,7 @@ export class DetallesProductoPage implements OnInit {
     });
   }
 
-  async abrirConfirmar(mensaje:any)
+  async abrirConfirmar(mensaje:string)
   {
     const alert = await this.alertCtrl.create({
       cssClass:'customAlert',

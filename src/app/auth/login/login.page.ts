@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, AlertController } from '@ionic/angular';
+import { MenuController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -24,6 +24,7 @@ export class LoginPage implements OnInit {
   encontrado: number = 0;
 
   constructor(private menuCtrl: MenuController,
+    private loadingCtrl: LoadingController,
     private servicio: GeneralService,
     private datos: DatosService,
     private auth:AngularFireAuth,
@@ -35,11 +36,6 @@ export class LoginPage implements OnInit {
     this.loginAutomatico();
   }
 
-  ionViewWillEnter() {
-    this.menuCtrl.enable(false,'first');
-    this.menuCtrl.enable(false, 'second');
-  }
-
   loginAutomatico()
   {
     this.encontrado = 0;
@@ -49,16 +45,19 @@ export class LoginPage implements OnInit {
           this.getUsuario('usuario').then(usr=>{
             this.getUsuario('password').then(pss=>{
               if(usr.value != null && pss.value != null){
+                this.presentarLoading();
                 this.auth.signInWithEmailAndPassword(usr.value, pss.value).then(()=>{
                   this.auth.currentUser.then(usr=>{
                     this.guardarUsuario('clave',usr.uid);
                     this.datos.setClave(usr.uid);
+                    this.loadingCtrl.dismiss();
                     this.router.navigate(['dashboardjefe']);
                   });
                 });
               }
             })
           }).catch((err)=>{
+            this.loadingCtrl.dismiss();
             this.servicio.mensaje('customToast',err);
           })
         }
@@ -66,6 +65,7 @@ export class LoginPage implements OnInit {
         {
           this.getUsuario('cedula').then(cedula=>{
             if(cedula.value != null){
+              this.presentarLoading();
               this.ref = this.db.object('EmpleadosActivos/'+cedula.value);
               this.ref.snapshotChanges().subscribe(data=>{
               let activos = data.payload.val();
@@ -74,10 +74,12 @@ export class LoginPage implements OnInit {
                   this.datos.setClave(activos.CodigoActivacion);
                   this.datos.setCedula(cedula.value);
                   this.encontrado = 1;
+                  this.loadingCtrl.dismiss();
                   this.router.navigate(['dashboard']).then(()=>{
                     this.encontrado = 0;
                   });
               }else{
+                this.loadingCtrl.dismiss();
                 this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
               }
             })
@@ -87,13 +89,24 @@ export class LoginPage implements OnInit {
       })
   }
 
-  async guardarUsuario(llave: any, valor: any)
+  async presentarLoading()
   {
-    await Storage.set({key: llave, value: valor});
+    const loading = this.loadingCtrl.create({
+      cssClass: 'miLoading',
+      message: 'Iniciando sesión, por favor espera...'
+    });
+    
+    (await loading).present();
   }
+
   async getUsuario(llave: any):Promise <{value: any}>
   {
     return (await Storage.get({key: llave}));
+  }
+
+  ionViewWillEnter() {
+    this.menuCtrl.enable(false,'first');
+    this.menuCtrl.enable(false, 'second');
   }
 
   cambiarRol(val:any)
@@ -118,6 +131,7 @@ export class LoginPage implements OnInit {
   {
     this.auth.signInWithEmailAndPassword(this.jefe.correo, this.jefe.password)
     .then(()=>{
+      this.presentarLoading();
       this.auth.currentUser.then(usr=>{
         this.datos.setClave(usr.uid);
         if(this.jefe.sesionIniciada)
@@ -127,6 +141,7 @@ export class LoginPage implements OnInit {
         }
         this.guardarUsuario('posicion','jefe');
         this.guardarUsuario('clave',usr.uid);
+        this.loadingCtrl.dismiss();
         this.router.navigate(['dashboardjefe']).then(()=>{
           this.jefe.correo = "";
           this.jefe.password = "";
@@ -136,20 +151,29 @@ export class LoginPage implements OnInit {
         switch(err.code)
         {
           case "auth/invalid-email":
+            this.loadingCtrl.dismiss();
             this.servicio.mensaje('customToast',"Correo o contraseña incorrecta")
             break;
           case "auth/wrong-password":
+            this.loadingCtrl.dismiss();
             this.servicio.mensaje('customToast',"Correo o contraseña incorrecta");
             break;
           case "auth/user-not-found":
+            this.loadingCtrl.dismiss(); 
             this.servicio.mensaje('customToast',"El usuario no existe");
             break;
         }
     })
   }
 
+  async guardarUsuario(llave: any, valor: any)
+  {
+    await Storage.set({key: llave, value: valor});
+  }
+
   iniciarSesionEmpleado()
   {
+    this.presentarLoading();
     this.ref = this.db.object('EmpleadosActivos/'+this.empleado.codigo);
     this.ref.snapshotChanges().subscribe(data=>{
       let activos = data.payload.val();
@@ -161,13 +185,28 @@ export class LoginPage implements OnInit {
         this.guardarUsuario('posicion','empleado');
         this.datos.setCedula(this.empleado.codigo);
         this.datos.setClave(activos.CodigoActivacion);
+        this.loadingCtrl.dismiss();
         this.router.navigate(['dashboard']).then(()=>{
           this.empleado.codigo = "";
         })
       }else{
+        this.loadingCtrl.dismiss();
         this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
       }
     });
+  }
+
+  iniciarConEnter(event)
+  {
+    if(event == 13){
+      this.iniciarSesion();
+    }
+  }
+
+  iniciarConEnterEmpleado(event){
+    if(event == 13){
+      this.iniciarSesionEmpleado();
+    }
   }
 
 }

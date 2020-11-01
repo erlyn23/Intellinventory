@@ -4,7 +4,6 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { Plugins} from '@capacitor/core';
 import { File } from '@ionic-native/file/ngx';
-import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 
 
@@ -44,18 +43,18 @@ export class GeneralService {
     return await this.barcode.scan();
   }
 
-  exportarExcel(json: any[], NombreArchivo: string){
-    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    const workbook: XLSX.WorkBook = { Sheets: {'data':worksheet}, SheetNames: ['data'] };
-    const ExcelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    this.guardarExcel(ExcelBuffer, NombreArchivo);    
+  exportarExcel(json: any[], nombreArchivo: string){
+    const hojaDeTrabajo: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+    const libroDeTrabajo: XLSX.WorkBook = { Sheets: {'data':hojaDeTrabajo}, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(libroDeTrabajo, { bookType: 'xlsx', type: 'array' });
+    this.guardarExcel(excelBuffer, nombreArchivo);    
   }
 
   guardarExcel(buffer: any, nombreArchivo: string)
   {
     const data: Blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'});
-    const name = nombreArchivo + '-'+ Date.now() +'.xlsx';
-    this.file.writeFile(this.file.externalApplicationStorageDirectory,name, data).then(()=>{
+    const nombreCompleto = nombreArchivo + '-'+ Date.now() +'.xlsx';
+    this.file.writeFile(this.file.externalApplicationStorageDirectory,nombreCompleto, data).then(()=>{
       this.mensaje('toastSuccess', 'Excel exportado correctamente');
       this.mensaje('toastSuccess', 'Archivo guardado en el directorio raíz del dispositivo')
     }).catch(err=>{

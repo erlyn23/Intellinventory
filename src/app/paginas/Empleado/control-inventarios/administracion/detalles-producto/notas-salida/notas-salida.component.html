@@ -17,7 +17,7 @@
           <ion-card-content>
             <ion-list style="background-color: #3a93c9;">
               <ion-item color="primary" *ngFor="let note of notas, let i = index">
-                {{i+1}}. {{note.NotaSalida}}
+                {{i+1}}. Descripción: {{note.NotaSalida}} <br> Cantidad: {{note.Cantidad}} <br> Fecha: {{note.Fecha}}
               </ion-item>
             </ion-list>
           </ion-card-content>

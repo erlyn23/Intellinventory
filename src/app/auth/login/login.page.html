@@ -37,7 +37,7 @@
               <ion-col size="12">
               <ion-item color="primary">
                 <ion-label position="floating">Contraseña</ion-label>
-                <ion-input type="password" [(ngModel)]="jefe.password" name="password"></ion-input>
+                <ion-input type="password" [(ngModel)]="jefe.password" name="password" (keypress)="inciarConEnter($event.keyCode)"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>
@@ -63,7 +63,7 @@
           <ion-col size="12">
               <ion-item color="primary">
                 <ion-label position="floating">Código de empleado</ion-label>
-                <ion-input type="number" [(ngModel)]="empleado.codigo" name="codigo"></ion-input>
+                <ion-input type="number" [(ngModel)]="empleado.codigo" name="codigo" (keypress)="iniciarConEnterEmpleado($event.keyCode)"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>
