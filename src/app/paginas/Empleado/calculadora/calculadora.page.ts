@@ -9,10 +9,10 @@ import { Router } from '@angular/router';
 })
 export class CalculadoraPage implements OnInit {
 
-  valor1:number;
-  valor2:number;
-  resultado:number;
-  historial: any[] = [];
+  value1:number;
+  value2:number;
+  operationResult:number;
+  operationsHistory: string[] = [];
   constructor(private menuCtrl:MenuController,
     private platform: Platform, private router: Router) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
@@ -27,41 +27,41 @@ export class CalculadoraPage implements OnInit {
     this.menuCtrl.enable(true, 'first');
   }
 
-  Operar(operacion: string)
+  doOperation(operation: string)
   {
-    if(operacion == 'sumar')
+    if(operation == 'sumar')
     {
-      this.resultado = this.valor1 + this.valor2;
-      this.historial.push(`Resultado suma: ${this.resultado}`);
+      this.operationResult = this.value1 + this.value2;
+      this.operationsHistory.push(`Resultado suma: ${this.operationResult}`);
 
-    }else if(operacion == 'restar'){
+    }else if(operation == 'restar'){
       
-      this.resultado = this.valor1 - this.valor2;
-      this.historial.push(`Resultado resta: ${this.resultado}`);
+      this.operationResult = this.value1 - this.value2;
+      this.operationsHistory.push(`Resultado resta: ${this.operationResult}`);
 
-    }else if(operacion == 'multiplicar'){
+    }else if(operation == 'multiplicar'){
 
-      this.resultado = this.valor1 * this.valor2;
-      this.historial.push(`Resultado multiplicación: ${this.resultado}`);
+      this.operationResult = this.value1 * this.value2;
+      this.operationsHistory.push(`Resultado multiplicación: ${this.operationResult}`);
 
-    }else if(operacion == 'dividir'){
+    }else if(operation == 'dividir'){
 
-      this.resultado = this.valor1 / this.valor2;
-      this.historial.push(`Resultado división: ${this.resultado}`);
+      this.operationResult = this.value1 / this.value2;
+      this.operationsHistory.push(`Resultado división: ${this.operationResult}`);
       
-    }else if(operacion == 'descuento'){
-      let porciento = this.valor2 / 100;
-      let descuento = this.valor1 * porciento;
-      this.resultado = this.valor1 - descuento;
+    }else if(operation == 'descuento'){
+      let percent = this.value2 / 100;
+      let discount = this.value1 * percent;
+      this.operationResult = this.value1 - discount;
 
-      this.historial.push(`Descuento aplicado: ${this.resultado}`);
+      this.operationsHistory.push(`Descuento aplicado: ${this.operationResult}`);
     }
   }
 
-  limpiar()
+  clearInputs()
   {
-    this.resultado = null;
-    this.valor1 = null;
-    this.valor2 = null;
+    this.operationResult = null;
+    this.value1 = null;
+    this.value2 = null;
   }
 }

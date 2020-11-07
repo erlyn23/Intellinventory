@@ -7,7 +7,7 @@
       <ion-col size="12">
         <ion-item color="tertiary">
           <ion-label position="floating">Primer valor</ion-label>
-          <ion-input class="tabla" type="number" [(ngModel)]="valor1" name="valor1"></ion-input>
+          <ion-input class="tabla" type="number" [(ngModel)]="value1" name="value1"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
@@ -15,35 +15,35 @@
       <ion-col size="12">
         <ion-item color="tertiary">
           <ion-label position="floating">Segundo Valor</ion-label>
-          <ion-input class="tabla" type="number" [(ngModel)]="valor2" name="valor2"></ion-input>
+          <ion-input class="tabla" type="number" [(ngModel)]="value2" name="value2"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col size="12">
         <ion-item color="tertiary">
-          <ion-input class="tabla" type="number" [(ngModel)]="resultado" name="resultado" placeholder="resultado" readonly></ion-input>
+          <ion-input class="tabla" type="number" [(ngModel)]="operationResult" name="operationResult" placeholder="resultado" readonly></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col size="3">
-        <ion-button (click)="Operar('sumar')" color="primary" class="operaciones">
+        <ion-button (click)="doOperation('sumar')" color="primary" class="operaciones">
           +
         </ion-button>
       </ion-col>
       <ion-col size="3">
-        <ion-button (click)="Operar('restar')" color="primary" class="operaciones">
+        <ion-button (click)="doOperation('restar')" color="primary" class="operaciones">
           -
         </ion-button>
       </ion-col>
       <ion-col size="3">
-        <ion-button (click)="Operar('multiplicar')" color="primary" class="operaciones">
+        <ion-button (click)="doOperation('multiplicar')" color="primary" class="operaciones">
           *
         </ion-button>
       </ion-col>
       <ion-col size="3">
-        <ion-button (click)="Operar('dividir')" color="primary" class="operaciones">
+        <ion-button (click)="doOperation('dividir')" color="primary" class="operaciones">
           /
         </ion-button>
       </ion-col>
@@ -51,7 +51,7 @@
     <ion-row>
       <ion-col size="4"></ion-col>
       <ion-col size="4">
-        <ion-button (click)="Operar('descuento')" color="primary" class="operaciones">
+        <ion-button (click)="doOperation('descuento')" color="primary" class="operaciones">
           %
         </ion-button>
       </ion-col> 
@@ -59,7 +59,7 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-button class="limpiar" (click)="limpiar()" fill="clear">
+        <ion-button class="limpiar" (click)="clearInputs()" fill="clear">
           Limpiar
         </ion-button>
       </ion-col>
@@ -70,7 +70,7 @@
       </ion-col>
     </ion-row>
     <ion-list style="background: white; font-size: 20px;">
-      <ion-item color="tertiary" *ngFor="let hist of historial">
+      <ion-item color="tertiary" *ngFor="let hist of operationsHistory">
         <ion-label>{{hist}}</ion-label>
       </ion-item>
     </ion-list>

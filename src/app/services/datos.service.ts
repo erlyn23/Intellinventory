@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Plugins } from '@capacitor/core';
+import { Provider } from '../shared/models/Provider';
 
 const { Storage } = Plugins;
 
@@ -8,150 +9,150 @@ const { Storage } = Plugins;
 })
 export class DatosService {
 
-  clave:any;
-  cedula: any;
-  keyInventario: any;
-  Codigo: any;
-  estado:any;
-  operacion: any;
-  proveedor: any;
-  sucursal: any;
+  barKey:string;
+  employeeCode: string;
+  inventoryKey: string;
+  productCode: string;
+  inventoryState:string;
+  providerOperation: string;
+  provider: string;
+  subsidiary: string;
   constructor() { }
 
   //Métodos para obtener la clave del bar
-    setClave(clv: any)
+    setBarKey(barKey: string)
     {
-      this.clave = clv;
+      this.barKey = barKey;
     }
-    getClave()
+    getBarKey()
     {
-      return this.clave;
+      return this.barKey;
     }
   //Métodos para obtener la clave del bar
 
 
   //Métodos para obtener la cédula del empleado
-    setCedula(ced: any)
+    setEmployeeCode(employeeCode: string)
     {
-      this.cedula = ced;
+      this.employeeCode = employeeCode;
     }
 
-    getCedula()
+    getEmployeeCode()
     {
-      return this.cedula;
+      return this.employeeCode;
     }
   //Métodos para obtener la cédula del empleado
 
   //Métodos para obtener la clave del inventario
-    setKey(key: any)
+    setInventoryKey(inventoryKey: any)
     {
-      this.keyInventario = key;
+      this.inventoryKey = inventoryKey;
     }
-    getKey()
+    getInventoryKey()
     {
-      return this.keyInventario;
+      return this.inventoryKey;
     }
   //Métodos para obtener la clave del inventario
 
   //Métodos para obtener el código del producto
-    setCode(key: any)
+    setProductCode(productCode: any)
     {
-      this.Codigo = key;
+      this.productCode = productCode;
     }
-    getCode()
+    getProductCode()
     {
-      return this.Codigo;
+      return this.productCode;
     }
   //Métodos para obtener el código del producto
   
   //Métodos para obtener el estado del inventario
-    setEstado(state: any)
+    setInventoryState(inventoryState: any)
     {
-      this.estado = state;
+      this.inventoryState = inventoryState;
     }
-    getEstado()
+    getInventoryState()
     {
-      return this.estado;
+      return this.inventoryState;
     }
   //Métodos para obtener el estado del inventario
 
   //Métodos para obtener el tipo de operación del proveedor
-    setOperacion(op: any)
+    setProviderOperation(providerOperation: any)
     {
-      this.operacion = op;
+      this.providerOperation = providerOperation;
     }
-    getOperacion()
+    getProviderOperation()
     {
-      return this.operacion;
+      return this.providerOperation;
     }
   //Métodos para obtener el tipo de operación del proveedor
 
   //Métodos para obtener el proveedor
-    setProveedor(prov: any)
+    setProvider(provider: string)
     {
-      this.proveedor = prov;
+      this.provider = provider;
     }
     getProveedor()
     {
-      return this.proveedor;
+      return this.provider;
     }
   //Métodos para obtener el proveedor
 
   //Métodos para obtener la sucursal
-    setSucursal(sucursal: any)
+    setSubsidiary(subsidiary: string)
     {
-      this.sucursal = sucursal;
+      this.subsidiary = subsidiary;
     }
-    getSucursal()
+    getSubsidiary()
     {
-      return this.sucursal;
+      return this.subsidiary;
     }
   //Métodos para obtener la sucursal
 
   //Métodos para obtener datos necesarios
-    nombreEmpleado: any;
-    nombreInventario: any;
-    nombreProducto: any;
-    nombreSucursal: any;
+    employeeName: string;
+    inventoryName: string;
+    productName: string;
+    subsidiaryName: string;
 
-    setNombreEmpleado(nombre:any)
+    setEmployeeName(employeeName:string)
     {
-      this.nombreEmpleado = nombre;
+      this.employeeName = employeeName;
     }
 
-    setNombreInventario(nombre:any)
+    setInventoryName(inventoryName:any)
     {
-      this.nombreInventario = nombre;
+      this.inventoryName = inventoryName;
     }
 
-    setNombreProducto(nombre:any)
+    setProductName(productName:string)
     {
-      this.nombreProducto = nombre;
+      this.productName = productName;
     }
 
-    setNombreSucursal(sucursal: any)
+    setSubsidiaryName(subsidiaryName: string)
     {
-      this.nombreSucursal = sucursal;
+      this.subsidiaryName = subsidiaryName;
     }
 
-    getNombreEmpleado()
+    getEmployeeName()
     {
-      return this.nombreEmpleado;
+      return this.employeeName;
     }
 
-    getNombreInventario()
+    getInventoryName()
     {
-      return this.nombreInventario;
+      return this.inventoryName;
     }
 
-    getNombreProducto()
+    getProductName()
     {
-      return this.nombreProducto;
+      return this.productName;
     }
 
-    getNombresucursal()
+    getSubsidiaryName()
     {
-      return this.nombreSucursal;
+      return this.subsidiaryName;
     }
 
   //Métodos para obtener datos necesarios

@@ -7,55 +7,55 @@
   <ion-content color="tertiary">
     <ion-list style="background: white;">
       <ion-item color="tertiary">
-        <ion-button (click)="goToHome()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('dashboard')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="home-outline"></ion-icon>
           Inicio
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToSucursales()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('sucursales')" style="width: 100%; height: 100%;" fill="clear">
           <i class="fas fa-store"></i>&nbsp;
           Sucursales
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToEntradaRapida()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('entrada-rapida')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="enter-outline"></ion-icon>
           Entrada Rápida
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToSalidaRapida()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('salida-rapida')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="exit-outline"></ion-icon>
           Salida Rápida
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToStock()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('crear-stock')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="cube-outline"></ion-icon>
           Crear Stock
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToProveedores()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('proveedores')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="person-add-outline"></ion-icon>
           Proveedores
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToCalculator()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('calculadora')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="calculator-outline"></ion-icon>
           Calculadora
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToPerfil()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('editar-perfil')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="settings-outline"></ion-icon>
           Editar Perfil
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="salir()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="closeSession()" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>
           Salir
         </ion-button>
@@ -74,25 +74,25 @@
   <ion-content color="tertiary">
     <ion-list style="background: white;">
       <ion-item color="tertiary">
-        <ion-button (click)="goToHome1()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('dashboardjefe')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="home-outline"></ion-icon>
           Inicio
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToSucursalesJefe()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('sucursales-jefe')" style="width: 100%; height: 100%;" fill="clear">
           <i class="fas fa-store"></i>&nbsp;
           Sucursales
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="goToPerfil1()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="goToPage('editar-perfil-jefe')" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="settings-outline"></ion-icon>
           Editar Perfil
         </ion-button>
       </ion-item>
       <ion-item color="tertiary">
-        <ion-button (click)="salir()" style="width: 100%; height: 100%;" fill="clear">
+        <ion-button (click)="closeSession()" style="width: 100%; height: 100%;" fill="clear">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>
           Salir
         </ion-button>

@@ -89,6 +89,11 @@ export class SalidaComponent implements OnInit {
             NombreInventario: this.necesarios.nombreInventario,
             NombreProducto: this.necesarios.nombreProducto,
             NombreSucursal: this.necesarios.nombreSucursal,
+            ClaveBar: claveBar,
+            Sucursal: sucursal,
+            Inventario: llaveInventario,
+            Cedula: cedula,
+            Producto: codigo
           });
           const fecha = new Date();
           const fechaConFormato = `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours()}: ${fecha.getMinutes()}`;

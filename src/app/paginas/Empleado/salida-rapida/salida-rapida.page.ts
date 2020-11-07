@@ -261,6 +261,7 @@ export class SalidaRapidaPage implements OnInit {
 
       if(this.formulario.valid && this.errorMessage2 == ""){
         if(this.necesitaClave){
+          this.Password.setValidators(Validators.required);
           this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto)
           .update({
             Salida: this.SalidaAnterior + this.Cantidad.value
@@ -279,12 +280,13 @@ export class SalidaRapidaPage implements OnInit {
             this.necesitaClave = false;
             });
           }).catch(err=>{
-            console.log(err);
+            console.error(err);
             this.servicio.mensaje('customToast', err);
           })
       }
       else
       {
+          this.Password.clearValidators();
           this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto)
             .update({
               Salida: this.SalidaAnterior + this.Cantidad.value
@@ -296,7 +298,12 @@ export class SalidaRapidaPage implements OnInit {
                 NombreEmpleado: this.datos.getNombreEmpleado(),
                 NombreSucursal: this.datos.getNombresucursal(),
                 NombreInventario: this.datos.getNombreInventario(),
-                NombreProducto: this.datos.getNombreProducto()
+                NombreProducto: this.datos.getNombreProducto(),
+                ClaveBar: clave,
+                Sucursal: sucursal,
+                Inventario: inventario,
+                Cedula: cedula,
+                Producto: producto
               });
               this.servicio.mensaje('toastSuccess', 'Salida hecha correctamente').then(()=>{
                 this.formulario.reset();

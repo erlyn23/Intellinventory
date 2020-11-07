@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, MenuController, Platform } from '@ionic/angular';
+import { ModalController, MenuController, Platform } from '@ionic/angular';
 import { CrearInventarioComponent } from './crear-inventario/crear-inventario.component';
 import { DatosService } from 'src/app/services/datos.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { Router } from '@angular/router';
+import { Inventory } from './../../../shared/models/Inventory';
 
 @Component({
   selector: 'app-control-inventarios',
@@ -13,15 +14,14 @@ import { Router } from '@angular/router';
 })
 export class ControlInventariosPage implements OnInit {
 
-  inventarios: any[] = [];
-  ref: any;
+  inventories: Inventory[] = [];
+  inventoryDbRef: AngularFireObject<Inventory>;
   constructor(private modalCtrl: ModalController,
     private platform: Platform,
     private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
-    private datos: DatosService,
-    private servicio: GeneralService,
-    private db:AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase:AngularFireDatabase,
     private router: Router) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.goBack();
@@ -29,18 +29,20 @@ export class ControlInventariosPage implements OnInit {
     }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const sucursal = this.datos.getSucursal();
+    const barKey = this.dataSvc.getBarKey();
+    const employeeCode = this.dataSvc.getEmployeeCode();
+    const subsidiary = this.dataSvc.getSubsidiary();
 
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+'/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let bdInventarios = data.payload.val();
-      this.inventarios = [];
-      for(let i in bdInventarios)
+    this.inventoryDbRef = this.angularFireDatabase
+    .object(`${barKey}/Sucursales/${subsidiary}/Inventarios/${employeeCode}`);
+    
+    this.inventoryDbRef.snapshotChanges().subscribe(data=>{
+      let inventoriesDb = data.payload.val();
+      this.inventories = [];
+      for(let i in inventoriesDb)
       {
-        bdInventarios[i].key = i;
-        this.inventarios.push(bdInventarios[i]);
+        inventoriesDb[i].Key = i;
+        this.inventories.push(inventoriesDb[i]);
       }
     })
   }
@@ -49,7 +51,7 @@ export class ControlInventariosPage implements OnInit {
     this.menuCtrl.enable(true, 'first');
   }
   
-  async abrirModal()
+  async openCreateInventoryModal()
   {
     const modal = await this.modalCtrl.create({
       cssClass: 'customModal',
@@ -59,117 +61,69 @@ export class ControlInventariosPage implements OnInit {
     await modal.present();
   }
 
-  async abrirAlert(indice: number){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer eliminar este inventario? No podrás recuperarlo',
-      buttons:
-      [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Eliminar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.eliminarInventario(indice);
-          }
-        }
-      ]
-    });
-    await alert.present();
-  }
+  confirmDeleteInventory(inventoryIndex: number){
 
-  eliminarInventario(indice: number){
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const inventario = this.inventarios[indice].key;
-
-    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario)
-    .remove().then(()=>{
-      this.servicio.mensaje('toastSuccess', 'Se ha eliminado el inventario');
-    }).catch((err)=>{
-      this.servicio.mensaje('toastCustom',err);
-    });
-  }
-
-  async confirmarEliminarSucursal()
-  {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de eliminar esta sucursal? No podrás recuperarla',
-      buttons:[
-        {
-          cssClass:'CancelarEliminar',
-          role:'cancel',
-          text:'Cancelar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          cssClass:'ConfirmarEliminar',
-          role:"confirm",
-          text: 'Confirmar',
-          handler: ()=>{
-            this.eliminarSucursal();
-          }
-        }
-      ]
-    });
-    (await alert).present();
-  }
-
-  eliminarSucursal(){
-    const clave = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-
-    this.db.database.ref(clave+'/Sucursales/'+sucursal).remove().then(()=>{
-      this.router.navigate(['sucursales']);
-      this.servicio.mensaje('toastSuccess', 'Sucursal eliminada correctamente');
-    }).catch(err=>{
-      this.servicio.mensaje('customToast',err);
+    this.generalSvc.presentAlertWithActions('Confirmar', 
+    '¿Estás seguro de querer eliminar este inventario? No podrás recuperarlo',
+    ()=>{
+      this.deleteInventory(inventoryIndex);
+    }, ()=>{
+      this.generalSvc.closeAlert();
     })
   }
 
-  goToAdministracion(indice:number)
+  deleteInventory(inventoryIndex: number){
+    const barKey = this.dataSvc.getBarKey();
+    const subsidiary = this.dataSvc.getSubsidiary();
+    const employeeCode = this.dataSvc.getEmployeeCode();
+    const inventory = this.inventories[inventoryIndex].Key;
+
+    this.angularFireDatabase.database
+    .ref(`${barKey}/Sucursales/${subsidiary}/Inventarios/${employeeCode}/${inventory}`)
+    .remove().then(()=>{
+      this.generalSvc.presentToast('toastSuccess', 'Se ha eliminado el inventario');
+    }).catch((err)=>{
+      this.generalSvc.presentToast('toastCustom',err);
+    });
+  }
+
+  confirmDeleteSubsidiary()
   {
-    if(this.inventarios[indice].Estado == 'Finalizado')
+
+    this.generalSvc.presentAlertWithActions('Confirmar', 
+    '¿Está seguro de eliminar esta sucursal? No podrás recuperarla',
+    ()=>{
+      this.deleteSubsidiary();
+    },
+    ()=>{
+      this.generalSvc.closeAlert();
+    });
+  }
+
+  deleteSubsidiary(){
+    const barKey = this.dataSvc.getBarKey();
+    const subsidiary = this.dataSvc.getSubsidiary();
+
+    this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary).remove().then(()=>{
+      this.router.navigate(['sucursales']);
+      this.generalSvc.presentToast('toastSuccess', 'Sucursal eliminada correctamente');
+    }).catch(err=>{
+      this.generalSvc.presentToast('customToast',err);
+    })
+  }
+
+  goToAdministration(inventoryIndex:number)
+  {
+    if(this.inventories[inventoryIndex].State == 'Finalizado')
     {
-      this.info('Este inventario ha sido marcado como finalizado, así que solo puede ver información sobre él');
-      this.datos.setKey(this.inventarios[indice].key);
+      this.generalSvc.presentSimpleAlert('Este inventario ha sido marcado como finalizado, así que solo puede ver información sobre él',
+      'Información');
+      this.dataSvc.setInventoryKey(this.inventories[inventoryIndex].Key);
       this.router.navigate(['administracion']);
     }else{
-      this.datos.setKey(this.inventarios[indice].key);
+      this.dataSvc.setInventoryKey(this.inventories[inventoryIndex].Key);
       this.router.navigate(['administracion']);
     }
-  }
-  
-  async info(mensaje: string)
-  {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Información',
-      message: mensaje,
-      buttons:
-      [
-        {
-          cssClass: 'CancelarEliminar',
-          role: 'cancel',
-          text: 'Aceptar'
-        }
-      ]
-    });
-    await alert.present();
   }
 
   goBack(){

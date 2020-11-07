@@ -247,7 +247,6 @@ export class EntradaRapidaPage implements OnInit {
     const sucursal = this.formulario.value.Sucursal;
     const inventario = this.formulario.value.Inventario;
     const producto = this.formulario.value.Codigo;
-    console.log(this.EntradaAnterior);
       if(this.formulario.valid && this.errorMessage2 == ""){
         if(this.necesitaClave){
             this.Password.setValidators(Validators.required);
@@ -282,7 +281,12 @@ export class EntradaRapidaPage implements OnInit {
                 NombreEmpleado: this.datos.getNombreEmpleado(),
                 NombreSucursal: this.sucursal.Nombre,
                 NombreInventario: this.inventario.NombreInventario,
-                NombreProducto: this.datos.getNombreProducto()
+                NombreProducto: this.datos.getNombreProducto(),
+                ClaveBar: clave,
+                Sucursal: sucursal,
+                Inventario: inventario,
+                Cedula: cedula,
+                Producto: producto
               });
               
               this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/NotasEntrada').push({

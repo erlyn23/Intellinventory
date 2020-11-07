@@ -1,9 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { MenuController, AlertController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { Plugins } from '@capacitor/core';
-
-const { Storage } = Plugins;
+import { GeneralService } from 'src/app/services/general.service';
 
 @Component({
   selector: 'app-menu',
@@ -12,154 +10,31 @@ const { Storage } = Plugins;
 })
 export class MenuComponent implements OnInit {
 
-  @Input() origen: any;
-  imagen: any;
-  ref: any;
+  @Input() menuType: string;
   constructor(private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
+    private generalSvc: GeneralService,
     private router: Router) { }
 
   ngOnInit() {
   }
 
-  async salir()
+  closeSession()
   {
-    const alert = await this.alertCtrl.create({
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer salir?',
-      cssClass: 'customAlert',
-      buttons:
-      [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Confirmar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.limpiarUser();
-            this.router.navigate(['login']).then(()=>{
-              this.menuCtrl.toggle();
-            })
-          }
-        }
-      ]
-    });
-    await alert.present();
+      this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de querer salir?', 
+      ()=>{
+        this.generalSvc.clearLocalStorageData();
+        this.router.navigate(['login']).then(()=>{ this.menuCtrl.toggle(); });
+      }, 
+      ()=>{ this.generalSvc.closeAlert();});
   }
 
-  async limpiarUser()
+  goToPage(page: string)
   {
-    return (await Storage.clear());
-  }
-
-  goToHome()
-  {
-    this.router.navigate(['dashboard'])
+    this.router.navigate([page])
     .then(()=>{
       this.menuCtrl.toggle();
     }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-  goToHome1()
-  {
-    this.router.navigate(['dashboardjefe'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-  goToSucursales()
-  {
-    this.router.navigate(['sucursales'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-  goToSucursalesJefe(){
-    this.router.navigate(['sucursales-jefe'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    }) 
-  }
-
-  goToEntradaRapida(){
-    this.router.navigate(['entrada-rapida'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-  goToSalidaRapida(){
-    this.router.navigate(['salida-rapida'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-  goToStock(){
-    this.router.navigate(['crear-stock'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-  goToProveedores(){
-    this.router.navigate(['proveedores'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-  
-  goToPerfil()
-  {
-    this.router.navigate(['editar-perfil'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-  goToPerfil1(){
-    this.router.navigate(['editar-perfil-jefe'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
-    })
-  }
-
-
-  goToCalculator()
-  {
-    this.router.navigate(['calculadora'])
-    .then(()=>{
-      this.menuCtrl.toggle();
-    }).catch(err=>{
-      console.log(err);
+      this.generalSvc.presentToast('customToast', err);
     })
   }
 }

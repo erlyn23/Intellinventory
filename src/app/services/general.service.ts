@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { Plugins} from '@capacitor/core';
@@ -16,11 +16,13 @@ export class GeneralService {
 
 
   constructor(private toastCtrl: ToastController,
+    private alertCtrl: AlertController,
+    private loadingCtrl: LoadingController,
     private db:AngularFireDatabase,
     private barcode: BarcodeScanner,
     private file: File) { }
 
-  async mensaje(clase:any,message:any)
+  async presentToast(clase:any,message:any)
   {
     const toast = await this.toastCtrl.create({
       cssClass: clase,
@@ -30,35 +32,85 @@ export class GeneralService {
     await toast.present();
   }
 
-  insertarenlaBD(ruta:any, datos:any)
+  async presentSimpleAlert(message: string, title: string)
   {
-    return this.db.database.ref(ruta).set(datos);
+
   }
 
-  async getDatos(llave:any){
-    return (await Storage).get({key: llave});
+  async presentAlertWithActions(title: string, 
+    message: string, confirmHandler: any, 
+    cancelHandler: any)
+  {
+    const alert = await this.alertCtrl.create({
+      cssClass: 'customAlert',
+      header: title,
+      message: message,
+      buttons:[
+        {
+          cssClass:'CancelarEliminar',
+          role: 'confirm',
+          text: 'Confirmar',
+          handler: confirmHandler
+        },
+        {
+          cssClass:'ConfirmarEliminar',
+          role: 'cancel',
+          text: 'Cancelar',
+          handler: cancelHandler
+        }
+      ]
+    });
+    return await alert.present();
   }
 
-  async leerCodigo(){
+  closeAlert()
+  {
+    this.alertCtrl.dismiss();
+  }
+
+  async presentLoading(message: string)
+  {
+    const loading = this.loadingCtrl.create({
+      cssClass: 'miLoading',
+      message: message
+    });
+    
+    (await loading).present();
+  }
+
+  insertDataInDb(path:string, data:any)
+  {
+    return this.db.database.ref(path).set(data);
+  }
+
+  async getLocalStorageData(key:any){
+    return (await Storage).get({key: key});
+  }
+
+  async clearLocalStorageData(){
+    return (await Storage).clear();
+  }
+
+  async readCode(){
     return await this.barcode.scan();
   }
 
-  exportarExcel(json: any[], nombreArchivo: string){
-    const hojaDeTrabajo: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    const libroDeTrabajo: XLSX.WorkBook = { Sheets: {'data':hojaDeTrabajo}, SheetNames: ['data'] };
-    const excelBuffer: any = XLSX.write(libroDeTrabajo, { bookType: 'xlsx', type: 'array' });
-    this.guardarExcel(excelBuffer, nombreArchivo);    
+  exportExcel(json: any[], fileName: string){
+    const workSheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+    const workBook: XLSX.WorkBook = { Sheets: {'data':workSheet}, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(workBook, { bookType: 'xlsx', type: 'array' });
+    this.saveExcel(excelBuffer, fileName);    
   }
 
-  guardarExcel(buffer: any, nombreArchivo: string)
+  saveExcel(buffer: any, fileName: string)
   {
     const data: Blob = new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8'});
-    const nombreCompleto = nombreArchivo + '-'+ Date.now() +'.xlsx';
-    this.file.writeFile(this.file.externalApplicationStorageDirectory,nombreCompleto, data).then(()=>{
-      this.mensaje('toastSuccess', 'Excel exportado correctamente');
-      this.mensaje('toastSuccess', 'Archivo guardado en el directorio raíz del dispositivo')
+    const fullFileName = fileName + '-'+ Date.now() +'.xlsx';
+    this.file.writeFile(this.file.externalApplicationStorageDirectory,fullFileName, data).then(()=>{
+      this.presentToast('toastSuccess', 'Excel exportado correctamente');
+      this.presentToast('toastSuccess', 'Archivo guardado en el directorio raíz del dispositivo')
     }).catch(err=>{
-      this.mensaje('customToast', err.message);
+      this.presentToast('customToast', err.message);
     });
   }
 }

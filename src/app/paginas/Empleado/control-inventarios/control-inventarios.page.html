@@ -17,22 +17,22 @@
           <ion-title>Listado de inventarios</ion-title>
         </ion-col>
       </ion-row>
-    <ion-row *ngIf="inventarios.length == 0">
+    <ion-row *ngIf="inventories.length == 0">
       <ion-col size="12" style="text-align: center; font-style: italic; color:gray;">
         <p>No hay inventarios registrados aún.</p>
       </ion-col>
     </ion-row>
   </ion-grid>
   <ion-list style="background: white;">
-    <ion-item color="tertiary" *ngFor="let inv of inventarios, let i = index">
-      <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
+    <ion-item color="tertiary" *ngFor="let inv of inventories, let i = index">
+      <ion-button (click)="goToAdministration(i)" style="width: 100%;" expand="full" fill="clear">
         {{inv.NombreInventario}}<br> 
         {{inv.FechaInventario}}
       </ion-button>
-      <ion-button color="success" fill="clear" *ngIf="inv.Estado == 'Finalizado'">
+      <ion-button color="success" fill="clear" *ngIf="inv.State == 'Finalizado'">
         <ion-icon slot="icon-only" name="checkmark-circle"></ion-icon>
       </ion-button>
-      <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+      <ion-button (click)="confirmDeleteInventory(i)" color="danger" fill="clear">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
       </ion-button>
     </ion-item>
@@ -40,14 +40,14 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="confirmarEliminarSucursal()" style="width: 100%;" shape="round" color="danger">
+        <ion-button (click)="confirmDeleteSubsidiary()" style="width: 100%;" shape="round" color="danger">
           <ion-icon slot="start" name="trash-outline"></ion-icon>
           Eliminar sucursal
         </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-fab (click)="abrirModal()" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab (click)="openCreateInventoryModal()" vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

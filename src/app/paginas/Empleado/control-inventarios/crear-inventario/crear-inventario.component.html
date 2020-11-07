@@ -11,16 +11,16 @@
 
 <ion-content color="tertiary">
   <ion-grid>
-    <form [formGroup]="formulario">
+    <form [formGroup]="form">
       <ion-row>
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Nombre del inventario</ion-label>
-            <ion-input formControlName="Nombre" ype="text"></ion-input>
+            <ion-input formControlName="Name" ype="text"></ion-input>
           </ion-item>
-          <ion-item lines="none" color="tertiary" *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
-            <ion-label color="danger" *ngIf="Nombre.errors.required">Escribe un nombre</ion-label>
-            <ion-label color="danger" *ngIf="Nombre.errors.maxlength">Nombre muy largo</ion-label>
+          <ion-item lines="none" color="tertiary" *ngIf="Name.invalid && (Name.touched || Name.dirty)">
+            <ion-label color="danger" *ngIf="Name.errors.required">Escribe un nombre</ion-label>
+            <ion-label color="danger" *ngIf="Name.errors.maxlength">Nombre muy largo</ion-label>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -28,13 +28,13 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Fecha de creación</ion-label>
-            <ion-input formControlName="Fecha" ype="text" readonly></ion-input>
+            <ion-input formControlName="Date" ype="text" readonly></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="crearInventario()" style="width: 100%;" color="primary" shape="round" [disabled]="form.invalid">
+          <ion-button (click)="createInventory()" style="width: 100%;" color="primary" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="add-circle"></ion-icon>
             Crear inventario
           </ion-button>

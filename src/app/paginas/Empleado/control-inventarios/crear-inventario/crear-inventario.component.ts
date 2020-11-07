@@ -12,38 +12,37 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 })
 export class CrearInventarioComponent implements OnInit {
 
-  formulario: FormGroup;
-  ref: any;
+  form: FormGroup;
   constructor(private modalCtrl: ModalController,
-    private constructorFormulario: FormBuilder,
-    private db: AngularFireDatabase,
-    private general: GeneralService,
-    private datos: DatosService) { }
+    private formBuilder: FormBuilder,
+    private angularFireDatabase: AngularFireDatabase,
+    private generalSvc: GeneralService,
+    private dataSvc: DatosService) { }
 
   ngOnInit() {
-    const fecha = new Date();
+    const date = new Date();
 
-    this.formulario = this.constructorFormulario.group({
-      Nombre: ["",[Validators.required, Validators.maxLength(30)]],
-      Fecha: [`${fecha.getDate()}/${(fecha.getMonth() + 1)}/${fecha.getFullYear()}`],
+    this.form = this.formBuilder.group({
+      Name: ["",[Validators.required, Validators.maxLength(30)]],
+      Date: [`${date.getDate()}/${(date.getMonth() + 1)}/${date.getFullYear()}`],
     })
   }
 
-  crearInventario()
+  createInventory()
   {
-    const clave = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
+    const barKey = this.dataSvc.getBarKey();
+    const subsidiary = this.dataSvc.getSubsidiary();
+    const employeeCode = this.dataSvc.getEmployeeCode();
 
-    this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula).push({
-      NombreInventario: this.formulario.value.Nombre,
-      FechaInventario: this.formulario.value.Fecha,
+    this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode).push({
+      NombreInventario: this.Name.value,
+      FechaInventario: this.Date.value,
       Estado: 'En progreso'
     }).then(()=>{
-      this.general.mensaje('toastSuccess','Se ha creado el inventario');
+      this.generalSvc.presentToast('toastSuccess','Se ha creado el inventario');
       this.modalCtrl.dismiss();
     }).catch(err=>{
-      this.general.mensaje('customToast', err);
+      this.generalSvc.presentToast('customToast', err);
     })
   }
 
@@ -51,8 +50,13 @@ export class CrearInventarioComponent implements OnInit {
     this.modalCtrl.dismiss();
   }
 
-  get Nombre()
+  get Name()
   {
-    return this.formulario.get('Nombre');
+    return this.form.get('Name');
+  }
+
+  get Date()
+  {
+    return this.form.get('Date');
   }
 }

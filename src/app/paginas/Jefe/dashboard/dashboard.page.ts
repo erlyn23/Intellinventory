@@ -7,7 +7,7 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { DatosService } from 'src/app/services/datos.service';
 
-import { Plugins } from '@capacitor/core';
+import { LocalNotification, LocalNotificationActionPerformed, Plugins } from '@capacitor/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 
 const { Storage, 
@@ -40,9 +40,7 @@ export class DashboardPage implements OnInit {
           this.notificacionesCerradas();
         }
       });
-      LocalNotifications.addListener('localNotificationReceived', ()=>{
-
-      });
+      
       if(this.platform.pause.isStopped){
         this.bckgMode.enable();
         this.bckgMode.on('activate').subscribe(()=>{
@@ -67,9 +65,18 @@ export class DashboardPage implements OnInit {
           this.imagen = data;
         })
       }
-    })
+    });
     this.notificacionesCerradas();
     this.ModoBackground();
+
+    LocalNotifications.addListener('localNotificationActionPerformed', (localNotificationActionPerformed: LocalNotificationActionPerformed)=>{
+      this.datos.setKey(localNotificationActionPerformed.notification.extra.Inventario);
+      this.datos.setCedula(localNotificationActionPerformed.notification.extra.Cedula);
+      this.datos.setClave(localNotificationActionPerformed.notification.extra.ClaveBar);
+      this.datos.setSucursal(localNotificationActionPerformed.notification.extra.Sucursal);
+      this.datos.setCode(localNotificationActionPerformed.notification.extra.Producto);
+      this.router.navigate(['detalles-producto-jefe']);
+    });
   }
   
   ionViewWillEnter() {
@@ -93,17 +100,17 @@ export class DashboardPage implements OnInit {
     })
   }
 
-  async enviarNotificacion(titulo:string, mensaje:string, id: number){
+  async enviarNotificacion(titulo:string, mensaje:string, id: number, datos: any){
     const notifs = await LocalNotifications.schedule({
       notifications: [
         {
           title: titulo,
           body: mensaje,
           id: id,
-          sound: null,
-          smallIcon: 'app/src/main/assets/public/assets/icon/ic_launcher.png',
+          smallIcon:"ic_launcher",
           attachments: null,
           actionTypeId: "",
+          extra: datos
         }
       ]
     });
@@ -123,7 +130,12 @@ export class DashboardPage implements OnInit {
                 datos[i].key = i;
                 this.enviarNotificacion(datos[i].NombreEmpleado + ': Entrada', datos[i].NombreSucursal + ': En el inventario ' 
                 + datos[i].NombreInventario + ' al producto ' 
-                + datos[i].NombreProducto, contador);
+                + datos[i].NombreProducto, contador, 
+                { ClaveBar: datos[i].ClaveBar, 
+                  Cedula: datos[i].Cedula, 
+                  Sucursal: datos[i].Sucursal, 
+                  Inventario: datos[i].Inventario, 
+                  Producto: datos[i].Producto});
                 contador++;
                 this.db.database.ref(clave.value+'/ParaNotificaciones/Entradas/'+datos[i].key).remove();
               }
@@ -137,7 +149,12 @@ export class DashboardPage implements OnInit {
                 datos[i].key = i;
                 this.enviarNotificacion(datos[i].NombreEmpleado + ': Salida', datos[i].NombreSucursal + ': En el inventario ' 
                 + datos[i].NombreInventario + ' al producto ' 
-                + datos[i].NombreProducto, contador);
+                + datos[i].NombreProducto, contador,
+                { ClaveBar: datos[i].ClaveBar, 
+                  Cedula: datos[i].Cedula, 
+                  Sucursal: datos[i].Sucursal, 
+                  Inventario: datos[i].Inventario, 
+                  Producto: datos[i].Producto});
                 contador++;
                 this.db.database.ref(clave.value+'/ParaNotificaciones/Salidas/'+datos[i].key).remove();
               }        

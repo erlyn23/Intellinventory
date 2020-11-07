@@ -4,8 +4,10 @@ import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Plugins } from '@capacitor/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
+import { Employee } from 'src/app/shared/models/Employee';
+import { Boss } from 'src/app/shared/models/Boss';
 
 const { Storage } = Plugins;
 
@@ -16,40 +18,40 @@ const { Storage } = Plugins;
 })
 export class LoginPage implements OnInit {
 
-  Posicion: any;
-  seleccionado: number = 0;
-  ref: any;
-  jefe: any = {correo: '', password: '', sesionIniciada: false};
-  empleado: any = {codigo: null, sesionIniciada: false};
-  encontrado: number = 0;
+  position: string;
+  roleSelected: number = 0;
+  searchEmployeeRef: AngularFireObject<Employee>;
+  boss: Boss;
+  employee: Employee;
+  found: number = 0;
 
   constructor(private menuCtrl: MenuController,
     private loadingCtrl: LoadingController,
-    private servicio: GeneralService,
-    private datos: DatosService,
-    private auth:AngularFireAuth,
-    private db: AngularFireDatabase,
+    private generalSvc: GeneralService,
+    private dataSvc: DatosService,
+    private angularFireAuth:AngularFireAuth,
+    private angularFireDatabase: AngularFireDatabase,
     private router: Router) { 
     }
 
   ngOnInit() {
-    this.loginAutomatico();
+    this.startAutomaticSession();
   }
 
-  loginAutomatico()
+  startAutomaticSession()
   {
-    this.encontrado = 0;
-      this.getUsuario('posicion').then(pos=>{
-        if(pos.value == 'jefe')
+    this.found = 0;
+      this.getSavedDataInLocalStorage('role').then(role=>{
+        if(role.value == 'boss')
         {
-          this.getUsuario('usuario').then(usr=>{
-            this.getUsuario('password').then(pss=>{
-              if(usr.value != null && pss.value != null){
-                this.presentarLoading();
-                this.auth.signInWithEmailAndPassword(usr.value, pss.value).then(()=>{
-                  this.auth.currentUser.then(usr=>{
-                    this.guardarUsuario('clave',usr.uid);
-                    this.datos.setClave(usr.uid);
+          this.getSavedDataInLocalStorage('bossEmail').then(user=>{
+            this.getSavedDataInLocalStorage('bossPassword').then(password=>{
+              if(user.value != null && password.value != null){
+                this.generalSvc.presentLoading('Iniciando sesión, por favor espera...');
+                this.angularFireAuth.signInWithEmailAndPassword(user.value, password.value).then(()=>{
+                  this.angularFireAuth.currentUser.then(loggedUser=>{
+                    this.saveDataInLocalStorage('barKey',loggedUser.uid);
+                    this.dataSvc.setBarKey(loggedUser.uid);
                     this.loadingCtrl.dismiss();
                     this.router.navigate(['dashboardjefe']);
                   });
@@ -58,29 +60,28 @@ export class LoginPage implements OnInit {
             })
           }).catch((err)=>{
             this.loadingCtrl.dismiss();
-            this.servicio.mensaje('customToast',err);
+            this.generalSvc.presentToast('customToast',err);
           })
         }
         else
         {
-          this.getUsuario('cedula').then(cedula=>{
-            if(cedula.value != null){
-              this.presentarLoading();
-              this.ref = this.db.object('EmpleadosActivos/'+cedula.value);
-              this.ref.snapshotChanges().subscribe(data=>{
-              let activos = data.payload.val();
-              if(activos != null)
+          this.getSavedDataInLocalStorage('employeeCode').then(employeeCode=>{
+            if(employeeCode.value != null){
+              this.generalSvc.presentLoading('Iniciando sesión, por favor espera...');
+              this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+employeeCode.value);
+              this.searchEmployeeRef.valueChanges().subscribe(employee=>{
+              if(employee != null)
               {
-                  this.datos.setClave(activos.CodigoActivacion);
-                  this.datos.setCedula(cedula.value);
-                  this.encontrado = 1;
+                  this.dataSvc.setBarKey(employee.ActivationCode);
+                  this.dataSvc.setEmployeeCode(employee.Code);
+                  this.found = 1;
                   this.loadingCtrl.dismiss();
                   this.router.navigate(['dashboard']).then(()=>{
-                    this.encontrado = 0;
+                    this.found = 0;
                   });
               }else{
                 this.loadingCtrl.dismiss();
-                this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
+                this.generalSvc.presentToast('customToast', 'No estás registrado en ningún sistema');
               }
             })
             }
@@ -89,19 +90,14 @@ export class LoginPage implements OnInit {
       })
   }
 
-  async presentarLoading()
+  async getSavedDataInLocalStorage(key: string):Promise <{value: string}>
   {
-    const loading = this.loadingCtrl.create({
-      cssClass: 'miLoading',
-      message: 'Iniciando sesión, por favor espera...'
-    });
-    
-    (await loading).present();
+    return (await Storage.get({key: key}));
   }
 
-  async getUsuario(llave: any):Promise <{value: any}>
+  async saveDataInLocalStorage(key: string, valor: any)
   {
-    return (await Storage.get({key: llave}));
+    await Storage.set({key: key, value: valor});
   }
 
   ionViewWillEnter() {
@@ -109,42 +105,49 @@ export class LoginPage implements OnInit {
     this.menuCtrl.enable(false, 'second');
   }
 
-  cambiarRol(val:any)
+  changeRole(roleValue:any)
   {
-    switch(val.detail.value)
+    switch(roleValue.detail.value)
     {
       case "Jefe":
-        this.seleccionado = 1;
+        this.roleSelected = 1;
       break;
       case "Empleado":
-        this.seleccionado = 2;
+        this.roleSelected = 2;
       break;
     }
   }
 
-  Volver()
+  goToSelectRoleScreen()
   {
-    this.seleccionado = 0;
+    this.roleSelected = 0;
   }
 
-  iniciarSesion()
+  startBossSessionWithEnterButton(event)
   {
-    this.auth.signInWithEmailAndPassword(this.jefe.correo, this.jefe.password)
+    if(event == 13){
+      this.startBossSession();
+    }
+  }
+
+  startBossSession()
+  {
+    this.generalSvc.presentLoading('Iniciando sesión, por favor espera...');
+    this.angularFireAuth.signInWithEmailAndPassword(this.boss.Email, this.boss.Password)
     .then(()=>{
-      this.presentarLoading();
-      this.auth.currentUser.then(usr=>{
-        this.datos.setClave(usr.uid);
-        if(this.jefe.sesionIniciada)
+      this.angularFireAuth.currentUser.then(user=>{
+        this.dataSvc.setBarKey(user.uid);
+        if(this.boss.StartedSession)
         {
-          this.guardarUsuario('usuario', this.jefe.correo);
-          this.guardarUsuario('password', this.jefe.password);
+          this.saveDataInLocalStorage('bossEmail', this.boss.Email);
+          this.saveDataInLocalStorage('bossPassword', this.boss.Password);
         }
-        this.guardarUsuario('posicion','jefe');
-        this.guardarUsuario('clave',usr.uid);
+        this.saveDataInLocalStorage('role','boss');
+        this.saveDataInLocalStorage('barKey',user.uid);
         this.loadingCtrl.dismiss();
         this.router.navigate(['dashboardjefe']).then(()=>{
-          this.jefe.correo = "";
-          this.jefe.password = "";
+          this.boss.Email = "";
+          this.boss.Password = "";
         });
       }); 
     }).catch((err)=>{
@@ -152,61 +155,46 @@ export class LoginPage implements OnInit {
         {
           case "auth/invalid-email":
             this.loadingCtrl.dismiss();
-            this.servicio.mensaje('customToast',"Correo o contraseña incorrecta")
+            this.generalSvc.presentToast('customToast',"Correo o contraseña incorrecta")
             break;
           case "auth/wrong-password":
             this.loadingCtrl.dismiss();
-            this.servicio.mensaje('customToast',"Correo o contraseña incorrecta");
+            this.generalSvc.presentToast('customToast',"Correo o contraseña incorrecta");
             break;
           case "auth/user-not-found":
             this.loadingCtrl.dismiss(); 
-            this.servicio.mensaje('customToast',"El usuario no existe");
+            this.generalSvc.presentToast('customToast',"El usuario no existe");
             break;
         }
     })
   }
 
-  async guardarUsuario(llave: any, valor: any)
-  {
-    await Storage.set({key: llave, value: valor});
+  startEmployeeSessionWithEnterButton(event){
+    if(event == 13){
+      this.startEmployeeSession();
+    }
   }
 
-  iniciarSesionEmpleado()
+  
+  startEmployeeSession()
   {
-    this.presentarLoading();
-    this.ref = this.db.object('EmpleadosActivos/'+this.empleado.codigo);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let activos = data.payload.val();
-      if(activos != null)
+    this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+this.employee.Code);
+    this.searchEmployeeRef.valueChanges().subscribe(employeData=>{
+      if(employeData != null)
       {
-        if(this.empleado.sesionIniciada){
-          this.guardarUsuario('cedula', this.empleado.codigo.toString());
+        if(this.employee.StartedSession){
+          this.saveDataInLocalStorage('employeeCode', this.employee.Code);
         }
-        this.guardarUsuario('posicion','empleado');
-        this.datos.setCedula(this.empleado.codigo);
-        this.datos.setClave(activos.CodigoActivacion);
-        this.loadingCtrl.dismiss();
+        this.saveDataInLocalStorage('role','employee');
+        this.dataSvc.setEmployeeCode(this.employee.Code);
+        this.dataSvc.setBarKey(employeData.ActivationCode);
         this.router.navigate(['dashboard']).then(()=>{
-          this.empleado.codigo = "";
+          this.employee.Code = "";
         })
       }else{
-        this.loadingCtrl.dismiss();
-        this.servicio.mensaje('customToast', 'No estás registrado en ningún sistema');
+        this.generalSvc.presentToast('customToast', 'No estás registrado en ningún sistema');
       }
     });
-  }
-
-  iniciarConEnter(event)
-  {
-    if(event == 13){
-      this.iniciarSesion();
-    }
-  }
-
-  iniciarConEnterEmpleado(event){
-    if(event == 13){
-      this.iniciarSesionEmpleado();
-    }
   }
 
 }

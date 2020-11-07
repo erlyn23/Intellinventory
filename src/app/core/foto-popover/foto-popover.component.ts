@@ -1,15 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
 import { AngularFireStorage } from '@angular/fire/storage';
-import { AlertController, PopoverController, ModalController } from '@ionic/angular';
-import { Plugins} from '@capacitor/core';
-import { Camera, CameraOptions } from '@ionic-native/camera/ngx';
-import * as firebase from 'firebase/app';
-import { AlertPersonalizadoComponent } from '../alert-personalizado/alert-personalizado.component';
-
-const { Storage } = Plugins;
+import { PopoverController, ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'app-foto-popover',
@@ -18,115 +11,85 @@ const { Storage } = Plugins;
 })
 export class FotoPopoverComponent implements OnInit {
 
-  imagen: any;
-  ref: any;
-  constructor(private alertCtrl: AlertController,
-    private modalCtrl: ModalController,
+  image: any;
+  constructor(private modalCtrl: ModalController,
     private popoverCtrl: PopoverController,
-    private datos: DatosService,
-    private servicio: GeneralService,
-    private storage: AngularFireStorage) { }
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireStorage: AngularFireStorage) { }
 
   ngOnInit() {}
 
-
-  async getPosicion()
+  uploadImage(imageData: any)
   {
-    return (await Storage.get({key: 'posicion'}));
-  }
-
-  subirImagen(datosImagen: any)
-  {
-    this.getPosicion().then(pos=>{
-      if(pos.value == 'jefe')
+    this.generalSvc.getLocalStorageData('role').then(role=>{
+      if(role.value == 'jefe')
       {
-        const idJefe = this.datos.getClave();
-        this.imagen = datosImagen.target.files[0];
-        const rutaArchivo = `PerfilJefe/${idJefe}`;
-        this.abrirAlert(rutaArchivo);
+        const bossId = this.dataSvc.getBarKey();
+        this.image = imageData.target.files[0];
+        const filePath = `PerfilJefe/${bossId}`;
+        
+        this.generalSvc.presentAlertWithActions('Confirmar', 
+        '¿Estás seguro de querer subir este archivo?',
+        ()=>{
+          this.generalSvc.presentLoading('Subiendo imagen, por favor espera...');
+          this.saveImageInDb(filePath);
+        }, ()=>{
+          this.generalSvc.closeAlert();
+        });
       }
       else
       {
-        const cedula = this.datos.getCedula();
-        this.imagen = datosImagen.target.files[0];
-        const rutaArchivo = `Perfil/${cedula}`;
-        this.abrirAlert(rutaArchivo);
+        const employeeCode = this.dataSvc.getEmployeeCode();
+        this.image = imageData.target.files[0];
+        const filePath = `Perfil/${employeeCode}`;
+        this.generalSvc.presentAlertWithActions('Confirmar', 
+        '¿Estás seguro de querer subir este archivo?',
+        ()=>{
+          this.generalSvc.presentLoading('Subiendo imagen, por favor espera...');
+          this.saveImageInDb(filePath);
+        }, ()=>{
+          this.generalSvc.closeAlert();
+        });
       }
     });
   }
 
-  async abrirAlert(ruta:any)
-  {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer subir este archivo?',
-      buttons:[
-        {
-          cssClass:'CancelarEliminar',
-          role: 'confirm',
-          text: 'Confirmar',
-          handler: ()=>{
-            this.cargando();
-            this.guardarImagenEnLaBD(ruta);
-          }
-        },
-        {
-          cssClass:'ConfirmarEliminar',
-          role: 'cancel',
-          text: 'Cancelar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        }
-      ]
-    });
-    return await alert.present();
-  }
-
-  async cargando(){
-    const modal = await this.modalCtrl.create({
-      cssClass: 'alertDisfrazado',
-      component: AlertPersonalizadoComponent,
-    });
-    (await modal).present();
-  }
-
-  guardarImagenEnLaBD(ruta: string){
-      this.getPosicion().then(pos=>{
-        if(pos.value == 'jefe'){
-          const referenciaArchivo = this.storage.ref(ruta);
-          const tareaDeSubida = this.storage.upload(ruta, this.imagen);
-          tareaDeSubida.percentageChanges().subscribe(porcentaje=>{
-            if(porcentaje == 100)
+  saveImageInDb(filePath: string){
+      this.generalSvc.getLocalStorageData('role').then(role=>{
+        if(role.value == 'jefe'){
+          const fileRef = this.angularFireStorage.ref(filePath);
+          const uploadTask = this.angularFireStorage.upload(filePath, this.image);
+          uploadTask.percentageChanges().subscribe(percent=>{
+            if(percent == 100)
             {
-              const clave = this.datos.getClave();
+              const barKey = this.dataSvc.getBarKey();
               this.modalCtrl.dismiss();
-              this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
-              this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ''}).catch(err=>{
-                this.servicio.mensaje('customToast',err);
+              this.generalSvc.presentToast('toastSuccess', 'Imagen cambiada correctamente');
+              this.generalSvc.insertDataInDb(barKey+'/Jefe/FotoPerfil',{Ruta: ''}).catch(err=>{
+                this.generalSvc.presentToast('customToast',err);
               });
-              this.servicio.insertarenlaBD(clave+'/Jefe/FotoPerfil',{Ruta: ruta}).catch(err=>{
-                this.servicio.mensaje('customToast',err);
+              this.generalSvc.insertDataInDb(barKey+'/Jefe/FotoPerfil',{Ruta: filePath}).catch(err=>{
+                this.generalSvc.presentToast('customToast',err);
               });
               this.popoverCtrl.dismiss();
             }
           });
         }else{
-          const referenciaArchivo = this.storage.ref(ruta);
-          const tareaDeSubida = this.storage.upload(ruta, this.imagen);
-          tareaDeSubida.percentageChanges().subscribe(porcentaje=>{
+          const fileRef = this.angularFireStorage.ref(filePath);
+          const uploadTask = this.angularFireStorage.upload(filePath, this.image);
+          uploadTask.percentageChanges().subscribe(porcentaje=>{
             if(porcentaje == 100)
             {
-              const clave = this.datos.getClave();
-              const cedula = this.datos.getCedula();
+              const barKey = this.dataSvc.getBarKey();
+              const employeeCode = this.dataSvc.getEmployeeCode();
               this.modalCtrl.dismiss();
-              this.servicio.mensaje('toastSuccess', 'Imagen cambiada correctamente');
-              this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ''}).catch(err=>{
-                this.servicio.mensaje('customToast', err);
+              this.generalSvc.presentToast('toastSuccess', 'Imagen cambiada correctamente');
+              this.generalSvc.insertDataInDb(barKey+'/Empleados/'+employeeCode+'/FotoPerfil',{Ruta: ''}).catch(err=>{
+                this.generalSvc.presentToast('customToast', err);
               });
-              this.servicio.insertarenlaBD(clave+'/Empleados/'+cedula+'/FotoPerfil',{Ruta: ruta}).catch(err=>{
-              this.servicio.mensaje('customToast',err);
+              this.generalSvc.insertDataInDb(barKey+'/Empleados/'+employeeCode+'/FotoPerfil',{Ruta: filePath}).catch(err=>{
+              this.generalSvc.presentToast('customToast',err);
             });
           this.popoverCtrl.dismiss();
         }
