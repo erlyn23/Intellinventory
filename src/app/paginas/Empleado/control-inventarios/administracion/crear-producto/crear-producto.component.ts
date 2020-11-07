@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
 import { Plugins } from '@capacitor/core';
 
 const { Clipboard } = Plugins;
@@ -16,56 +14,49 @@ const { Clipboard } = Plugins;
 export class CrearProductoComponent implements OnInit {
 
   form: FormGroup;
-  constructor(private modalCtrl: ModalController, private datos: DatosService,
-    private servicio: GeneralService,
-    private formBuilder: FormBuilder,
-    private db: AngularFireDatabase) { }
+  constructor(private generalSvc: GeneralService,
+    private formBuilder: FormBuilder) { }
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      Codigo: ["",[Validators.required]],
-      Nombre: ["",[Validators.required, Validators.maxLength(30)]],
-      CantidadInicial: ["",[Validators.required]]
+      Code: ["",[Validators.required]],
+      Name: ["",[Validators.required, Validators.maxLength(30)]],
+      InitialCuantity: ["",[Validators.required]]
     })
   }
 
-  crearProducto(){
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-
+  createProduct(){
     if(this.form.valid){
-      this.servicio.insertarenlaBD(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+this.form.value.Codigo,
+      this.generalSvc.insertDataInDb(`${this.generalSvc.getSpecificObjectRoute('Productos')}/${this.form.value.Code}`,
       {
-        Codigo: this.form.value.Codigo,
-        Nombre: this.form.value.Nombre,
-        CantidadInicial: this.form.value.CantidadInicial,
-        Entrada: 0,
-        SumaEntrada: 0,
-        Salida: 0,
-        TotalExistencia: 0,
-        InventarioActual: 0,
-        Diferencia: 0,
-        Nota: ''
+        Code: this.form.value.Code,
+        Name: this.form.value.Name,
+        InitialCuantity: this.form.value.InitialCuantity,
+        Entry: 0,
+        EntrySum: 0,
+        Exit: 0,
+        TotalExistence: 0,
+        ActualInventory: 0,
+        Difference: 0,
+        FinalNote: ''
       }).then(()=>{
-        this.servicio.mensaje('toastSuccess','Se ha creado el producto correctamente');
-        this.modalCtrl.dismiss();
+        this.generalSvc.presentToast('toastSuccess','Se ha creado el producto correctamente');
+        this.generalSvc.closeModal();
       })
     }
   }
 
   goBack(){
-    this.modalCtrl.dismiss();
+    this.generalSvc.closeModal();
   }
 
-  leerCodigo(){
-    this.servicio.leerCodigo().then(async (codigo)=>{
+  readBarCode(){
+    this.generalSvc.readBarCode().then(async (codigo)=>{
 
-      let code = await Clipboard.read(); 
-      this.form.controls.Codigo.setValue(code.value);
+      let barCode = await Clipboard.read(); 
+      this.form.controls.Codigo.setValue(barCode.value);
     })
     
-    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
+    this.generalSvc.presentToast('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 }

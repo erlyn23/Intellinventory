@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, MenuController, Platform } from '@ionic/angular';
+import { MenuController, Platform } from '@ionic/angular';
 import { CrearInventarioComponent } from './crear-inventario/crear-inventario.component';
 import { DatosService } from 'src/app/services/datos.service';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
@@ -16,8 +16,7 @@ export class ControlInventariosPage implements OnInit {
 
   inventories: Inventory[] = [];
   inventoryDbRef: AngularFireObject<Inventory>;
-  constructor(private modalCtrl: ModalController,
-    private platform: Platform,
+  constructor(private platform: Platform,
     private menuCtrl: MenuController,
     private dataSvc: DatosService,
     private generalSvc: GeneralService,
@@ -29,12 +28,8 @@ export class ControlInventariosPage implements OnInit {
     }
 
   ngOnInit() {
-    const barKey = this.dataSvc.getBarKey();
-    const employeeCode = this.dataSvc.getEmployeeCode();
-    const subsidiary = this.dataSvc.getSubsidiary();
-
     this.inventoryDbRef = this.angularFireDatabase
-    .object(`${barKey}/Sucursales/${subsidiary}/Inventarios/${employeeCode}`);
+    .object(this.generalSvc.getSpecificObjectRoute('Inventarios'));
     
     this.inventoryDbRef.snapshotChanges().subscribe(data=>{
       let inventoriesDb = data.payload.val();
@@ -51,14 +46,9 @@ export class ControlInventariosPage implements OnInit {
     this.menuCtrl.enable(true, 'first');
   }
   
-  async openCreateInventoryModal()
+  openCreateInventoryModal()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: CrearInventarioComponent, 
-      animated: true
-    });
-    await modal.present();
+    this.generalSvc.openModal(CrearInventarioComponent);
   }
 
   confirmDeleteInventory(inventoryIndex: number){
@@ -73,13 +63,9 @@ export class ControlInventariosPage implements OnInit {
   }
 
   deleteInventory(inventoryIndex: number){
-    const barKey = this.dataSvc.getBarKey();
-    const subsidiary = this.dataSvc.getSubsidiary();
-    const employeeCode = this.dataSvc.getEmployeeCode();
-    const inventory = this.inventories[inventoryIndex].Key;
 
     this.angularFireDatabase.database
-    .ref(`${barKey}/Sucursales/${subsidiary}/Inventarios/${employeeCode}/${inventory}`)
+    .ref(this.generalSvc.getSpecificObjectRoute('Inventario'))
     .remove().then(()=>{
       this.generalSvc.presentToast('toastSuccess', 'Se ha eliminado el inventario');
     }).catch((err)=>{
@@ -101,10 +87,7 @@ export class ControlInventariosPage implements OnInit {
   }
 
   deleteSubsidiary(){
-    const barKey = this.dataSvc.getBarKey();
-    const subsidiary = this.dataSvc.getSubsidiary();
-
-    this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary).remove().then(()=>{
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Sucursal')).remove().then(()=>{
       this.router.navigate(['sucursales']);
       this.generalSvc.presentToast('toastSuccess', 'Sucursal eliminada correctamente');
     }).catch(err=>{

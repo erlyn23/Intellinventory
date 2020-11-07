@@ -92,7 +92,7 @@ export class DatosService {
     {
       this.provider = provider;
     }
-    getProveedor()
+    getProvider()
     {
       return this.provider;
     }

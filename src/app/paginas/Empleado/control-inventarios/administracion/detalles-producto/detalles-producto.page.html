@@ -22,50 +22,50 @@
           <ion-card-content>
             <ion-list style="background: #3a93c9;">
               <ion-item color="primary">
-                <h4>Cantidad inicial: {{producto.CantidadInicial}}</h4>
+                <h4>Cantidad inicial: {{product.InitialCuantity}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Entrada: {{producto.Entrada}}</h4>
-                <ion-button (click)="abrirEntrada()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                <h4>Entrada: {{product.Entry}}</h4>
+                <ion-button (click)="openCreateEntry()" color="secondary" fill="clear" [disabled]="inventoryState == 'Finalizado'">
                   <ion-icon slot="icon-only" name="add-circle"></ion-icon>
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
                 <h4>Notas de entrada:</h4>
-                <ion-button (click)="abrirNotasEntrada()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                <ion-button (click)="openProductEntryNotes()" color="secondary" fill="clear" [disabled]="inventoryState == 'Finalizado'">
                   <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
-                <h4>Cantidad incial + entrada: {{producto.SumaEntrada}}</h4>
+                <h4>Cantidad incial + entrada: {{product.EntrySum}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Salida: {{producto.Salida}}</h4>
-                <ion-button (click)="abrirSalida()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                <h4>Salida: {{producto.Exit}}</h4>
+                <ion-button (click)="openCreateExit()" color="secondary" fill="clear" [disabled]="inventoryState == 'Finalizado'">
                   <ion-icon slot="icon-only" name="add-circle"></ion-icon>
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
                 <h4>Notas de salida:</h4>
-                <ion-button (click)="abrirNotasSalida()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                <ion-button (click)="openProductExitNotes()" color="secondary" fill="clear" [disabled]="inventoryState == 'Finalizado'">
                   <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
-                <h4>Total de existencia: {{producto.TotalExistencia}}</h4>
+                <h4>Total de existencia: {{product.TotalExistence}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Inventario actual: {{producto.InventarioActual}} </h4>
-                <ion-button (click)="abrirInventarioActual()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                <h4>Inventario actual: {{product.ActualInventory}} </h4>
+                <ion-button (click)="openCreateActualInventory()" color="secondary" fill="clear" [disabled]="inventoryState == 'Finalizado'">
                   <ion-icon slot="icon-only" name="add-circle"></ion-icon>
                 </ion-button>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{producto.Diferencia}}</h4>
+                <h4>Diferencia: {{product.Difference}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota Final: {{producto.Nota}}</h4>
-                <ion-button (click)="abrirNotas()" color="secondary" fill="clear" [disabled]="estado == 'Finalizado'">
+                <h4>Nota Final: {{product.FinalNote}}</h4>
+                <ion-button (click)="openCreateFinalNote()" color="secondary" fill="clear" [disabled]="inventoryState == 'Finalizado'">
                   <ion-icon slot="icon-only" name="add-circle"></ion-icon>
                 </ion-button>
               </ion-item>
@@ -76,7 +76,7 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="guardarCambios()" color="success" style="width: 100%;" shape="round" [disabled]="estado == 'Finalizado'">
+        <ion-button (click)="saveChanges()" color="success" style="width: 100%;" shape="round" [disabled]="inventoryState == 'Finalizado'">
           <ion-icon slot="start" name="checkmark-circle"></ion-icon>
           Guardar Cambios
         </ion-button>

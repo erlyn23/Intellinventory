@@ -35,9 +35,9 @@ export class CrearInventarioComponent implements OnInit {
     const employeeCode = this.dataSvc.getEmployeeCode();
 
     this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode).push({
-      NombreInventario: this.Name.value,
-      FechaInventario: this.Date.value,
-      Estado: 'En progreso'
+      Name: this.Name.value,
+      CreationDate: this.Date.value,
+      State: 'En progreso'
     }).then(()=>{
       this.generalSvc.presentToast('toastSuccess','Se ha creado el inventario');
       this.modalCtrl.dismiss();

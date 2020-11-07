@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{titulo}}</ion-title>
+    <ion-title>{{inventory.Name}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,37 +13,37 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12">
-        <ion-searchbar color="tertiary" placeholder="Buscar un producto..." (ionChange)="buscarProducto($event)"></ion-searchbar>
+        <ion-searchbar color="tertiary" placeholder="Buscar un producto..." (ionChange)="searchProduct($event)"></ion-searchbar>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="productos.length == 0">
+    <ion-row *ngIf="products.length == 0">
       <ion-col size="12" style="text-align: center; font-style: italic; color: gray;">
         <p>No hay productos registrados.</p>
       </ion-col>
     </ion-row>
-    <ion-list style="background: white;" *ngIf="esBusqueda == false && estado != 'Finalizado'">
-      <ion-item color="tertiary" *ngFor="let producto of productos, let i = index">
+    <ion-list style="background: white;" *ngIf="isSearch == false && inventory.State != 'Finalizado'">
+      <ion-item color="tertiary" *ngFor="let product of products, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
-          {{producto.Nombre}}
+          {{product.Name}}
         </ion-button>
-        <ion-button (click)="abrirConfirmarEliminarProducto(i)" color="danger" fill="clear">
+        <ion-button (click)="confirmDeleteProduct(i)" color="danger" fill="clear">
           <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
         </ion-button>
       </ion-item>
     </ion-list>
-    <ion-list style="background: white;" *ngIf="esBusqueda == true && estado != 'Finalizado'">
-      <ion-item color="tertiary" *ngFor="let producto of productosTemporales, let i = index">
+    <ion-list style="background: white;" *ngIf="isSearch == true && inventory.State != 'Finalizado'">
+      <ion-item color="tertiary" *ngFor="let product of searchResultProducts, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
-          {{producto.Nombre}}
+          {{product.Name}}
         </ion-button>
-        <ion-button (click)="confirmarEliminarProducto(i)" color="danger" fill="clear">
+        <ion-button (click)="confirmDeleteProduct(i)" color="danger" fill="clear">
           <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
         </ion-button>
       </ion-item>
     </ion-list>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="abrirImportar()" style="width: 100%; color: white !important;" shape="round" *ngIf="estado != 'Finalizado'">
+        <ion-button (click)="openImportInventoryModal()" style="width: 100%; color: white !important;" shape="round" *ngIf="inventory.State != 'Finalizado'">
           <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
           Importar productos
         </ion-button>
@@ -51,44 +51,44 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="confirmarFinalizarInventario()" style="width: 100%;" color="success" shape="round" *ngIf="estado != 'Finalizado'">
+        <ion-button (click)="confirmInventoryFinalize()" style="width: 100%;" color="success" shape="round" *ngIf="inventory.State != 'Finalizado'">
           <ion-icon slot="start" name="checkmark-circle"></ion-icon>
           Finalizar inventario
         </ion-button>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="esBusqueda == false && estado == 'Finalizado'">
-      <ion-col size="12" *ngFor="let producto of productos">
+    <ion-row *ngIf="isSearch == false && inventory.State == 'Finalizado'">
+      <ion-col size="12" *ngFor="let product of products">
         <ion-card color="primary">
           <ion-card-content>
             <ion-list style="background: #3a93c9">
               <ion-item color="primary">
-                <h4>Producto: {{producto.Nombre}}</h4>
+                <h4>Producto: {{product.Name}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{producto.Diferencia}}</h4>
+                <h4>Diferencia: {{product.Difference}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{producto.Nota}}</h4>
+                <h4>Nota: {{producto.FinalNote}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="esBusqueda == true && estado == 'Finalizado'">
-      <ion-col size="12" *ngFor="let producto of productosTemporales">
+    <ion-row *ngIf="isSearch == true && inventory.State == 'Finalizado'">
+      <ion-col size="12" *ngFor="let product of searchResultProducts">
         <ion-card color="primary">
           <ion-card-content>
             <ion-list style="background: #3a93c9">
               <ion-item color="primary">
-                <h4>Producto: {{producto.Nombre}}</h4>
+                <h4>Producto: {{product.Name}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{producto.Diferencia}}</h4>
+                <h4>Diferencia: {{product.Difference}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{producto.Nota}}</h4>
+                <h4>Nota: {{producto.FinalNote}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>
@@ -97,14 +97,14 @@
     </ion-row>
     <ion-row>
       <ion-col size="12">
-        <ion-button (click)="exportarAexcel()" color="success" style="width: 100%;" shape="round" *ngIf="estado == 'Finalizado'">
+        <ion-button (click)="exportInventoryToExcel()" color="success" style="width: 100%;" shape="round" *ngIf="inventory.State == 'Finalizado'">
           <ion-icon slot="start" name="cloud-download-outline"></ion-icon>
           Exportar inventario a excel
         </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-fab (click)="abrirCrear()" vertical="bottom" horizontal="end" slot="fixed" *ngIf="estado != 'Finalizado'">
+  <ion-fab (click)="openCreateProductModal()" vertical="bottom" horizontal="end" slot="fixed" *ngIf="inventory.State != 'Finalizado'">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

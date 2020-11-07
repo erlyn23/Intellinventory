@@ -11,6 +11,7 @@ export interface Product
     ExitNotes: ProductNote[];
     ActualInventory: number;
     Difference: number;
-    SumEntry: number;
+    EntrySum: number;
     TotalExistence: number;
+    FinalNote: string;
 }

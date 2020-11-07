@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { EntradaComponent } from './entrada/entrada.component';
 import { SalidaComponent } from './salida/salida.component';
@@ -10,6 +10,8 @@ import { NotasComponent } from './notas/notas.component';
 import { GeneralService } from 'src/app/services/general.service';
 import { NotasEntradaComponent } from './notas-entrada/notas-entrada.component';
 import { NotasSalidaComponent } from './notas-salida/notas-salida.component';
+import { Product } from 'src/app/shared/models/Product';
+import { Stock } from 'src/app/shared/models/Stock';
 
 @Component({
   selector: 'app-detalles-producto',
@@ -18,158 +20,99 @@ import { NotasSalidaComponent } from './notas-salida/notas-salida.component';
 })
 export class DetallesProductoPage implements OnInit {
 
-  producto: any = '';
-  ref: any;
-  guardado: boolean = false;
-  estado: any;
-  stock:any;
-  constructor(private modalCtrl: ModalController,
-    private platform: Platform,
-    private alertCtrl: AlertController,
+  product: Product;
+  angularFireObject: AngularFireObject<Product>;
+  isSaved: boolean = false;
+  inventoryState: string;
+  stock:Stock;
+  constructor(private platform: Platform,
     private navCtrl: NavController,
     private router: Router,
-    private db:AngularFireDatabase,
-    private datos: DatosService,
-    private servicio: GeneralService) {
+    private angularFireDatabase:AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService) {
         this.platform.backButton.subscribeWithPriority(10, ()=>{
           this.goBack();
         })
      }
 
   ngOnInit() {
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-    const codigo = this.datos.getCode();
-    
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let product = data.payload.val();
-      if(product != null){
-        this.producto = product;
-        this.producto.SumaEntrada = product.Entrada + product.CantidadInicial;
-        this.producto.TotalExistencia = product.SumaEntrada - product.Salida;
-        this.producto.Diferencia = product.InventarioActual - product.TotalExistencia;
-        this.producto.Nota = product.Nota;
+
+    this.angularFireObject = this.angularFireDatabase.object(this.generalSvc.getProductRoute());
+    this.angularFireObject.valueChanges().subscribe(dbProduct=>{
+      if(dbProduct != null){
+        this.product = dbProduct;
+        this.product.EntrySum = dbProduct.Entry + dbProduct.InitialCuantity;
+        this.product.TotalExistence = dbProduct.EntrySum - dbProduct.Exit;
+        this.product.Difference = dbProduct.ActualInventory - dbProduct.TotalExistence;
+        this.product.FinalNote = dbProduct.FinalNote;
       }
     });
-    this.estado = this.datos.getEstado();
-    this.setStocks(codigo);
+    this.inventoryState = this.dataSvc.getInventoryState();
+    this.setStocks();
   }
 
-  setStocks(codigo: any)
+  setStocks()
   { 
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    this.ref = this.db.object(clave+'/Stock/'+cedula+'/'+codigo);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let stock = data.payload.val();
-      if(stock != null)
+
+    const stockDbObject: AngularFireObject<Stock> = this.angularFireDatabase.object(this.generalSvc.getStockRoute());
+    stockDbObject.valueChanges().subscribe(dbStock=>{
+      if(dbStock != null)
       {
-        this.stock = stock;
-        this.abrirConfirmar(`Tenemos información de stock de esta mercancía, se compra por defecto una cantidad de ${this.stock.Cantidad} unidades.`)
+        this.stock = dbStock;
+        this.generalSvc.presentSimpleAlert(`Tenemos información de stock de esta mercancía, se compra por defecto una cantidad de ${this.stock.Cuantity} unidades.`, 'Información');
       }
     });
   }
 
-  async abrirConfirmar(mensaje:string)
+  openCreateEntry()
   {
-    const alert = await this.alertCtrl.create({
-      cssClass:'customAlert',
-      header: 'Información',
-      message: mensaje,
-      buttons:[
-        {
-          cssClass:'CancelarEliminar',
-          role: 'cancel',
-          text: 'Aceptar',
-          handler: ()=>{ 
-            this.alertCtrl.dismiss();
-          }
-        },
-      ]
-    });
-    await alert.present();
+    this.generalSvc.openModal(EntradaComponent);
   }
 
-  async abrirEntrada()
+  openCreateExit()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: EntradaComponent,
-    });
-    await modal.present();
+    this.generalSvc.openModal(SalidaComponent);
   }
 
-  async abrirNotasEntrada()
+  openProductEntryNotes()
   {
-    const modal = await this.modalCtrl.create({
-      component: NotasEntradaComponent,
-    });
-    await modal.present();
+    this.generalSvc.openModal(NotasEntradaComponent);
   }
 
-  async abrirNotasSalida()
+  openProductExitNotes()
   {
-    const modal = await this.modalCtrl.create({
-      component: NotasSalidaComponent,
-    });
-    await modal.present();
+    this.generalSvc.openModal(NotasSalidaComponent);
   }
 
-  async abrirSalida()
+  openCreateActualInventory()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: SalidaComponent,
-    });
-    await modal.present();
+    this.generalSvc.openModal(InventarioActualComponent);
   }
 
-  async abrirInventarioActual()
+  openCreateFinalNote()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: InventarioActualComponent,
-    });
-    await modal.present();
+    this.generalSvc.openModal(NotasComponent);
   }
 
-  async abrirNotas()
+  saveChanges()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: NotasComponent,
-    });
-    await modal.present();
-  }
-
-
-  guardarCambios()
-  {
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-    const codigo = this.datos.getCode();
-
-    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo).update({
-      SumaEntrada: this.producto.SumaEntrada,
-      TotalExistencia: this.producto.TotalExistencia,
-      Diferencia: this.producto.Diferencia,
-      Nota: this.producto.Nota
+    this.angularFireDatabase.database.ref(this.generalSvc.getProductRoute()).update({
+      EntrySum: this.product.EntrySum,
+      TotalExistence: this.product.TotalExistence,
+      Difference: this.product.Difference,
+      FinalNote: this.product.FinalNote
     }).then(()=>{
-      this.servicio.mensaje('toastSuccess','Cambios guardados correctamente');
-      this.guardado = true;
+      this.generalSvc.presentToast('toastSuccess','Cambios guardados correctamente');
+      this.isSaved = true;
     });
   }
 
   goBack()
   {
-    if(!this.guardado && this.estado != 'Finalizado')
+    if(!this.isSaved && this.inventoryState != 'Finalizado')
     {
-      this.abrirConfirmar('Aún no guardas los cambios, aunque puedas verlos debes guardarlos.');
+      this.generalSvc.presentSimpleAlert('Aún no guardas los cambios, aunque puedas verlos debes guardarlos.', 'Información');
     }else{
       this.navCtrl.pop().then(()=>{
         this.router.navigate(['administracion']);

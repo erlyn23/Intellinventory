@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
+import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-menu',
@@ -12,6 +13,7 @@ export class MenuComponent implements OnInit {
 
   @Input() menuType: string;
   constructor(private menuCtrl: MenuController,
+    private angularFireAuth: AngularFireAuth,
     private generalSvc: GeneralService,
     private router: Router) { }
 
@@ -22,6 +24,7 @@ export class MenuComponent implements OnInit {
   {
       this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de querer salir?', 
       ()=>{
+        this.angularFireAuth.signOut();
         this.generalSvc.clearLocalStorageData();
         this.router.navigate(['login']).then(()=>{ this.menuCtrl.toggle(); });
       }, 

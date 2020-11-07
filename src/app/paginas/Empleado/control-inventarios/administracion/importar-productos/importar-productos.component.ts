@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
+import { Inventory } from 'src/app/shared/models/Inventory';
+import { Product } from 'src/app/shared/models/Product';
 
 @Component({
   selector: 'app-importar-productos',
@@ -12,78 +14,79 @@ import { GeneralService } from 'src/app/services/general.service';
 })
 export class ImportarProductosComponent implements OnInit {
 
-  formulario: FormGroup;
-  ref: any;
-  inventarios: any[] = [];
-  productos: any[] = [];
-  constructor(private modalCtrl: ModalController, 
-    private formBuilder: FormBuilder,
-    private datos: DatosService,
-    private db: AngularFireDatabase) { }
+  form: FormGroup;
+  inventoriesDbRef: AngularFireObject<Inventory>;
+  inventories: Inventory[] = [];
+  products: Product[] = [];
+  constructor(private formBuilder: FormBuilder,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase) { }
 
   ngOnInit() {
 
-    this.formulario = this.formBuilder.group({
-      Inventarios: [""]
+    this.form = this.formBuilder.group({
+      Inventories: [""]
     })
 
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
+    const barKey = this.dataSvc.getBarKey();
+    const subsidiary = this.dataSvc.getSubsidiary();
+    const employeeCode = this.dataSvc.getEmployeeCode();
 
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let inventarios = data.payload.val();
-      this.inventarios = [];
-      for(let i in inventarios){
-        inventarios[i].key = i;
-        this.inventarios.push(inventarios[i]);
+    this.inventoriesDbRef = this.angularFireDatabase.object(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode);
+    this.inventoriesDbRef.snapshotChanges().subscribe(inventoriesData=>{
+      let inventories = inventoriesData.payload.val();
+      this.inventories = [];
+      for(let i in inventories){
+        inventories[i].Key = i;
+        this.inventories.push(inventories[i]);
       }
     })
   }
 
-  buscarProductos(busqueda:any){
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
+  searchProducts(searchParam:any){
+    const barKey = this.dataSvc.getBarKey();
+    const subsidiary = this.dataSvc.getSubsidiary();
+    const employeeCode = this.dataSvc.getEmployeeCode();
 
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+busqueda.detail.value+'/Productos');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let productos = data.payload.val();
-      this.productos = [];
-      for(let i in productos){
-        productos[i].key = i;
-        this.productos.push(productos[i]);
+    const productsDbRef: AngularFireObject<Product> = 
+    this.angularFireDatabase.object(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode+'/'+searchParam.detail.value+'/Productos');
+    productsDbRef.snapshotChanges().subscribe(productData=>{
+      let dbProducts = productData.payload.val();
+      this.products = [];
+      for(let i in dbProducts){
+        dbProducts[i].Code = i;
+        this.products.push(dbProducts[i]);
       }
     })
   }
 
-  importarProductos(){
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const inventario = this.datos.getKey();
+  importProducts(){
+    const barKey = this.dataSvc.getBarKey();
+    const subsidiary = this.dataSvc.getSubsidiary();
+    const employeeCode = this.dataSvc.getEmployeeCode();
+    const inventoryKey = this.dataSvc.getInventoryKey();
     
-    for(let i in this.productos)
+    for(let i in this.products)
     {
-      let producto = this.productos[i].Codigo;
-      this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto).update({
-        Codigo: producto.Codigo,
-        Nombre: producto.Nombre,
-        CantidadInicial: producto.InventarioActual,
-        Entrada: 0,
-        SumaEntrada: producto.SumaEntrada,
-        Salida: 0,
-        TotalExistencia: producto.TotalExistencia,
-        InventarioActual: 0,
-        Diferencia: producto.Diferencia,
-        Nota: producto.Nota
+      let product = this.products[i];
+      this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode+'/'+inventoryKey+'/Productos/'+product.Code).update({
+        Code: product.Code,
+        Name: product.Name,
+        InitialCuantity: product.ActualInventory,
+        Entry: 0,
+        EntrySum: product.EntrySum,
+        Exit: 0,
+        TotalExistence: product.TotalExistence,
+        ActualInventory: 0,
+        Difference: product.Difference,
+        FinalNote: product.FinalNote
       })
     }
-    this.modalCtrl.dismiss();
+    this.generalSvc.closeModal();
   }
 
   goBack(){
-    this.modalCtrl.dismiss();
+    this.generalSvc.closeModal();
   }
 }

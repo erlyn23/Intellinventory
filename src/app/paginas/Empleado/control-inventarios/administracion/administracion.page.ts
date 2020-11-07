@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
-import { ModalController, MenuController, NavController, AlertController, Platform } from '@ionic/angular';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
+import { MenuController, NavController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { CrearProductoComponent } from './crear-producto/crear-producto.component';
 import { ImportarProductosComponent } from './importar-productos/importar-productos.component';
+import { Inventory } from 'src/app/shared/models/Inventory';
+import { Product } from 'src/app/shared/models/Product';
 
 @Component({
   selector: 'app-administracion',
@@ -14,20 +16,16 @@ import { ImportarProductosComponent } from './importar-productos/importar-produc
 })
 export class AdministracionPage implements OnInit {
 
-  titulo: any;
-  estado: any;
-  ref: any;
-  productos: any[] = [];
-  productosTemporales: any[];
-  esBusqueda: boolean = false;
-  constructor(private modalCtrl: ModalController,
-    private platform: Platform,
+  inventory: Inventory;
+  products: Product[] = [];
+  searchResultProducts: Product[];
+  isSearch: boolean = false;
+  constructor(private platform: Platform,
     private navCtrl: NavController,
     private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
-    private datos:DatosService,
-    private servicio: GeneralService,
-    private db: AngularFireDatabase,
+    private dataSvc:DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase,
     private router: Router) {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.goBack();
@@ -35,29 +33,26 @@ export class AdministracionPage implements OnInit {
      }
 
   ngOnInit() {
-    const claveBar = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-    const sucursal = this.datos.getSucursal();
-
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let infoInventario = data.payload.val();
-      if(infoInventario != null){
-        this.titulo = infoInventario.NombreInventario;
-        this.estado = infoInventario.Estado;
-        this.datos.setEstado(this.estado);
+    const inventoryDbRef: AngularFireObject<Inventory> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Inventario'));
+    
+    inventoryDbRef.valueChanges().subscribe(inventory=>{
+      if(inventory != null){
+        this.inventory.Name = inventory.Name;
+        this.inventory.State = inventory.State;
+        this.dataSvc.setInventoryState(this.inventory.State);
       }
     });
 
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let bdProductos = data.payload.val();
-      this.productos = [];
-      for(let i in bdProductos)
+    const productDbRef: AngularFireObject<Product> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Productos'));
+    productDbRef.snapshotChanges().subscribe(dbProducts=>{
+      let lstProductsInDb = dbProducts.payload.val();
+      this.products = [];
+      for(let i in lstProductsInDb)
       {
-        bdProductos[i].key = i;
-        this.productos.push(bdProductos[i]);
+        lstProductsInDb[i].Code = i;
+        this.products.push(lstProductsInDb[i]);
       }
     });
   }
@@ -66,142 +61,89 @@ export class AdministracionPage implements OnInit {
     this.menuCtrl.enable(false, 'first');
   }
 
-  async abrirCrear()
+  openCreateProductModal()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: CrearProductoComponent
-    });
-    await modal.present();
+    this.generalSvc.openModal(CrearProductoComponent);
   }
 
-  async abrirImportar()
+  openImportInventoryModal()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: ImportarProductosComponent
-    });
-    await modal.present();
+    this.generalSvc.openModal(ImportarProductosComponent)
   }
 
-  async confirmarEliminarProducto(indice: number){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer eliminar este producto? No podrás recuperarlo',
-      buttons:
-      [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Eliminar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.eliminarProducto(indice);
-          }
-        }
-      ]
-    });
-    await alert.present();
+  confirmDeleteProduct(productIndex: number){
+
+    this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de querer eliminar este producto? No podrás recuperarlo',
+    ()=>{
+      this.deleteProduct(productIndex);
+    },
+    ()=>{ this.generalSvc.closeAlert(); }
+    );
   }
 
-  eliminarProducto(indice: number){
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-    const producto = this.productos[indice].Codigo;
+  deleteProduct(productIndex: number){
 
-    this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+producto)
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Producto'))
     .remove().then(()=>{
-      this.servicio.mensaje('toastSuccess', 'Se ha eliminado el producto');
+      this.generalSvc.presentToast('toastSuccess', 'Se ha eliminado el producto');
     }).catch((err)=>{
-      this.servicio.mensaje('toastCustom',err);
+      this.generalSvc.presentToast('toastCustom',err);
     });
   }
 
-  buscarProducto(busqueda:any)
+  searchProduct(searchParam:any)
   {
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-
-    this.esBusqueda = true;
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let bdProductos = data.payload.val();
-      this.productosTemporales = [];
-      for(let i in bdProductos)
+    this.isSearch = true;
+    
+    const productDbRef: AngularFireObject<Product> = 
+    this.angularFireDatabase.object(this.generalSvc.getSpecificObjectRoute('Productos'));
+    
+    productDbRef.snapshotChanges().subscribe(searchResults=>{
+      let dbProducts = searchResults.payload.val();
+      this.searchResultProducts = [];
+      for(let i in dbProducts)
       {
-        if(bdProductos[i].Nombre.includes(busqueda.detail.value))
+        if(dbProducts[i].Name.includes(searchParam.detail.value))
         {
-          this.productosTemporales.push(bdProductos[i]);
-        }else if(busqueda.detail.value == "")
+          this.searchResultProducts.push(dbProducts[i]);
+        }else if(searchParam.detail.value == "")
         {
-          this.esBusqueda = false;
+          this.isSearch = false;
         }
       }
     });
   }
 
-  async confirmarFinalizarInventario(){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de finalizar el inventario? Una vez hecho esto no podrás hacer nada para revertirlo.',
-      buttons:[
-        {
-          cssClass: 'CancelarEliminar',
-          text: 'Confirmar',
-          role: 'confirm',
-          handler: ()=>{
-              this.finalizarInventario();
-          }
-        },
-        {
-          cssClass:'ConfirmarEliminar',
-          text: 'Cancelar',
-          role: 'cancel'
-        }
-      ]
-    });
-    await alert.present();
+  confirmInventoryFinalize(){
+    this.generalSvc.presentAlertWithActions('Confirmar', 
+    '¿Estás seguro de finalizar el inventario? Una vez hecho esto no podrás hacer nada para revertirlo.',
+    ()=>{
+      this.finalizarInventario();
+    },()=>{ this.generalSvc.closeAlert(); });
   }
 
   finalizarInventario(){
-    const cedula = this.datos.getCedula();
-    const clave = this.datos.getClave();
-    const llave = this.datos.getKey();
-    const sucursal = this.datos.getSucursal();
-    
-    this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llave).update({Estado: 'Finalizado'})
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Inventario'))
+    .update({Status: 'Finalizado'})
     .then(()=>{
-      this.servicio.mensaje('toastSuccess','Inventario finalizado correctamente');
+      this.generalSvc.presentToast('toastSuccess','Inventario finalizado correctamente');
       this.goBack();
     });
   }
 
-  exportarAexcel()
+  exportInventoryToexcel()
   {
-    this.servicio.exportarExcel(this.productos, 'Inventario');
+    this.generalSvc.exportExcel(this.products, 'Inventario');
   }
 
-  goToDetails(indice:number)
+  goToDetails(productIndex:number)
   {
-    if(this.productosTemporales != undefined)
+    if(this.searchResultProducts != undefined)
     {
-      this.datos.setCode(this.productosTemporales[indice].Codigo);
+      this.dataSvc.setProductCode(this.searchResultProducts[productIndex].Code);
       this.router.navigate(['detalles-producto']);
     }else{
-      this.datos.setCode(this.productos[indice].Codigo);
+      this.dataSvc.setProductCode(this.products[productIndex].Code);
       this.router.navigate(['detalles-producto'])
     } 
   }
