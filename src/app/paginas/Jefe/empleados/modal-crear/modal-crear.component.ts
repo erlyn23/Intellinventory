@@ -12,42 +12,45 @@ import { DatosService } from 'src/app/services/datos.service';
 })
 export class ModalCrearComponent implements OnInit {
 
-  formulario: FormGroup;
-  constructor(private db: AngularFireDatabase,
+  form: FormGroup;
+  constructor(private angularFireDatabase: AngularFireDatabase,
     private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
-    private servicio: GeneralService,
-    private datos: DatosService) { }
+    private generalSvc: GeneralService,
+    private dataSvc: DatosService) { }
 
   ngOnInit() {
-    this.formulario = this.formBuilder.group({
-      Cedula: ["",[Validators.required, Validators.maxLength(11), Validators.minLength(11), Validators.pattern('[0-9]*')]],
-      Nombre: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]]
+    this.form = this.formBuilder.group({
+      Code: ["",[Validators.required, Validators.maxLength(11), Validators.minLength(11), Validators.pattern('[0-9]*')]],
+      Name: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]]
     })
   }
 
-  guardarEmpleado(){
-    const nombre = this.formulario.value.Nombre;
-    const cedula = this.formulario.value.Cedula;
-    this.db.database.ref('EmpleadosActivos/'+cedula).set({
-      CodigoActivacion: this.datos.getClave(),
+  saveEmployee(){
+    const name = this.Name.value;
+    const employeeCode = this.Code.value;
+    this.angularFireDatabase.database.ref('EmpleadosActivos/'+employeeCode).set({
+      ActivationCode: this.dataSvc.getEmployeeCode(),
     });
-    this.servicio.insertarenlaBD(this.datos.getClave()+'/Empleados/'+cedula, {Cedula: cedula, Nombre: nombre}).then(()=>{
-      this.servicio.mensaje('toastSuccess', 'El empleado se ha guardado correctamente');
+
+    this.generalSvc.insertDataInDb(`${this.generalSvc.getSpecificObjectRoute('Empleados')}/${employeeCode}`, 
+    {EmployeeCode: employeeCode, Name: name}).then(()=>{
+      this.generalSvc.presentToast('toastSuccess', 'El empleado se ha guardado correctamente');
       this.modalCtrl.dismiss();
     }).catch(err=>{
-      this.servicio.mensaje('customToast',err);
+      this.generalSvc.presentToast('customToast',err);
     });
   }
 
   close(){
     this.modalCtrl.dismiss();
   }
-  get Cedula(){
-    return this.formulario.get('Cedula');
+
+  get Code(){
+    return this.form.get('Code');
   }
 
-  get Nombre(){
-    return this.formulario.get('Nombre');
+  get Name(){
+    return this.form.get('Name');
   }
 }

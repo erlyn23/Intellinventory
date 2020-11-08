@@ -3,9 +3,6 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { ModalController } from '@ionic/angular';
-import { Plugins } from '@capacitor/core';
-
-const { Storage } = Plugins;
 
 @Component({
   selector: 'app-cambiar-password',
@@ -18,43 +15,39 @@ export class CambiarPasswordComponent implements OnInit {
   errorMsg: any;
   constructor(private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
-    private servicio: GeneralService,
+    private generalSvc: GeneralService,
     private auth: AngularFireAuth) { }
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      Nueva: ["",[Validators.required, Validators.maxLength(16), Validators.minLength(8)]],
-      Repetir: ["",[Validators.required, Validators.maxLength(16), Validators.minLength(8)]]
+      New: ["",[Validators.required, Validators.maxLength(16), Validators.minLength(8)]],
+      Repeat: ["",[Validators.required, Validators.maxLength(16), Validators.minLength(8)]]
     });
   }
 
-  verificarSemejanza(val: any)
+  verifyIfPasswordsMatch(val: any)
   {
-    let pss = val.detail.value;
-    let otrapss = this.form.value.Nueva;
+    let newPasswordRepeat = val.detail.value;
+    let newPassword = this.New.value;
 
-    if(pss != otrapss)
+    if(newPasswordRepeat != newPassword)
     {
       this.errorMsg = "Las contraseñas no coinciden";
     }else{
       this.errorMsg = "";
     }
   }
-  async guardarUsuario(llave: any, valor: any)
-  {
-    await Storage.set({key: llave, value: valor});
-  }
 
-  async cambiarClave()
+  async changePassword()
   {
     if(this.form.valid)
     {
-      (await this.auth.currentUser).updatePassword(this.form.value.Nueva).then(()=>{
-        this.servicio.mensaje('toastSuccess', 'Se ha cambiado la contraseña correctamente');
-        this.guardarUsuario('password', this.form.value.Nueva);
+      (await this.auth.currentUser).updatePassword(this.New.value).then(()=>{
+        this.generalSvc.presentToast('toastSuccess', 'Se ha cambiado la contraseña correctamente');
+        this.generalSvc.saveDataInLocalStorage('bossPassword', this.New.value);
         this.modalCtrl.dismiss();
       }).catch(err=>{
-        this.servicio.mensaje('customToast', err);
+        this.generalSvc.presentToast('customToast', err);
       })
     }
   }
@@ -64,11 +57,11 @@ export class CambiarPasswordComponent implements OnInit {
     this.modalCtrl.dismiss();
   }
 
-  get Nueva(){
-    return this.form.get('Nueva');
+  get New(){
+    return this.form.get('New');
   }
 
-  get Repetir(){
-    return this.form.get('Repetir');
+  get Repeat(){
+    return this.form.get('Repeat');
   }
 }

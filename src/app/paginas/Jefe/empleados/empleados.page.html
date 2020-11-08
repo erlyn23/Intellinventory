@@ -9,16 +9,16 @@
     </ion-row>
   </ion-grid>
   <ion-list style="background: white;">
-    <ion-item color="tertiary" *ngFor="let emp of empleados, let i = index">
-      <ion-button (click)="abrirEmpleado(i)" style="width: 100%;" expand="full" fill="clear">
-        {{emp.Nombre}}
+    <ion-item color="tertiary" *ngFor="let employeeItem of employees, let i = index">
+      <ion-button (click)="openEmployeeDetailsModal(i)" style="width: 100%;" expand="full" fill="clear">
+        {{employeeItem.Name}}
       </ion-button>
-      <ion-button (click)="abrirAlert(i)" color="danger" fill="clear">
+      <ion-button (click)="confirmDeleteEmployee(i)" color="danger" fill="clear">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
       </ion-button>
     </ion-item>
   </ion-list>
-  <ion-fab (click)="goToCreateEmployee()" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab (click)="openCreateEmployeeModal()" vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

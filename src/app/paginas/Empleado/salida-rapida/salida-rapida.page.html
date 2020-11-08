@@ -2,26 +2,26 @@
 
 <ion-content color="tertiary">
   <ion-grid>
-    <form [formGroup]="formulario">
+    <form [formGroup]="form">
       <ion-row>
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label>Sucursal</ion-label>
-            <ion-select interface="popover" formControlName="Sucursal" (ionChange)="buscarSucursal($event)">
-              <ion-select-option *ngFor="let sucursal of sucursales" [value]="sucursal.key">{{sucursal.Nombre}}</ion-select-option>
+            <ion-select interface="popover" formControlName="Subsidiary" (ionChange)="searchSubsidiary($event)">
+              <ion-select-option *ngFor="let subsidiaryItem of subsidiaries" [value]="subsidiaryItem.Key">{{subsidiaryItem.Name}}</ion-select-option>
             </ion-select>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-item color="tertiary" *ngIf="necesitaClave">
+          <ion-item color="tertiary" *ngIf="subsidiaryNeedPassword">
             <ion-label position="floating">Contraseña</ion-label>
-            <ion-input type="password" formControlName="Password" (ionChange)="inventarioAjeno($event)"></ion-input>
+            <ion-input type="password" formControlName="Password" (ionChange)="searchAnotherEmployeeInventory($event)"></ion-input>
           </ion-item>
-          <div *ngIf="necesitaClave">
-            <ion-item color="tertiary" lines="none" *ngIf="errorMessage !=''">
-              <ion-label color="danger">{{errorMessage}}</ion-label>
+          <div *ngIf="subsidiaryNeedPassword">
+            <ion-item color="tertiary" lines="none" *ngIf="errorMessageForWrongSubsidiaryPassword !=''">
+              <ion-label color="danger">{{errorMessageForWrongSubsidiaryPassword}}</ion-label>
             </ion-item>
           </div>
         </ion-col>
@@ -30,8 +30,8 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label>Inventario</ion-label>
-            <ion-select interface="popover" formControlName="Inventario" (ionChange)="buscarInventario($event)">
-              <ion-select-option *ngFor="let inv of inventarios" [value]="inv.key">{{inv.NombreInventario}}</ion-select-option>
+            <ion-select interface="popover" formControlName="Inventory" (ionChange)="searchInventory($event)">
+              <ion-select-option *ngFor="let inventoryItem of inventories" [value]="inventoryItem.Key">{{inventoryItem.Name}}</ion-select-option>
             </ion-select>
           </ion-item>
         </ion-col>
@@ -40,17 +40,17 @@
         <ion-col size="9">
           <ion-item color="tertiary">
             <ion-label position="floating">Código</ion-label>
-            <ion-input type="number" formControlName="Codigo" (ionChange)="getProducto($event)"></ion-input>
+            <ion-input type="number" formControlName="Code" (ionChange)="getProduct($event)"></ion-input>
           </ion-item>
         </ion-col>
         <ion-col size="3">
-          <ion-button (click)="leerCodigo()">
+          <ion-button (click)="readBarCode()">
             <ion-icon slot="icon-only" name="barcode"></ion-icon>
           </ion-button>
         </ion-col>
-        <div *ngIf="errorMessage2 != ''">
+        <div *ngIf="errorMessageForProductNotFound != ''">
           <ion-item color="tertiary" lines="none">
-            <ion-label color="danger">{{errorMessage2}}</ion-label>
+            <ion-label color="danger">{{errorMessageForProductNotFound}}</ion-label>
           </ion-item>
         </div>
       </ion-row>
@@ -58,7 +58,7 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Cantidad</ion-label>
-            <ion-input type="number" formControlName="Cantidad"></ion-input>
+            <ion-input type="number" formControlName="Cuantity"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
@@ -66,13 +66,13 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">¿Hacia dónde va la salida?</ion-label>
-            <ion-input type="text" formControlName="NotaSalida"></ion-input>
+            <ion-input type="text" formControlName="ExitNote"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="darSalida()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
+          <ion-button (click)="giveProductExit()" style="width: 100%;" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="enter-outline"></ion-icon>
             Dar salida
           </ion-button>

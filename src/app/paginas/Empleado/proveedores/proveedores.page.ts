@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, MenuController, Platform } from '@ionic/angular';
+import { MenuController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DetallesProveedorComponent } from './detalles-proveedor/detalles-proveedor.component';
 import { CrearProveedorComponent } from './crear-proveedor/crear-proveedor.component';
 import { Router } from '@angular/router';
+import { Provider } from 'src/app/shared/models/Provider';
 
 
 @Component({
@@ -15,34 +16,33 @@ import { Router } from '@angular/router';
 })
 export class ProveedoresPage implements OnInit {
 
-  ref: any;
-  proveedores: any[] = [];
-  constructor(private modalCtrl: ModalController,
-    private platform: Platform,
+  providers: Provider[] = [];
+  constructor(private platform: Platform,
     private router: Router,
     private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
-    private datos: DatosService,
-    private general: GeneralService,
-    private db: AngularFireDatabase) {
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase) {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard']);
       })
      }
 
   ngOnInit() {
-    this.obtenerProveedores();
+    this.getProvidersFromDb();
   }
-  obtenerProveedores(){
-    const clave = this.datos.getClave();
-    this.ref = this.db.object(clave+'/Proveedores');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let prov = data.payload.val();
-      this.proveedores = [];
-      for(let i in prov)
+
+  getProvidersFromDb(){
+    const providersDbObject: AngularFireObject<Provider> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Proveedores'));
+    
+    providersDbObject.snapshotChanges().subscribe(providersData=>{
+      let dbProviders = providersData.payload.val();
+      this.providers = [];
+      for(let i in dbProviders)
       {
-        prov[i].key = i;
-        this.proveedores.push(prov[i]);
+        dbProviders[i].Key = i;
+        this.providers.push(dbProviders[i]);
       }
     });
   }
@@ -50,68 +50,42 @@ export class ProveedoresPage implements OnInit {
     this.menuCtrl.enable(true, 'first');
   }
 
-  async abrirModalProveedor()
+  openProviderModal()
   {
-    this.datos.setOperacion('crear');
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: CrearProveedorComponent,
-      
-    });
-    (await modal).present();
+    this.dataSvc.setProviderOperation('crear');
+    this.generalSvc.openModal(CrearProveedorComponent);
   }
 
-  async eliminarProveedor(i: number)
+  confirmDeleteProvider(providerIndex: number)
   {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de eliminar este proveedor? No podrás recuperarlo',
-      buttons:[
-        {
-          cssClass:'CancelarEliminar',
-          role:'cancel',
-          text:'Cancelar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          cssClass:'ConfirmarEliminar',
-          role:"confirm",
-          text: 'Confirmar',
-          handler: ()=>{
-            const clave = this.datos.getClave();
-            this.db.database.ref(clave+'/Proveedores/'+this.proveedores[i].key).remove().then(()=>{
-              this.general.mensaje('toastSuccess', 'proveedor eliminado correctamente');
-            }).catch(err=>{
-              this.general.mensaje('customToast',err);
-            })
-          }
-        }
-      ]
-    });
-    (await alert).present();
+
+    this.generalSvc.presentAlertWithActions('Confirmar', 
+    '¿Estás seguro de eliminar este proveedor? No podrás recuperarlo',
+    ()=> {this.deleteProvider(providerIndex) }, ()=>{ this.generalSvc.closeAlert(); })
   }
 
-  async modificarProveedor(i: number)
+  deleteProvider(providerIndex: number)
   {
-    this.datos.setOperacion('modificar');
-    this.datos.setProveedor(this.proveedores[i]);
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: CrearProveedorComponent
-    });
-    (await modal).present();
+    const providersRoute = this.generalSvc.getSpecificObjectRoute('Proveedores');
+
+    this.angularFireDatabase.database.ref(`${providersRoute}/${this.providers[providerIndex].Key}`)
+    .remove().then(()=>{
+      this.generalSvc.presentToast('toastSuccess', 'proveedor eliminado correctamente');
+    }).catch(err=>{
+      this.generalSvc.presentToast('customToast',err);
+    })
   }
 
-  async goToDetails(i:number){
-    this.datos.setCode(this.proveedores[i].key);
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: DetallesProveedorComponent
-    });
-    (await modal).present();
+  updateProvider(providerIndex: number)
+  {
+    this.dataSvc.setProviderOperation('modificar');
+    this.dataSvc.setProvider(this.providers[providerIndex]);
+    this.generalSvc.openModal(CrearProveedorComponent);
+  }
+
+  goToDetails(providerIndex:number){
+    this.dataSvc.setProvider(this.providers[providerIndex]);
+    this.generalSvc.openModal(DetallesProveedorComponent);
   }
 
 }

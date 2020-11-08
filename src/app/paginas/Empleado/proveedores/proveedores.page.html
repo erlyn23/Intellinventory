@@ -7,28 +7,28 @@
         <ion-title>Listado de proveedores</ion-title>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="proveedores.length == 0">
+    <ion-row *ngIf="providers.length == 0">
       <ion-col size="12" style="text-align: center; color: gray; font-style: italic;">
         <ion-label>No hay proveedores registrados</ion-label>
       </ion-col>
     </ion-row>
   </ion-grid>
   <ion-list style="background: white;">
-    <ion-item color="tertiary" *ngFor="let proveedor of proveedores, let i = index">
+    <ion-item color="tertiary" *ngFor="let provider of providers, let i = index">
       <ion-col size="8">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">
-          {{proveedor.Nombre}}
+          {{provider.Name}}
         </ion-button>
       </ion-col>
-      <ion-button (click)="modificarProveedor(i)" color="primary" fill="clear">
+      <ion-button (click)="updateProvider(i)" color="primary" fill="clear">
         <ion-icon slot="icon-only" name="create-outline"></ion-icon>
       </ion-button>
-      <ion-button (click)="eliminarProveedor(i)" color="danger" fill="clear">
+      <ion-button (click)="confirmDeleteProvider(i)" color="danger" fill="clear">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
       </ion-button>
     </ion-item>
   </ion-list>
-  <ion-fab (click)="abrirModalProveedor()" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab (click)="openProviderModal()" vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>

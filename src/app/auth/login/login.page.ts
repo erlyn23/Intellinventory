@@ -3,13 +3,10 @@ import { MenuController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { Plugins } from '@capacitor/core';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { Employee } from 'src/app/shared/models/Employee';
 import { Boss } from 'src/app/shared/models/Boss';
-
-const { Storage } = Plugins;
 
 @Component({
   selector: 'app-login',
@@ -41,16 +38,16 @@ export class LoginPage implements OnInit {
   startAutomaticSession()
   {
     this.found = 0;
-      this.getSavedDataInLocalStorage('role').then(role=>{
+      this.generalSvc.getLocalStorageData('role').then(role=>{
         if(role.value == 'boss')
         {
-          this.getSavedDataInLocalStorage('bossEmail').then(user=>{
-            this.getSavedDataInLocalStorage('bossPassword').then(password=>{
+          this.generalSvc.getLocalStorageData('bossEmail').then(user=>{
+            this.generalSvc.getLocalStorageData('bossPassword').then(password=>{
               if(user.value != null && password.value != null){
                 this.generalSvc.presentLoading('Iniciando sesión, por favor espera...');
                 this.angularFireAuth.signInWithEmailAndPassword(user.value, password.value).then(()=>{
                   this.angularFireAuth.currentUser.then(loggedUser=>{
-                    this.saveDataInLocalStorage('barKey',loggedUser.uid);
+                    this.generalSvc.saveDataInLocalStorage('barKey',loggedUser.uid);
                     this.dataSvc.setBarKey(loggedUser.uid);
                     this.loadingCtrl.dismiss();
                     this.router.navigate(['dashboardjefe']);
@@ -65,7 +62,7 @@ export class LoginPage implements OnInit {
         }
         else
         {
-          this.getSavedDataInLocalStorage('employeeCode').then(employeeCode=>{
+          this.generalSvc.getLocalStorageData('employeeCode').then(employeeCode=>{
             if(employeeCode.value != null){
               this.generalSvc.presentLoading('Iniciando sesión, por favor espera...');
               this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+employeeCode.value);
@@ -88,16 +85,6 @@ export class LoginPage implements OnInit {
           })
         }
       })
-  }
-
-  async getSavedDataInLocalStorage(key: string):Promise <{value: string}>
-  {
-    return (await Storage.get({key: key}));
-  }
-
-  async saveDataInLocalStorage(key: string, valor: any)
-  {
-    await Storage.set({key: key, value: valor});
   }
 
   ionViewWillEnter() {
@@ -139,11 +126,11 @@ export class LoginPage implements OnInit {
         this.dataSvc.setBarKey(user.uid);
         if(this.boss.StartedSession)
         {
-          this.saveDataInLocalStorage('bossEmail', this.boss.Email);
-          this.saveDataInLocalStorage('bossPassword', this.boss.Password);
+          this.generalSvc.saveDataInLocalStorage('bossEmail', this.boss.Email);
+          this.generalSvc.saveDataInLocalStorage('bossPassword', this.boss.Password);
         }
-        this.saveDataInLocalStorage('role','boss');
-        this.saveDataInLocalStorage('barKey',user.uid);
+        this.generalSvc.saveDataInLocalStorage('role','boss');
+        this.generalSvc.saveDataInLocalStorage('barKey',user.uid);
         this.loadingCtrl.dismiss();
         this.router.navigate(['dashboardjefe']).then(()=>{
           this.boss.Email = "";
@@ -183,9 +170,9 @@ export class LoginPage implements OnInit {
       if(employeData != null)
       {
         if(this.employee.StartedSession){
-          this.saveDataInLocalStorage('employeeCode', this.employee.Code);
+          this.generalSvc.saveDataInLocalStorage('employeeCode', this.employee.Code);
         }
-        this.saveDataInLocalStorage('role','employee');
+        this.generalSvc.saveDataInLocalStorage('role','employee');
         this.dataSvc.setEmployeeCode(this.employee.Code);
         this.dataSvc.setBarKey(employeData.ActivationCode);
         this.router.navigate(['dashboard']).then(()=>{

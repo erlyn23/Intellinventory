@@ -5,9 +5,11 @@
     <ion-row>
       <ion-col size="4"></ion-col>
       <ion-col size="4">
-        <img (click)="abrirPopover()" src="../../../../assets/user.png" class="perfil" *ngIf="imagen == ''">
-        <div (click)="abrirPopover()" style="background: url({{imagen}});background-size: 100% 100%; background-repeat: no-repeat;
-        width: 125px; height: 125px; border-radius: 100px;" *ngIf="imagen != ''"></div>
+        <img (click)="openChangeProfilePhotoPopover()" src="../../../../assets/user.png" class="perfil" *ngIf="bossProfileUrlImage == ''">
+        <div (click)="openChangeProfilePhotoPopover()" style="background: url({{imabossProfileUrlImagegen}});
+        background-size: 100% 100%; 
+        background-repeat: no-repeat;
+        width: 125px; height: 125px; border-radius: 100px;" *ngIf="bossProfileUrlImage != ''"></div>
       </ion-col>
       <ion-col size="4"></ion-col>
     </ion-row>
@@ -16,16 +18,16 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Nombre completo</ion-label>
-            <ion-input type="text" formControlName="Nombre"></ion-input>
+            <ion-input type="text" formControlName="Name"></ion-input>
           </ion-item>
-          <div *ngIf="Nombre.invalid && (Nombre.dirty || Nombre.touched)">
-            <ion-item color="tertiary" lines="none" *ngIf="Nombre.errors.required">
+          <div *ngIf="Name.invalid && (Name.dirty || Name.touched)">
+            <ion-item color="tertiary" lines="none" *ngIf="Name.errors.required">
               <ion-label color="danger">No puedes dejarlo vacío</ion-label>
             </ion-item>
-            <ion-item color="tertiary" lines="none" *ngIf="Nombre.errors.minlength">
+            <ion-item color="tertiary" lines="none" *ngIf="Name.errors.minlength">
               <ion-label color="danger">Escribe como mínimo 3 letras</ion-label>
             </ion-item>
-            <ion-item color="tertiary" lines="none" *ngIf="Nombre.errors.maxlength">
+            <ion-item color="tertiary" lines="none" *ngIf="Name.errors.maxlength">
               <ion-label color="danger">Un nombre no tiene más de 30 letras</ion-label>
             </ion-item>
           </div>
@@ -35,19 +37,19 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Teléfono</ion-label>
-            <ion-input type="text" formControlName="Telefono"></ion-input>
+            <ion-input type="text" formControlName="PhoneNumber"></ion-input>
           </ion-item>
-          <div *ngIf="Telefono.invalid && (Telefono.dirty || Telefono.touched)">
-            <ion-item color="tertiary" lines="none" *ngIf="Telefono.errors.required">
+          <div *ngIf="PhoneNumber.invalid && (PhoneNumber.dirty || PhoneNumber.touched)">
+            <ion-item color="tertiary" lines="none" *ngIf="PhoneNumber.errors.required">
               <ion-label color="danger">No puedes dejarlo vacío</ion-label>
             </ion-item>
-            <ion-item color="tertiary" lines="none" *ngIf="Telefono.errors.minlength">
+            <ion-item color="tertiary" lines="none" *ngIf="PhoneNumber.errors.minlength">
               <ion-label color="danger">Solo 10 números</ion-label>
             </ion-item>
-            <ion-item color="tertiary" lines="none" *ngIf="Telefono.errors.maxlength">
+            <ion-item color="tertiary" lines="none" *ngIf="PhoneNumber.errors.maxlength">
               <ion-label color="danger">Solo 10 números</ion-label>
             </ion-item>
-            <ion-item color="tertiary" lines="none"  *ngIf="Telefono.errors.pattern">
+            <ion-item color="tertiary" lines="none"  *ngIf="PhoneNumber.errors.pattern">
               <ion-label color="danger">Solo números</ion-label>
             </ion-item>
           </div>
@@ -57,13 +59,13 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Nombre de la empresa</ion-label>
-            <ion-input type="text" formControlName="Empresa"></ion-input>
+            <ion-input type="text" formControlName="Company"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button style="width: 100%;" (click)="abrirCambioPass()" shape="round">
+          <ion-button style="width: 100%;" (click)="openChangePasswordModal()" shape="round">
             <ion-icon slot="start" name="key-outline"></ion-icon>
             Cambiar contraseña
           </ion-button>
@@ -71,7 +73,7 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="guardarPerfil()" style="width: 100%;" shape="round" [disabled]="form.invalid">
+          <ion-button (click)="saveProfileData()" style="width: 100%;" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="checkmark-circle"></ion-icon>
             Guardar Cambios
           </ion-button>

@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
-import { ModalController, MenuController, NavController, AlertController, Platform } from '@ionic/angular';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
+import { MenuController, NavController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
+import { Inventory } from 'src/app/shared/models/Inventory';
+import { Product } from 'src/app/shared/models/Product';
 
 @Component({
   selector: 'app-administracion',
@@ -12,17 +14,16 @@ import { GeneralService } from 'src/app/services/general.service';
 })
 export class AdministracionPage implements OnInit {
 
-  titulo: any;
-  estado: any;
-  ref: any;
-  productos: any[] = [];
-  tempProducts: any[];
-  esBusqueda: boolean = false;
+  inventory: Inventory;
+  products: Product[] = [];
+  searchResultProducts: Product[];
+  isSearch: boolean = false;
   constructor(private navCtrl: NavController, 
     private platform: Platform,
     private menuCtrl: MenuController,
-    private datos:DatosService,
-    private db: AngularFireDatabase,
+    private dataSvc:DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase,
     private router: Router) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.goBack();
@@ -30,29 +31,25 @@ export class AdministracionPage implements OnInit {
     }
 
   ngOnInit() {
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
 
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let title = data.payload.val();
-      if(title != null){
-        this.titulo = title.NombreInventario;
-        this.estado = title.Estado;
-        this.datos.setEstado(this.estado);
+    const inventoryDbObject: AngularFireObject<Inventory> = this.angularFireDatabase.object(this.generalSvc.getSpecificObjectRoute('Inventario'));
+    inventoryDbObject.valueChanges().subscribe(inventoryData=>{
+      if(inventoryData != null){
+        this.inventory = inventoryData
+        this.dataSvc.setInventoryState(this.inventory.State);
       }
     });
 
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let products = data.payload.val();
-      this.productos = [];
-      for(let i in products)
+    const productsDbObject: AngularFireObject<Product> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Productos'));
+   
+    productsDbObject.snapshotChanges().subscribe(productData=>{
+      let dbProducts = productData.payload.val();
+      this.products = [];
+      for(let i in dbProducts)
       {
-        products[i].key = i;
-        this.productos.push(products[i]);
+        dbProducts[i].Code = i;
+        this.products.push(dbProducts[i]);
       }
     });
   }
@@ -61,26 +58,24 @@ export class AdministracionPage implements OnInit {
     this.menuCtrl.enable(false, 'second');
   }
 
-  buscarProducto(val:any)
+  searchProducts(val:any)
   {
-    const claveBar = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-    const sucursal = this.datos.getSucursal();
+    this.isSearch = true;
+    const productsDbObject: AngularFireObject<Product> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Productos'));
 
-    this.esBusqueda = true;
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let products = data.payload.val();
-      this.tempProducts = [];
-      for(let i in products)
+    productsDbObject.snapshotChanges().subscribe(productsData=>{
+      let dbProducts = productsData.payload.val();
+      this.searchResultProducts = [];
+      for(let i in dbProducts)
       {
-        if(products[i].Nombre.includes(val.detail.value))
+        if(dbProducts[i].Name.includes(val.detail.value))
         {
-          this.tempProducts.push(products[i]);
-        }else if(val.detail.value == "")
+          this.searchResultProducts.push(dbProducts[i]);
+        }
+        else if(val.detail.value == "")
         {
-          this.esBusqueda = false;
+          this.isSearch = false;
         }
       }
     });
@@ -88,12 +83,14 @@ export class AdministracionPage implements OnInit {
 
   goToDetails(i:number)
   {
-    if(this.tempProducts != undefined)
+    if(this.searchResultProducts != null)
     {
-      this.datos.setCode(this.tempProducts[i].Codigo);
+      this.dataSvc.setInventoryState(this.inventory.State);
+      this.dataSvc.setProductCode(this.searchResultProducts[i].Code);
       this.router.navigate(['detalles-producto-jefe']);
     }else{
-      this.datos.setCode(this.productos[i].Codigo);
+      this.dataSvc.setInventoryState(this.inventory.State);
+      this.dataSvc.setProductCode(this.products[i].Code);
       this.router.navigate(['detalles-producto-jefe'])
     } 
   }

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
+import { GeneralService } from 'src/app/services/general.service';
+import { Provider } from 'src/app/shared/models/Provider';
 
 
 @Component({
@@ -12,25 +14,23 @@ import { DatosService } from 'src/app/services/datos.service';
 })
 export class DetallesProveedorComponent implements OnInit {
   
-  ref: any;
-  proveedor: any ='';
+  provider: Provider;
   constructor(private modalCtrl: ModalController,
     private platform: Platform,
-    private db: AngularFireDatabase,
-    private datos: DatosService,
+    private angularFireDatabase: AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService
   ) { 
     this.platform.backButton.subscribeWithPriority(10, ()=>{this.goBack()});
   }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const codigo = this.datos.getCode();
-
-    this.ref = this.db.object(clave+'/Proveedores/'+codigo);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let provider = data.payload.val();
-      if(provider != null){
-        this.proveedor = provider;
+    const providerDbObject: AngularFireObject<Provider> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Proveedor'));
+    
+    providerDbObject.valueChanges().subscribe(providerData=>{
+      if(providerData != null){
+        this.provider = providerData;
       }
     })
   }

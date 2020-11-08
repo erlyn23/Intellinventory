@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ModalController, AlertController, MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular';
 import { ModalCrearComponent } from './modal-crear/modal-crear.component';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { DatosService } from 'src/app/services/datos.service';
 import { DetallesEmpleadoComponent } from './detalles-empleado/detalles-empleado.component';
+import { Employee } from 'src/app/shared/models/Employee';
 
 @Component({
   selector: 'app-empleados',
@@ -13,25 +14,25 @@ import { DetallesEmpleadoComponent } from './detalles-empleado/detalles-empleado
   styleUrls: ['./empleados.page.scss'],
 })
 export class EmpleadosPage implements OnInit {
-  empleados: any[];
-  ref:any;
+  
+  employees: Employee[];
   constructor(private router: Router, 
-    private modalCtrl: ModalController,
     private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
-    private db:AngularFireDatabase,
-    private servicio: GeneralService,
-    private datos:DatosService) {
+    private angularFireDatabase:AngularFireDatabase,
+    private generalSvc: GeneralService,
+    private dataSvc:DatosService) {
     }
 
   ngOnInit() {
-    this.ref = this.db.object(this.datos.getClave()+'/Empleados')
-    this.ref.snapshotChanges().subscribe(data=>{
-      let employees = data.payload.val();
-      this.empleados = [];
-      for(let i in employees)
+    const employeesDbObject: AngularFireObject<Employee> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Empleados'));
+    
+    employeesDbObject.snapshotChanges().subscribe(employeeData=>{
+      let dbEmployees = employeeData.payload.val();
+      this.employees = [];
+      for(let i in dbEmployees)
       {
-        this.empleados.push(employees[i]);
+        this.employees.push(dbEmployees[i]);
       }
     })
   }
@@ -40,64 +41,37 @@ export class EmpleadosPage implements OnInit {
     this.menuCtrl.enable(true, 'second');
   }
 
-  async abrirModal()
+  openCreateEmployeeModal()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: ModalCrearComponent,
-    });
-    return await modal.present();
-  }
-  async abrirDetalles()
-  {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: DetallesEmpleadoComponent,
-    });
-    return await modal.present();
+    this.generalSvc.openModal(ModalCrearComponent);
   }
 
-  async abrirAlert(i: number){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer eliminar este empleado? No podrás recuperarlo',
-      buttons:
-      [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Eliminar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.db.database.ref('EmpleadosActivos/'+this.empleados[i].Cedula).remove();
-            this.db.database.ref(this.datos.getClave()+'/Empleados/'+this.empleados[i].Cedula).remove()
-            .then(()=>{
-              this.servicio.mensaje('toastSuccess', 'Se ha eliminado el empleado');
-              this.router.navigate(['dashboardjefe'])
-            }).catch((err)=>{
-              this.servicio.mensaje('toastCustom',err);
-            });
-          }
-        }
-      ]
-    });
-    await alert.present();
+  openEmployeeDetailsModal(employeeIndex:number)
+  {
+    this.dataSvc.setEmployeeCode(this.employees[employeeIndex].Code);
+    this.generalSvc.openModal(DetallesEmpleadoComponent);
   }
 
-  abrirEmpleado(i:number)
-  {
-    this.datos.setCedula(this.empleados[i].Cedula);
-    this.abrirDetalles();
+  confirmDeleteEmployee(employeeIndex: number){
+    
+    this.generalSvc.presentAlertWithActions('Confirmar', 
+    '¿Estás seguro de querer eliminar este empleado? No podrás recuperarlo',
+    ()=>{ this.deleteEmployee(employeeIndex); }, ()=>{ this.generalSvc.closeAlert(); });
   }
-  goToCreateEmployee(){
-    this.abrirModal();
+
+  deleteEmployee(employeeIndex: number)
+  {
+    this.angularFireDatabase.database
+    .ref(`${this.generalSvc.getSpecificObjectRoute('EmpleadosActivos')}/${this.employees[employeeIndex].Code}`)
+    .remove();
+    this.angularFireDatabase.database
+    .ref(`${this.generalSvc.getSpecificObjectRoute('Empleados')}/${this.employees[employeeIndex].Code}`)
+    .remove()
+    .then(()=>{
+      this.generalSvc.presentToast('toastSuccess', 'Se ha eliminado el empleado');
+      this.router.navigate(['dashboardjefe'])
+    }).catch((err)=>{
+      this.generalSvc.presentToast('toastCustom',err);
+    });
   }
 }

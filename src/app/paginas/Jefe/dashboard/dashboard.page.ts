@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, MenuController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { DatosService } from 'src/app/services/datos.service';
 
-import { LocalNotification, LocalNotificationActionPerformed, Plugins } from '@capacitor/core';
+import { LocalNotificationActionPerformed, Plugins } from '@capacitor/core';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { Boss } from 'src/app/shared/models/Boss';
+import { Notification } from 'src/app/shared/models/Notification';
 
 const { Storage, 
 LocalNotifications,
@@ -22,76 +24,69 @@ BackgroundTask } = Plugins;
 })
 export class DashboardPage implements OnInit {
 
-  jefe: any = "";
-  imagen: any = "";
-  ref:any;
+  boss: Boss;
+  bossProfileUrlImage: string = "";
   constructor(private router: Router, 
-    private bckgMode: BackgroundMode,
+    private backgroundMode: BackgroundMode,
     private platform: Platform,
     private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
-    private db:AngularFireDatabase,
-    private storage: AngularFireStorage,
-    private servicio: GeneralService,
-    private datos:DatosService) {
+    private angularFireDatabase:AngularFireDatabase,
+    private angularFireStorage: AngularFireStorage,
+    private generalSvc: GeneralService,
+    private dataSvc:DatosService) {
       LocalNotifications.requestPermission().then((hasPermission)=>{
         if(hasPermission.granted){
           BackgroundTask.requestPermissions();
-          this.notificacionesCerradas();
+          this.getPendingNotificationsFromDb();
         }
       });
       
       if(this.platform.pause.isStopped){
-        this.bckgMode.enable();
-        this.bckgMode.on('activate').subscribe(()=>{
-          this.notificacionesCerradas();
+        this.backgroundMode.enable();
+        this.backgroundMode.on('activate').subscribe(()=>{
+          this.getPendingNotificationsFromDb();
         })
       }
       this.platform.backButton.subscribeWithPriority(10, ()=>{
-        this.salir()
+        this.exit()
       });
     }
-
-  ngOnInit() {
-    this.ref = this.db.object(this.datos.getClave()+'/Jefe')
-    this.ref.snapshotChanges().subscribe(data=>{
-      let jefe = data.payload.val();
-      this.jefe = "";
-      if(jefe != null)
-      {
-        this.jefe = jefe.DatosPersonales.Nombre;
-        this.imagen = "";
-        this.storage.ref(jefe.FotoPerfil.Ruta).getDownloadURL().subscribe(data=>{
-          this.imagen = data;
-        })
-      }
-    });
-    this.notificacionesCerradas();
-    this.ModoBackground();
-
-    LocalNotifications.addListener('localNotificationActionPerformed', (localNotificationActionPerformed: LocalNotificationActionPerformed)=>{
-      this.datos.setKey(localNotificationActionPerformed.notification.extra.Inventario);
-      this.datos.setCedula(localNotificationActionPerformed.notification.extra.Cedula);
-      this.datos.setClave(localNotificationActionPerformed.notification.extra.ClaveBar);
-      this.datos.setSucursal(localNotificationActionPerformed.notification.extra.Sucursal);
-      this.datos.setCode(localNotificationActionPerformed.notification.extra.Producto);
-      this.router.navigate(['detalles-producto-jefe']);
-    });
-  }
   
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'second');
   }
-
+  
   ngOnDestroy(): void {
-    this.ModoBackground(); 
+    this.setBackgroundMode(); 
   }
 
-  ModoBackground(){
+
+  ngOnInit() {
+    const bossDbObject: AngularFireObject<Boss> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Jefe'))
+    
+    bossDbObject.valueChanges().subscribe(bossData=>{
+      if(bossData != null)
+      {
+        this.boss = bossData;
+        
+        const bossProfilePhotoDirectory = this.angularFireStorage.ref(bossData.Photo);
+
+        bossProfilePhotoDirectory.getDownloadURL().subscribe(profilePhotoUrl=>{
+          this.bossProfileUrlImage = profilePhotoUrl;
+        })
+      }
+    });
+    this.setBackgroundMode();
+    this.onClickNotifiaction();
+    this.getPendingNotificationsFromDb();
+  }
+
+  setBackgroundMode(){
     App.addListener('appStateChange', state=>{
       if(!state.isActive){
         let taskId= BackgroundTask.beforeExit(async ()=>{
-          await this.notificacionesCerradas();
+          await this.getPendingNotificationsFromDb();
           BackgroundTask.finish({
             taskId
           })
@@ -100,123 +95,115 @@ export class DashboardPage implements OnInit {
     })
   }
 
-  async enviarNotificacion(titulo:string, mensaje:string, id: number, datos: any){
-    const notifs = await LocalNotifications.schedule({
-      notifications: [
-        {
-          title: titulo,
-          body: mensaje,
-          id: id,
-          smallIcon:"ic_launcher",
-          attachments: null,
-          actionTypeId: "",
-          extra: datos
-        }
-      ]
+  onClickNotifiaction()
+  {
+    LocalNotifications.addListener('localNotificationActionPerformed', (localNotificationActionPerformed: LocalNotificationActionPerformed)=>{
+      this.dataSvc.setInventoryKey(localNotificationActionPerformed.notification.extra.InventoryKey);
+      this.dataSvc.setEmployeeCode(localNotificationActionPerformed.notification.extra.EmployeeCode);
+      this.dataSvc.setBarKey(localNotificationActionPerformed.notification.extra.BarKey);
+      this.dataSvc.setSubsidiary(localNotificationActionPerformed.notification.extra.SubsidiaryKey);
+      this.dataSvc.setProductCode(localNotificationActionPerformed.notification.extra.ProductCode);
+      this.router.navigate(['detalles-producto-jefe']);
     });
   }
 
-  notificacionesCerradas() {
-    let contador = 0;
-    this.servicio.getDatos('posicion').then(pos=>{
-      if(pos.value == 'jefe'){
-        this.servicio.getDatos('clave').then(clave=>{
-          if(clave.value != null || clave.value != ''){
-            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Entradas');
-            this.ref.snapshotChanges().subscribe(data=>{
-              let datos = data.payload.val();
-              for(let i in datos)
-              {
-                datos[i].key = i;
-                this.enviarNotificacion(datos[i].NombreEmpleado + ': Entrada', datos[i].NombreSucursal + ': En el inventario ' 
-                + datos[i].NombreInventario + ' al producto ' 
-                + datos[i].NombreProducto, contador, 
-                { ClaveBar: datos[i].ClaveBar, 
-                  Cedula: datos[i].Cedula, 
-                  Sucursal: datos[i].Sucursal, 
-                  Inventario: datos[i].Inventario, 
-                  Producto: datos[i].Producto});
-                contador++;
-                this.db.database.ref(clave.value+'/ParaNotificaciones/Entradas/'+datos[i].key).remove();
-              }
-            })
-        
-            this.ref = this.db.object(clave.value+'/ParaNotificaciones/Salidas');
-            this.ref.snapshotChanges().subscribe(data=>{
-              let datos = data.payload.val();
-              for(let i in datos)
-              {
-                datos[i].key = i;
-                this.enviarNotificacion(datos[i].NombreEmpleado + ': Salida', datos[i].NombreSucursal + ': En el inventario ' 
-                + datos[i].NombreInventario + ' al producto ' 
-                + datos[i].NombreProducto, contador,
-                { ClaveBar: datos[i].ClaveBar, 
-                  Cedula: datos[i].Cedula, 
-                  Sucursal: datos[i].Sucursal, 
-                  Inventario: datos[i].Inventario, 
-                  Producto: datos[i].Producto});
-                contador++;
-                this.db.database.ref(clave.value+'/ParaNotificaciones/Salidas/'+datos[i].key).remove();
-              }        
-            })
+  getPendingNotificationsFromDb() {
+    this.generalSvc.getLocalStorageData('role').then(roleData=>{
+      if(roleData.value == 'boss'){
+        this.generalSvc.getLocalStorageData('barKey').then(barKey=>{
+          if(barKey.value != null || barKey.value != ''){
+            this.getEntryPendingNotifications();
+            this.getExitPendingNotifications();
           }
         })
       }
     })
   }
 
-  async limpiarUser(){
-    return (await Storage).clear();
+  getEntryPendingNotifications()
+  {
+    let counter = 0;
+    const toNotificationsDbObject: AngularFireObject<Notification>
+    = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada'));
+    
+    toNotificationsDbObject.snapshotChanges().subscribe(entryNotificationData=>{
+      let dbEntryNotification = entryNotificationData.payload.val();
+      for(let i in dbEntryNotification)
+      {
+        dbEntryNotification[i].Key = i;
+        this.sendNotification(`${dbEntryNotification[i].EmployeeName}: Entrada,`,`${dbEntryNotification[i].SubsidiaryName}: 
+        En el inventario: ${dbEntryNotification[i].InventoryName} 
+        al producto: ${dbEntryNotification[i].ProductName}`, counter, 
+        { BarKey: dbEntryNotification[i].BarKey, 
+          EmployeeCode: dbEntryNotification[i].EmployeeCode, 
+          SubsidiaryKey: dbEntryNotification[i].SubsidiaryKey, 
+          InventoryKey: dbEntryNotification[i].InventoryKey, 
+          ProductCode: dbEntryNotification[i].ProductCode});
+        counter++;
+        this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada')}/${dbEntryNotification[i].Key}`)
+        .remove();
+      }
+    });
   }
 
-  async salir()
+  getExitPendingNotifications()
   {
-    const alert = await this.alertCtrl.create({
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer salir?',
-      cssClass: 'customAlert',
-      buttons:
-      [
+    let counter = 0;
+    const toNotificationsDbObject: AngularFireObject<Notification>
+    = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesSalida'));
+    
+    toNotificationsDbObject.snapshotChanges().subscribe(exitNotificationData=>{
+      let dbExitNotification = exitNotificationData.payload.val();
+      for(let i in dbExitNotification)
+      {
+        dbExitNotification[i].Key = i;
+        this.sendNotification(`${dbExitNotification[i].EmployeeName}: Salida,`,`${dbExitNotification[i].SubsidiaryName}: 
+        En el inventario: ${dbExitNotification[i].InventoryName} 
+        al producto: ${dbExitNotification[i].ProductName}`, counter, 
+        { BarKey: dbExitNotification[i].BarKey, 
+          EmployeeCode: dbExitNotification[i].EmployeeCode, 
+          SubsidiaryKey: dbExitNotification[i].SubsidiaryKey, 
+          InventoryKey: dbExitNotification[i].InventoryKey, 
+          ProductCode: dbExitNotification[i].ProductCode});
+        counter++;
+        this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('ParaNotificacionesSalida')}/${dbExitNotification[i].Key}`)
+        .remove();
+      }
+    });
+  }
+
+  async sendNotification(title:string, message:string, id: number, extraData: any){
+    const notifications = await LocalNotifications.schedule({
+      notifications: [
         {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Confirmar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.router.navigate(['login']).then(()=>{
-              this.limpiarUser();
-              this.menuCtrl.toggle();
-            });
-          }
+          title: title,
+          body: message,
+          id: id,
+          smallIcon:"ic_launcher",
+          attachments: null,
+          actionTypeId: "",
+          extra: extraData
         }
       ]
     });
-    await alert.present();
+  }
+
+  exit()
+  {
+    this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de querer salir?', 
+    ()=>{
+      this.router.navigate(['login']).then(()=>{
+        this.generalSvc.clearLocalStorageData();
+        this.menuCtrl.toggle();
+      });
+    },
+    ()=>{ this.generalSvc.closeAlert(); });
   }
 
   goToPage(page: string)
   {
-    switch(page)
-    {
-      case 'empleados':
-        this.router.navigate(['empleados']);
-      break;  
-      case 'sucursales':
-        this.router.navigate(['sucursales-jefe']);
-      break;
-      case 'editarperfil':
-        this.router.navigate(['editar-perfil-jefe']);
-      break;
-      case 'salir':
-        this.salir();
-      break;
-    }
+    this.router.navigate([page]);
   }
 }

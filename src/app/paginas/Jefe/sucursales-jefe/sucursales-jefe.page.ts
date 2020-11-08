@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { DatosService } from 'src/app/services/datos.service';
 import { MenuController, Platform } from '@ionic/angular';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { Router } from '@angular/router';
+import { Subsidiary } from 'src/app/shared/models/Subsidiary';
+import { GeneralService } from 'src/app/services/general.service';
 
 @Component({
   selector: 'app-sucursales-jefe',
@@ -11,12 +13,12 @@ import { Router } from '@angular/router';
 })
 export class SucursalesJefePage implements OnInit {
 
-  sucursales: any[] = [];
-  ref: any;
+  subsidiaries: Subsidiary[] = [];
   constructor(private menuCtrl: MenuController,
     private platform: Platform,
-    private datos: DatosService,
-    private db: AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase,
     private router: Router) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard-jefe']);
@@ -24,16 +26,16 @@ export class SucursalesJefePage implements OnInit {
     }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
+    const subsidiariesDbObject: AngularFireObject<Subsidiary> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Sucursales'));
     
-    this.ref = this.db.object(clave+'/Sucursales');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let sucur = data.payload.val();
-      this.sucursales = [];
-      for(let i in sucur)
+    subsidiariesDbObject.snapshotChanges().subscribe(subsidiaryData=>{
+      let dbSubsidiaries = subsidiaryData.payload.val();
+      this.subsidiaries = [];
+      for(let i in dbSubsidiaries)
       {
-        sucur[i].key = i;
-        this.sucursales.push(sucur[i]);
+        dbSubsidiaries[i].key = i;
+        this.subsidiaries.push(dbSubsidiaries[i]);
       }
     });
   }
@@ -41,9 +43,9 @@ export class SucursalesJefePage implements OnInit {
     this.menuCtrl.enable(true, 'second');
   }
 
-  goToInventario(i:number){
-    this.datos.setSucursal(this.sucursales[i].key);
-    this.datos.setCedula(this.sucursales[i].Jefe);
+  goToInventories(i:number){
+    this.dataSvc.setSubsidiary(this.subsidiaries[i].Key);
+    this.dataSvc.setEmployeeCode(this.subsidiaries[i].Boss);
     this.router.navigate(['control-inventarios-jefe']);
   }
 }

@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{titulo}}</ion-title>
+    <ion-title>{{inventory.Name}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,60 +13,60 @@
   <ion-grid>
     <ion-row>
       <ion-col size="12">
-        <ion-searchbar color="tertiary" placeholder="Buscar un producto..." (ionChange)="buscarProducto($event)"></ion-searchbar>
+        <ion-searchbar color="tertiary" placeholder="Buscar un producto..." (ionChange)="searchProducts($event)"></ion-searchbar>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="productos.length == 0">
+    <ion-row *ngIf="products.length == 0">
       <ion-col size="12" style="text-align: center; font-style: italic; color: gray;">
         <p>No hay productos registrados.</p>
       </ion-col>
     </ion-row>
-    <ion-list style="background: white;" *ngIf="esBusqueda == false && estado != 'Finalizado'">
-      <ion-item color="tertiary" *ngFor="let prod of productos, let i = index">
+    <ion-list style="background: white;" *ngIf="!isSearch && inventory.State != 'Finalizado'">
+      <ion-item color="tertiary" *ngFor="let productItem of products, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
-          {{prod.Nombre}}
+          {{productItem.Name}}
         </ion-button>
       </ion-item>
     </ion-list>
-    <ion-list style="background: white;" *ngIf="esBusqueda == true && estado != 'Finalizado'">
-      <ion-item color="tertiary" *ngFor="let prod of tempProducts, let i = index">
+    <ion-list style="background: white;" *ngIf="isSearch && inventory.State != 'Finalizado'">
+      <ion-item color="tertiary" *ngFor="let productItem of searchResultProducts, let i = index">
         <ion-button (click)="goToDetails(i)" style="width: 100%;" expand="full" fill="clear">
-          {{prod.Nombre}}
+          {{productItem.Name}}
         </ion-button>
       </ion-item>
     </ion-list>
-    <ion-row *ngIf="esBusqueda == false && estado == 'Finalizado'">
-      <ion-col size="12" *ngFor="let prod of productos">
+    <ion-row *ngIf="!isSearch && inventory.State == 'Finalizado'">
+      <ion-col size="12" *ngFor="let productItem of products">
         <ion-card color="primary">
           <ion-card-content>
             <ion-list style="background: #3a93c9">
               <ion-item color="primary">
-                <h4>Producto: {{prod.Nombre}}</h4>
+                <h4>Producto: {{productItem.Name}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{prod.Diferencia}}</h4>
+                <h4>Diferencia: {{productItem.Difference}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{prod.Nota}}</h4>
+                <h4>Nota: {{productItem.FinalNote}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="esBusqueda == true && estado == 'Finalizado'">
-      <ion-col size="12" *ngFor="let prod of tempProducts">
+    <ion-row *ngIf="isSearch && inventory.State == 'Finalizado'">
+      <ion-col size="12" *ngFor="let productItem of searchResultProducts">
         <ion-card color="primary">
           <ion-card-content>
             <ion-list style="background: #3a93c9">
               <ion-item color="primary">
-                <h4>Producto: {{prod.Nombre}}</h4>
+                <h4>Producto: {{productItem.Name}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Diferencia: {{prod.Diferencia}}</h4>
+                <h4>Diferencia: {{productItem.Difference}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nota: {{prod.Nota}}</h4>
+                <h4>Nota: {{productItem.FinalNote}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>

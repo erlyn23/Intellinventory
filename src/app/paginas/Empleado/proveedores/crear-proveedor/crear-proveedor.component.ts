@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Provider } from 'src/app/shared/models/Provider';
+import { DatosService } from 'src/app/services/datos.service';
 
 @Component({
   selector: 'app-crear-proveedor',
@@ -12,89 +13,84 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class CrearProveedorComponent implements OnInit {
 
-  formulario: FormGroup;
-  proveedor: any;
+  form: FormGroup;
+  provider: Provider;
   constructor(private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
-    private db: AngularFireDatabase, 
-    private datos: DatosService,
-    private servicio: GeneralService) { }
+    private angularFireDatabase: AngularFireDatabase, 
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService) { }
 
   ngOnInit() {
-    this.formulario = this.formBuilder.group({
-      Nombre: ["",[Validators.required]],
-      Producto: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
-      Cantidad: ["",[Validators.required]],
-      Telefono: ["",[Validators.maxLength(10), Validators.minLength(10), Validators.pattern('[0-9]*')]]
+    this.form = this.formBuilder.group({
+      Name: ["",[Validators.required]],
+      Product: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+      Cuantity: ["",[Validators.required]],
+      PhoneNumber: ["",[Validators.maxLength(10), Validators.minLength(10), Validators.pattern('[0-9]*')]]
     });
 
-    if(this.datos.getOperacion() == 'modificar' && this.datos.getProveedor() != null)
+    if(this.dataSvc.getProviderOperation() == 'modificar' && this.dataSvc.getProvider() != null)
     {
-      this.proveedor = this.datos.getProveedor();
-      this.formulario.controls.Nombre.setValue(this.proveedor.Nombre);
-      this.formulario.controls.Producto.setValue(this.proveedor.Producto);
-      this.formulario.controls.Cantidad.setValue(this.proveedor.Cantidad);
-      this.formulario.controls.Telefono.setValue(this.proveedor.Telefono);
+      this.provider = this.dataSvc.getProvider();
+      this.form.setValue(this.provider);
     }
   }
 
-  guardarProveedor()
+  saveProvider()
   {
-    if(this.formulario.valid)
+    if(this.form.valid)
     {
-      const clave = this.datos.getClave();
-      this.db.database.ref(clave+'/Proveedores').push({
-        Nombre: this.formulario.value.Nombre,
-        Producto: this.formulario.value.Producto,
-        Cantidad: this.formulario.value.Cantidad,
-        Telefono: this.formulario.value.Telefono
+      this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Proveedores')).push({
+        Name: this.Name.value,
+        Product: this.Product.value,
+        Cuantity: this.Cuantity.value,
+        PhoneNumber: this.PhoneNumber.value
       }).then(()=>{
-        this.servicio.mensaje('toastSuccess', 'Proveedor guardado correctamente');
+        this.generalSvc.presentToast('toastSuccess', 'Proveedor guardado correctamente');
         this.modalCtrl.dismiss();
       }).catch(err=>{
-        this.servicio.mensaje('customToast',err);
+        this.generalSvc.presentToast('customToast',err);
       })
     }
   }
 
-  modificarProveedor()
+  updateProvider()
   {
-    if(this.formulario.valid)
+    if(this.form.valid)
     {
-      const clave = this.datos.getClave();
-      this.db.database.ref(clave+'/Proveedores/'+this.proveedor.key).set({
-        Nombre: this.formulario.value.Nombre,
-        Producto: this.formulario.value.Producto,
-        Cantidad: this.formulario.value.Cantidad,
-        Telefono: this.formulario.value.Telefono
+      this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('Proveedores')}/${this.provider.Key}`)
+      .set({
+        Name: this.Name.value,
+        Producto: this.Product.value,
+        Cantidad: this.Cuantity.value,
+        Telefono: this.PhoneNumber.value
       }).then(()=>{
-        this.servicio.mensaje('toastSuccess', 'Proveedor modificado correctamente');
+        this.generalSvc.presentToast('toastSuccess', 'Proveedor modificado correctamente');
         this.modalCtrl.dismiss();
       }).catch(err=>{
-        this.servicio.mensaje('customToast',err);
+        this.generalSvc.presentToast('customToast',err);
       })
     }
   }
 
-  
   goBack()
   {
     this.modalCtrl.dismiss();
   }
 
-  get Nombre(){
-    return this.formulario.get('Nombre');
+  get Name(){
+    return this.form.get('Name');
   }
 
-  get Producto(){
-    return this.formulario.get('Producto');
+  get Product(){
+    return this.form.get('Product');
   }
 
-  get Cantidad(){
-    return this.formulario.get('Cantidad');
+  get Cuantity(){
+    return this.form.get('Cuantity');
   }
 
-  get Telefono(){
-    return this.formulario.get('Telefono');
+  get PhoneNumber(){
+    return this.form.get('PhoneNumber');
   }
 }

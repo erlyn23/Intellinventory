@@ -4,18 +4,18 @@
         <ion-row>
             <ion-col size="3"></ion-col>
             <ion-col size="6" style="display: flex; justify-content: center;"> 
-                <img class="perfil" src="./../../../../assets/user.png" *ngIf="imagen == ''">
-                <div style="background: url({{imagen}}); 
+                <img class="perfil" src="./../../../../assets/user.png" *ngIf="bossProfileUrlImage == ''">
+                <div style="background: url({{bossProfileUrlImage}}); 
                 background-size: 100% 100%; 
                 width: 125px; 
                 height: 125px; 
-                border-radius: 100px;" *ngIf="imagen != ''"></div>
+                border-radius: 100px;" *ngIf="bossProfileUrlImage != ''"></div>
             </ion-col>
             <ion-col size="3"></ion-col>
         </ion-row>
         <ion-row>
             <ion-col size="12" style="text-align: center;">
-                <h1>Bienvenido, {{jefe}}</h1>
+                <h1>Bienvenido, {{boss.Name}}</h1>
             </ion-col>
         </ion-row>
         <ion-row>
@@ -28,7 +28,7 @@
         </ion-row>
         <ion-row>
             <ion-col size="12">
-                <ion-button (click)="goToPage('sucursales')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <ion-button (click)="goToPage('sucursales-jefe')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
                 <i class="fas fa-store"></i>&nbsp;
                 Sucursales
                 </ion-button>
@@ -36,7 +36,7 @@
         </ion-row>
         <ion-row>
             <ion-col size="12">
-                <ion-button (click)="goToPage('editarperfil')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <ion-button (click)="goToPage('editar-perfil-jefe')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
                 <ion-icon slot="start" name="settings-outline"></ion-icon>
                 Editar Perfil
                 </ion-button>
@@ -44,7 +44,7 @@
         </ion-row>
         <ion-row>
             <ion-col size="12">
-                <ion-button (click)="goToPage('salir')" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
+                <ion-button (click)="exit()" style="width: 100%; height: 75px; font-size: 20px;" fill="outline"  shape="round">
                     <ion-icon slot="start" name="log-out-outline"></ion-icon>
                     Salir
                 </ion-button>

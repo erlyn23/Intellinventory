@@ -15,7 +15,7 @@ export class DatosService {
   productCode: string;
   inventoryState:string;
   providerOperation: string;
-  provider: string;
+  provider: Provider;
   subsidiary: string;
   constructor() { }
 
@@ -88,7 +88,7 @@ export class DatosService {
   //Métodos para obtener el tipo de operación del proveedor
 
   //Métodos para obtener el proveedor
-    setProvider(provider: string)
+    setProvider(provider: Provider)
     {
       this.provider = provider;
     }

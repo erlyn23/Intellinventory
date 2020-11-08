@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, ModalController, AlertController, Platform } from '@ionic/angular';
+import { MenuController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { CrearSucursalComponent } from './crear-sucursal/crear-sucursal.component';
 import { Router } from '@angular/router';
 import { PedirClaveComponent } from './pedir-clave/pedir-clave.component';
+import { Subsidiary } from 'src/app/shared/models/Subsidiary';
+import { GeneralService } from 'src/app/services/general.service';
  
 @Component({
   selector: 'app-sucursales',
@@ -13,75 +15,67 @@ import { PedirClaveComponent } from './pedir-clave/pedir-clave.component';
 })
 export class SucursalesPage implements OnInit {
 
-  sucursales: any[] = [];
-  ref: any;
-  esMiBar: boolean = false;
+  subsidiaries: Subsidiary[] = [];
+  isMyBar: boolean = false;
   constructor(private menuCtrl: MenuController,
     private platform: Platform,
-    private modalCtrl: ModalController,
-    private datos: DatosService,
-    private db: AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private anuglarFireDatabase: AngularFireDatabase,
     private router: Router) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard']);
       })
     }
 
-  ngOnInit() {
-    this.buscarSucursales();
-  }
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
   }
 
-  buscarSucursales(){
-    const clave = this.datos.getClave();
+  ngOnInit() {
+    this.getSubsidiariesFromDb();
+  }
+
+  getSubsidiariesFromDb(){
+    const subsidiariesDbObject: AngularFireObject<Subsidiary> = this.anuglarFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Sucursales'));
     
-    this.ref = this.db.object(clave+'/Sucursales');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let sucur = data.payload.val();
-      this.sucursales = [];
-      for(let i in sucur)
+    subsidiariesDbObject.snapshotChanges().subscribe(subsidiariesData=>{
+      let dbSubsidiaries = subsidiariesData.payload.val();
+      this.subsidiaries = [];
+      for(let i in dbSubsidiaries)
       {
-        sucur[i].key = i;
-        this.sucursales.push(sucur[i]);
+        dbSubsidiaries[i].key = i;
+        this.subsidiaries.push(dbSubsidiaries[i]);
       }
     });
   }
 
-  Refrescar(event){
+  refreshSubsidiariesList(event){
     setTimeout(()=>{
-      this.buscarSucursales();
+      this.getSubsidiariesFromDb();
       event.target.complete();
     }, 2000);
   }
 
-  async crearSucursal(){
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: CrearSucursalComponent
-    });
-    (await modal).present();
+  openCreateSubsidiaryModal(){
+    this.generalSvc.openModal(CrearSucursalComponent);
   }
 
-  async pedirClave(){
-    const modal = this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: PedirClaveComponent,
-    });
-    (await modal).present();
-  }
-
-  goToInventario(i:number)
+  goToInventoryPage(i:number)
   {
-    const cedula = this.datos.getCedula();
-    if(this.sucursales[i].Jefe == cedula)
+    const cedula = this.dataSvc.getEmployeeCode();
+    if(this.subsidiaries[i].Boss == cedula)
     {
-      this.datos.setSucursal(this.sucursales[i].key);
+      this.dataSvc.setSubsidiary(this.subsidiaries[i].Key);
       this.router.navigate(['control-inventarios']);
     }else{
-      this.datos.setSucursal(this.sucursales[i].key);
-      this.pedirClave();
+      this.dataSvc.setSubsidiary(this.subsidiaries[i].Key);
+      this.openRequestSubsidiaryPasswordModal();
     }
+  }
+
+  openRequestSubsidiaryPasswordModal(){
+    this.generalSvc.openModal(PedirClaveComponent);
   }
 }

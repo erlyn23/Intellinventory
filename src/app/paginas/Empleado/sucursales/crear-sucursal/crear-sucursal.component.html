@@ -11,21 +11,21 @@
 
 <ion-content color="tertiary">
   <ion-grid>
-    <form [formGroup]="formulario">
+    <form [formGroup]="form">
       <ion-row>
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Nombre</ion-label>
-            <ion-input formControlName="Nombre" type="text"></ion-input>
+            <ion-input formControlName="Name" type="text"></ion-input>
           </ion-item>
-          <div *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
-            <ion-item lines="none" color="tertiary" *ngIf="Nombre.errors.required">
+          <div *ngIf="Name.invalid && (Name.touched || Name.dirty)">
+            <ion-item lines="none" color="tertiary" *ngIf="Name.errors.required">
               <ion-label color="danger">Debes escribir un nombre</ion-label>
             </ion-item>
-            <ion-item lines="none" color="tertiary" *ngIf="Nombre.errors.minlength">
+            <ion-item lines="none" color="tertiary" *ngIf="Name.errors.minlength">
               <ion-label color="danger">Escribe al menos 3 letras</ion-label>
             </ion-item>
-            <ion-item lines="none" color="tertiary" *ngIf="Nombre.errors.maxlength">
+            <ion-item lines="none" color="tertiary" *ngIf="Name.errors.maxlength">
               <ion-label color="danger">Escribe menos de 30 letras</ion-label>
             </ion-item>
           </div>
@@ -52,7 +52,7 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="registrarSucursal()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
+          <ion-button (click)="saveSubsidiary()" style="width: 100%;" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="add-circle"></ion-icon>
             Guardar Sucursal
           </ion-button>

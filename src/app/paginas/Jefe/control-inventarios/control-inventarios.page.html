@@ -18,17 +18,17 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <ion-row *ngIf="inventarios.length == 0">
+  <ion-row *ngIf="inventories.length == 0">
     <ion-col size="12" style="text-align: center; font-style: italic; color:gray;">
       <p>No hay inventarios registrados aún.</p>
     </ion-col>
   </ion-row>
   <ion-list style="background: white;">
-    <ion-item color="tertiary" *ngFor="let inv of inventarios, let i = index">
-      <ion-button (click)="goToAdministracion(i)" style="width: 100%;" expand="full" fill="clear">
-        {{inv.NombreInventario}} - {{inv.FechaInventario}}
+    <ion-item color="tertiary" *ngFor="let inventoryItem of inventories, let i = index">
+      <ion-button (click)="goToInventoryAdministrationPage(i)" style="width: 100%;" expand="full" fill="clear">
+        {{inventoryItem.Name}} - {{inventoryItem.CreationDate}}
       </ion-button>
-      <ion-button color="success" fill="clear" *ngIf="inv.Estado == 'Finalizado'">
+      <ion-button color="success" fill="clear" *ngIf="inventoryItem.State == 'Finalizado'">
         <ion-icon slot="icon-only" name="checkmark-circle"></ion-icon>
       </ion-button>
     </ion-item>

@@ -2,9 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Plugins } from '@capacitor/core';
+import { Subsidiary } from 'src/app/shared/models/Subsidiary';
+import { Inventory } from 'src/app/shared/models/Inventory';
+import { Product } from 'src/app/shared/models/Product';
+import { Employee } from 'src/app/shared/models/Employee';
 
 const { Clipboard } = Plugins;
 
@@ -15,324 +19,349 @@ const { Clipboard } = Plugins;
 })
 export class EntradaRapidaPage implements OnInit {
 
-  formulario: FormGroup;
-  ref: any;
-  sucursales: any[] = [];
-  inventarios: any[] = [];
-  necesitaClave: boolean;
-  cedulaAjena: any;
-  errorMessage: any = "";
-  errorMessage2: any = "";
-  sucursal: any = "";
-  producto: any = "";
-  inventario: any = "";
-  EntradaAnterior: number = 0;
+  form: FormGroup;
+  subsidiaries: Subsidiary[] = [];
+  inventories: Inventory[] = [];
+  subsidiaryNeedPassword: boolean;
+  employeeCodeOfAnother: string;
+  errorMessageForWrongSubsidiaryPassword: string = "";
+  errorMessageForProductNotFound: string = "";
+  subsidiary: Subsidiary;
+  product: Product;
+  inventory: Inventory;
+  previousEntry: number = 0;
   constructor(private menuCtrl: MenuController,
     private formBuilder: FormBuilder,
-    private datos: DatosService,
-    private servicio: GeneralService,
-    private db: AngularFireDatabase) { }
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase) { }
 
-  ngOnInit() {
-    this.formulario = this.formBuilder.group({
-      Codigo: ["", [Validators.required]],
-      Sucursal: ["", [Validators.required]],
-      Password: [""],
-      Inventario: ["", [Validators.required]],
-      Cantidad: ["", [Validators.required]],
-      NotaEntrada: ["", [Validators.required]]
-    });
-    this.getSucursales();
-    this.getEmpleado();
-  }
-  
+    
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
   }
 
-  getEmpleado(){
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
 
-    this.ref = this.db.object(clave+'/Empleados/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let nombre = data.payload.val();
-      this.datos.setNombreEmpleado(nombre.Nombre);
+  ngOnInit() {
+    this.form = this.formBuilder.group({
+      Code: ["", [Validators.required]],
+      Subsidiary: ["", [Validators.required]],
+      Password: [""],
+      Inventory: ["", [Validators.required]],
+      Cuantity: ["", [Validators.required]],
+      EntryNote: ["", [Validators.required]]
     });
+    this.getEmployeeNameFromDb();
+    this.getSubsidiaries();
   }
 
-  getSucursales(){
-    const claveBar = this.datos.getClave();
-
-    this.ref = this.db.object(claveBar+'/Sucursales/');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let sucursals = data.payload.val();
-      this.sucursales = []; 
-      for(let i in sucursals){
-        sucursals[i].key = i;
-        this.sucursales.push(sucursals[i]);
+  getEmployeeNameFromDb(){
+    const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Empleado'));
+    
+    employeeDbObject.valueChanges().subscribe(employeeData=>{
+      this.dataSvc.setEmployeeName(employeeData.Name);
+    });
+  }
+  
+  getSubsidiaries(){
+    const subsidiariesDbObject: AngularFireObject<Subsidiary> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Sucursales'));
+    
+    subsidiariesDbObject.snapshotChanges().subscribe(subsidiariesData=>{
+      let dbSubsidiaries = subsidiariesData.payload.val();
+      this.subsidiaries = []; 
+      for(let i in dbSubsidiaries){
+        dbSubsidiaries[i].key = i;
+        this.subsidiaries.push(dbSubsidiaries[i]);
       }
     })
   }
 
-  buscarSucursal(val)
+  searchSubsidiary(selectedSubsidiary)
   {
-    const claveBar = this.datos.getClave(); 
-    const cedula = this.datos.getCedula();
-
     this.Password.setValue('');
-    this.Codigo.setValue('');
-    this.errorMessage = "";
-    if(val.detail.value != '')
+    this.Code.setValue('');
+    this.errorMessageForWrongSubsidiaryPassword = "";
+    if(selectedSubsidiary.detail.value != '')
     {
-        this.ref = this.db.object(claveBar+'/Sucursales/'+val.detail.value);
-        this.ref.snapshotChanges().subscribe(data=>{
-        let sucursals = data.payload.val();
-        this.sucursal = "";
-        this.sucursal = sucursals;
-        if(cedula != this.sucursal.Jefe)
+        const subsidiaryDbObject: AngularFireObject<Subsidiary> = this.angularFireDatabase
+        .object(`${this.generalSvc.getSpecificObjectRoute('Sucursales')}/${selectedSubsidiary.detail.value}`);
+        
+        subsidiaryDbObject.valueChanges().subscribe(subsidiaryData=>{
+        this.subsidiary = subsidiaryData;
+        if(this.dataSvc.getEmployeeCode() != this.subsidiary.Boss)
         {
-          this.necesitaClave = true;
-        }else{
-          this.necesitaClave = false;
+          this.subsidiaryNeedPassword = true;
+        }
+        else
+        {
+          this.subsidiaryNeedPassword = false;
         }
       });
-      this.datos.setSucursal(val.detail.value);
-      this.getInventarios(val.detail.value, 0);
+      this.dataSvc.setSubsidiary(selectedSubsidiary.detail.value);
+      this.getInventories('');
     }
   }
 
-  getInventarios(sucursal: any, ced: any){
-    const claveBar = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-
-    this.Codigo.setValue('');
-    this.errorMessage2 = "";
-    if(ced == 0)
+  getInventories(employeeCode: string){
+    this.Code.setValue('');
+    this.errorMessageForProductNotFound = "";
+    if(employeeCode == '')
     {
-      this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula);
-      this.ref.snapshotChanges().subscribe(data=>{
-        let inventorys = data.payload.val();
-        this.inventarios = [];
-        for(let i in inventorys){
-          if(inventorys[i].Estado != 'Finalizado')
+      const inventoriesDbObject: AngularFireObject<Inventory> = this.angularFireDatabase
+      .object(this.generalSvc.getSpecificObjectRoute('Inventarios'));
+      
+      inventoriesDbObject.snapshotChanges().subscribe(inventoryData=>{
+        let dbInventories = inventoryData.payload.val();
+        this.inventories = [];
+        for(let i in dbInventories){
+          if(dbInventories[i].State != 'Finalizado')
           {
-            inventorys[i].key = i;
-            this.inventarios.push(inventorys[i]);
+            dbInventories[i].Key = i;
+            this.inventories.push(dbInventories[i]);
           }
         }
       });
-    }else{
-      this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+ced);
-      this.ref.snapshotChanges().subscribe(data=>{
-        let inventorys = data.payload.val();
-        this.inventarios = [];
-        for(let i in inventorys){
-          if(inventorys[i].Estado != 'Finalizado')
+    }
+    else
+    {
+      const subsidiaryDbRoute = this.generalSvc.getSpecificObjectRoute('Sucursal');
+
+      const inventoriesDbObject: AngularFireObject<Inventory> = this.angularFireDatabase
+      .object(`${subsidiaryDbRoute}/Inventarios/${employeeCode}`);
+      
+      inventoriesDbObject.snapshotChanges().subscribe(inventoriesData=>{
+        let dbInventories = inventoriesData.payload.val();
+        this.inventories = [];
+        for(let i in dbInventories){
+          if(dbInventories[i].State != 'Finalizado')
           {
-            inventorys[i].key = i;
-            this.inventarios.push(inventorys[i]);
+            dbInventories[i].Key = i;
+            this.inventories.push(dbInventories[i]);
           }
         }
       });
     }
   }
 
-  inventarioAjeno(val:any)
+  searchAnotherEmployeeInventory(selectedInventory:any)
   {
-    if(val.detail.value == this.sucursal.Password)
+    if(selectedInventory.detail.value == this.subsidiary.Password)
     {
-      this.cedulaAjena = this.sucursal.Jefe;
-      this.getInventarios(this.formulario.value.Sucursal, this.cedulaAjena);
-      this.errorMessage = "";
-    }else{
-      this.inventarios = [];
-      this.errorMessage = "Contraseña incorrecta";
+      this.employeeCodeOfAnother = this.subsidiary.Boss;
+      this.dataSvc.setSubsidiary(this.Subsidiary.value);
+      this.getInventories(this.employeeCodeOfAnother);
+      this.errorMessageForWrongSubsidiaryPassword = "";
+    }
+    else
+    {
+      this.inventories = [];
+      this.errorMessageForWrongSubsidiaryPassword = "Contraseña incorrecta";
     }
   }
 
-  buscarInventario(val){
-    const claveBar = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const sucursal = this.datos.getSucursal();
 
+  searchInventory(val: any){
+
+    let inventoryDbObject: AngularFireObject<Inventory>;
     if(val.detail.value != '')
     {
-      if(this.cedulaAjena != undefined && this.necesitaClave)
+      if(this.employeeCodeOfAnother.length > 0 && this.subsidiaryNeedPassword)
       {
-          this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+val.detail.value);
-          this.ref.snapshotChanges().subscribe(data=>{
-          let inventorys = data.payload.val();
-          this.inventario = "";
-          this.inventario = inventorys;
+          const subsidiaryDbRoute = this.generalSvc.getSpecificObjectRoute('Sucursal'); 
+
+          inventoryDbObject = this.angularFireDatabase
+          .object(`${subsidiaryDbRoute}/${this.employeeCodeOfAnother}/${val.detail.value}`);
+          
+          inventoryDbObject.valueChanges().subscribe(inventoryData=>{
+          this.inventory = inventoryData;
         });
-        this.datos.setKey(val.detail.value);
-      }else{
-        this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+val.detail.value);
-        this.ref.snapshotChanges().subscribe(data=>{
-          let inventorys = data.payload.val();
-          this.inventario = "";
-          this.inventario = inventorys;
+        this.dataSvc.setInventoryKey(val.detail.value);
+      }
+      else
+      {
+        inventoryDbObject = this.angularFireDatabase
+        .object(`${this.generalSvc.getSpecificObjectRoute('Inventarios')}/${val.detail.value}`);
+        
+        inventoryDbObject.valueChanges().subscribe(inventoryData=>{
+          this.inventory = inventoryData;
         });
-        this.datos.setKey(val.detail.value);
+        this.dataSvc.setInventoryKey(val.detail.value);
       }
     }
   }
 
-  getProducto(val: any){
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const inventario = this.Inventario.value;
-    const sucursal = this.Sucursal.value;
-    let codigo = val.detail.value;
+  getProduct(val: any){
+    let productCode = val.detail.value;
     
-    if(codigo != '')
+    let productDbObject: AngularFireObject<Product>;
+
+    if(productCode != '')
     {
-      if(this.cedulaAjena != undefined && this.necesitaClave)
+      if(this.employeeCodeOfAnother.length > 0 && this.subsidiaryNeedPassword)
       {
-        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+codigo);
-        this.ref.snapshotChanges().subscribe(data=>{
-          let producto = data.payload.val();
-          this.producto = "";
-          if(producto != null){
-            this.producto = producto;
-            this.datos.setNombreProducto(this.producto.Nombre);
-            this.errorMessage2 = "";
+        const subsidiaryDbRoute = this.generalSvc.getSpecificObjectRoute('Sucursal'); 
+
+        productDbObject = this.angularFireDatabase
+        .object(`${subsidiaryDbRoute}/${this.employeeCodeOfAnother}/${this.dataSvc.getInventoryKey()}/Productos/${productCode}`);
+        
+        productDbObject.valueChanges().subscribe(productData=>{
+          if(productData != null){
+            this.product = productData;
+            this.dataSvc.setProductName(this.product.Name);
+            this.errorMessageForProductNotFound = "";
           }else{
-            this.errorMessage2 = "El producto no existe."
+            this.errorMessageForProductNotFound = "El producto no existe."
           }
-          this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+codigo+'/Entrada');
-          this.ref.snapshotChanges().subscribe(data=>{
-            let cantidad = data.payload.val();
-            this.EntradaAnterior = 0;
-            this.EntradaAnterior = cantidad;
-          });
-        })
-      }else{
-        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+codigo);
-        this.ref.snapshotChanges().subscribe(data=>{
-          let producto = data.payload.val();
-          this.producto = "";
-          if(producto != null){
-            this.producto = producto;
-            this.datos.setNombreProducto(this.producto.Nombre);
-            this.errorMessage2 = "";
+          this.previousEntry = productData.Entry;
+        });
+      
+      }
+      else
+      {
+        productDbObject = this.angularFireDatabase
+        .object(`${this.generalSvc.getSpecificObjectRoute('Productos')}/${productCode}`);
+        
+        productDbObject.valueChanges().subscribe(productData=>{
+          if(productData != null){
+            this.product = productData;
+            this.dataSvc.setProductName(this.product.Name);
+            this.previousEntry = productData.Entry;
+            this.errorMessageForProductNotFound = "";
           }else{
-            this.errorMessage2 = "El producto no existe.";
+            this.errorMessageForProductNotFound = "El producto no existe.";
           }
-        })
-        this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+codigo+'/Entrada');
-        this.ref.snapshotChanges().subscribe(data=>{
-          let cantidad = data.payload.val();
-          this.EntradaAnterior = 0;
-          this.EntradaAnterior = cantidad;
         });
       }
     }
   }
 
-  leerCodigo(){
-    this.servicio.leerCodigo().then(async (codigo)=>{
+  readBarCode(){
+    this.generalSvc.readBarCode().then(async ()=>{
 
       let code = await Clipboard.read(); 
-      this.formulario.controls.Codigo.setValue(code.value);
+      this.Code.setValue(code);
     });
     
-    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
+    this.generalSvc.presentToast('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 
-  darEntrada(){
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const sucursal = this.formulario.value.Sucursal;
-    const inventario = this.formulario.value.Inventario;
-    const producto = this.formulario.value.Codigo;
-      if(this.formulario.valid && this.errorMessage2 == ""){
-        if(this.necesitaClave){
-            this.Password.setValidators(Validators.required);
-            this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto)
-            .update({
-              Entrada: this.EntradaAnterior + this.Cantidad.value
-            }).then(()=>{
-              this.db.database.ref(clave+'/ParaNotificaciones/Entradas').push({
-                NombreEmpleado: this.datos.getNombreEmpleado(),
-                NombreSucursal: this.sucursal.Nombre,
-                NombreInventario: this.inventario.NombreInventario,
-                NombreProducto: this.datos.getNombreProducto()
-              });
-              
-              this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+this.cedulaAjena+'/'+inventario+'/Productos/'+producto+'/NotasEntrada').push({
-                Nota: this.formulario.value.NotaEntrada
-              });
-              this.servicio.mensaje('toastSuccess', 'Entrada hecha correctamente').then(()=>{
-                this.formulario.reset();
-                this.necesitaClave = false;
-              })
-            }).catch(err=>{
-              this.servicio.mensaje('customToast', err);
-            })
+  giveProductEntry(){
+    const subsidiary = this.Subsidiary.value;
+    const inventory = this.Inventory.value;
+    const product = this.Code.value;
+
+    if(this.form.valid && this.errorMessageForProductNotFound == ""){
+      if(this.subsidiaryNeedPassword){
+          const subsidiaresRoute = this.generalSvc.getSpecificObjectRoute('Sucursales');
+
+          this.Password.setValidators(Validators.required);
+          this.angularFireDatabase.database
+          .ref(`${subsidiaresRoute}}/${subsidiary}/Inventarios/${this.employeeCodeOfAnother}/${inventory}/Productos/${product}`)
+          .update({
+            Entry: this.previousEntry + this.Cuantity.value
+          }).then(()=>{
+
+            this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada'))
+            .push({
+              EmployeeName: this.dataSvc.getEmployeeName(),
+              SubsidiaryName: this.subsidiary.Name,
+              InventoryName: this.inventory.Name,
+              ProductName: this.dataSvc.getProductName(),
+              BarKey: this.dataSvc.getBarKey(),
+              Subsidiary: subsidiary,
+              Inventory: inventory,
+              EmployeeCode: this.employeeCodeOfAnother,
+              Product: product,
+            });
+
+            const date = new Date();
+            const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
+            ${date.getHours()}:${date.getMinutes()}`;        
+            
+            this.angularFireDatabase.database
+            .ref(`${subsidiaresRoute}}/${subsidiary}/Inventarios/${this.employeeCodeOfAnother}/${inventory}/Productos/${product}/NotasEntrada`).push({
+              Note: this.EntryNote.value,
+              Cuantity: this.Cuantity.value,
+              Date: dateString
+            });
+            this.generalSvc.presentToast('toastSuccess', 'Entrada hecha correctamente').then(()=>{
+              this.form.reset();
+              this.subsidiaryNeedPassword = false;
+            });
+          }).catch(err=>{
+            this.generalSvc.presentToast('customToast', err);
+          })
         }else{
           this.Password.clearValidators();
-          this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto)
-            .update({
-              Entrada: this.EntradaAnterior + this.Cantidad.value
+          this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('Productos')}/${product}`)
+          .update({
+              Entry: this.previousEntry + this.Cuantity.value
             }).then(()=>{
-              this.db.database.ref(clave+'/ParaNotificaciones/Entradas').push({
-                NombreEmpleado: this.datos.getNombreEmpleado(),
-                NombreSucursal: this.sucursal.Nombre,
-                NombreInventario: this.inventario.NombreInventario,
-                NombreProducto: this.datos.getNombreProducto(),
-                ClaveBar: clave,
-                Sucursal: sucursal,
-                Inventario: inventario,
-                Cedula: cedula,
-                Producto: producto
+              this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotifiacionesEntrada')).push({
+                EmployeeName: this.dataSvc.getEmployeeName(),
+                SubsidiaryName: this.subsidiary.Name,
+                InventoryName: this.inventory.Name,
+                ProductName: this.dataSvc.getProductName(),
+                BarKey: this.dataSvc.getBarKey(),
+                Subsidiary: subsidiary,
+                Inventory: inventory,
+                EmployeeCode: this.dataSvc.getEmployeeCode(),
+                Product: product
               });
               
-              this.db.database.ref(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/NotasEntrada').push({
-                Nota: this.formulario.value.NotaEntrada
+              const date = new Date();
+              const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
+              ${date.getHours()}:${date.getMinutes()}`; 
+
+              this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('NotasEntrada'))
+              .push({
+                Note: this.EntryNote.value,
+                Cuantity: this.Cuantity.value,
+                Date: dateString
               });
-              this.servicio.mensaje('toastSuccess', 'Entrada hecha correctamente').then(()=>{
-                this.formulario.reset();
-                this.necesitaClave = false;
+              this.generalSvc.presentToast('toastSuccess', 'Entrada hecha correctamente').then(()=>{
+                this.form.reset();
+                this.subsidiaryNeedPassword = false;
               });
             }).catch(err=>{
-              this.servicio.mensaje('customToast', err);
+              this.generalSvc.presentToast('customToast', err);
             })
         } 
       }else{
-        this.servicio.mensaje('customToast', 'La contraseña es incorrecta o el producto no existe');
+        this.generalSvc.presentToast('customToast', 'La contraseña es incorrecta o el producto no existe');
       }
   }
 
-  get Codigo()
+  get Code()
   {
-    return this.formulario.get('Codigo');
+    return this.form.get('Code');
   }
 
-  get Sucursal()
+  get Subsidiary()
   {
-    return this.formulario.get('Sucursal');
+    return this.form.get('Subsidiary');
   }
 
   get Password()
   {
-    return this.formulario.get('Password');
+    return this.form.get('Password');
   }
 
-  get Inventario()
+  get Inventory()
   {
-    return this.formulario.get('Inventario');
+    return this.form.get('Inventory');
   }
 
-  get Cantidad()
+  get Cuantity()
   {
-    return this.formulario.get('Cantidad');
+    return this.form.get('Cuantity');
   }
 
-  get NotaEntrada()
+  get EntryNote()
   {
-    return this.formulario.get('NotaEntrada');
+    return this.form.get('EntryNote');
   }
 
 }

@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DatosService } from 'src/app/services/datos.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
+import { Subsidiary } from 'src/app/shared/models/Subsidiary';
 
 @Component({
   selector: 'app-pedir-clave',
@@ -13,36 +14,33 @@ import { GeneralService } from 'src/app/services/general.service';
 })
 export class PedirClaveComponent implements OnInit {
 
-  formulario: FormGroup;
-  ref: any;
+  form: FormGroup;
   constructor(private modalCtrl: ModalController, 
     private formBuilder: FormBuilder,
-    private datos: DatosService,
-    private servicio: GeneralService,
-    private db: AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase,
     private router: Router) { }
 
   ngOnInit() {
-    this.formulario = this.formBuilder.group({
+    this.form = this.formBuilder.group({
       Password: ["",[Validators.required, Validators.maxLength(12), Validators.minLength(6)]]
     })
   }
 
-  entrar(){
-    const claveBar = this.datos.getClave();
-    const sucursalA = this.datos.getSucursal();
-
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursalA);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let sucursal = data.payload.val();
-      if(sucursal != null){
-        if(this.formulario.value.Password == sucursal.Password){
-          this.datos.setSucursal(sucursalA);
-          this.datos.setCedula(sucursal.Jefe);
+  enterToSubsidiary(){
+    const subsidiaryDbObject: AngularFireObject<Subsidiary> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Sucursal'));
+    
+    subsidiaryDbObject.valueChanges().subscribe(subsidiaryData=>{
+      if(subsidiaryData != null){
+        if(this.Password.value == subsidiaryData.Password){
+          this.dataSvc.setSubsidiary(this.dataSvc.getSubsidiary());
+          this.dataSvc.setEmployeeCode(subsidiaryData.Boss);
           this.router.navigate(['control-inventarios']);
           this.modalCtrl.dismiss();
         }else{
-          this.servicio.mensaje('customToast', 'Clave incorrecta')
+          this.generalSvc.presentToast('customToast', 'Clave incorrecta')
         }
       }
     })
@@ -53,6 +51,6 @@ export class PedirClaveComponent implements OnInit {
   }
 
   get Password(){
-    return this.formulario.get('Password')
+    return this.form.get('Password')
   }
 }

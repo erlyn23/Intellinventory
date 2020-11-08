@@ -115,8 +115,14 @@ export class GeneralService {
     return this.db.database.ref(path).set(data);
   }
 
-  async getLocalStorageData(key:any){
-    return (await Storage).get({key: key});
+  async getLocalStorageData(key: string):Promise <{value: string}>
+  {
+    return (await Storage.get({key: key}));
+  }
+
+  async saveDataInLocalStorage(key: string, valor: any)
+  {
+    await Storage.set({key: key, value: valor});
   }
 
   async clearLocalStorageData(){
@@ -153,9 +159,10 @@ export class GeneralService {
     const employeeCode: string = this.dataSvc.getEmployeeCode();
     const inventoryKey: string = this.dataSvc.getInventoryKey();
     const productCode : string= this.dataSvc.getProductCode();
-    const providerCode: string = this.dataSvc.getProvider();
+    const providerCode: string = this.dataSvc.getProvider().Key;
 
     const bossRoute = `${barKey}/Jefe`;
+    const activeEmployeesRoute = `EmpleadosActivos`;
     const employeesRoute = `${barKey}/Empleados`;
     const employeeRoute = `${employeesRoute}/${employeeCode}`;
     const toEntryNotificationsRoute = `${barKey}/ParaNotificaciones/Entrada`;
@@ -178,6 +185,9 @@ export class GeneralService {
       case "Jefe": 
         return bossRoute;
       
+      case "EmpleadosActivos":
+        return activeEmployeesRoute;
+
       case "Empleados":
         return employeesRoute;
 

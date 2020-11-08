@@ -12,36 +12,33 @@ import { AngularFireDatabase } from '@angular/fire/database';
 })
 export class CrearSucursalComponent implements OnInit {
 
-  formulario: FormGroup;
+  form: FormGroup;
   constructor(private modalCtrl: ModalController,
-    private datos:DatosService,
-    private servicio: GeneralService,
+    private dataSvc:DatosService,
+    private generalSvc: GeneralService,
     private formBuilder: FormBuilder,
-    private db: AngularFireDatabase) { }
+    private angularFireDatabase: AngularFireDatabase) { }
 
   ngOnInit() {
-    this.formulario = this.formBuilder.group({
-      Nombre: ["",[Validators.required, Validators.maxLength(30), Validators.minLength(3)]],
+    this.form = this.formBuilder.group({
+      Name: ["",[Validators.required, Validators.maxLength(30), Validators.minLength(3)]],
       Password: ["",[Validators.required, Validators.minLength(6), Validators.maxLength(12)]]
     });
   }
 
-  registrarSucursal()
+  saveSubsidiary()
   {
-    if(this.formulario.valid)
+    if(this.form.valid)
     {
-      const clave = this.datos.getClave();
-      const cedula = this.datos.getCedula();
-
-      this.db.database.ref(clave+'/Sucursales').push({
-        Nombre: this.formulario.value.Nombre,
-        Jefe: cedula,
-        Password: this.formulario.value.Password
+      this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Sucursales')).push({
+        Name: this.Name.value,
+        Boss: this.dataSvc.getEmployeeCode(),
+        Password: this.Password.value
       }).then(()=>{
-        this.servicio.mensaje('toastSuccess', 'Sucursal registrada correctamente');
+        this.generalSvc.presentToast('toastSuccess', 'Sucursal registrada correctamente');
         this.modalCtrl.dismiss();
       }).catch(err=>{
-        this.servicio.mensaje('customToast', err);
+        this.generalSvc.presentToast('customToast', err);
       })
     }
   }
@@ -50,14 +47,14 @@ export class CrearSucursalComponent implements OnInit {
     this.modalCtrl.dismiss();
   }
 
-  get Nombre()
+  get Name()
   {
-    return this.formulario.get('Nombre');
+    return this.form.get('Name');
   }
   
   get Password()
   {
-    return this.formulario.get('Password');
+    return this.form.get('Password');
   }
 
 }

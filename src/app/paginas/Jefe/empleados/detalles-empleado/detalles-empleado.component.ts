@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { ModalController } from '@ionic/angular';
+import { Employee } from 'src/app/shared/models/Employee';
+import { GeneralService } from 'src/app/services/general.service';
 
 @Component({
   selector: 'app-detalles-empleado',
@@ -10,22 +12,19 @@ import { ModalController } from '@ionic/angular';
 })
 export class DetallesEmpleadoComponent implements OnInit {
 
-  empleado: any = "";
-  ref: any;
+  employee: Employee;
   constructor(private modalCtrl: ModalController,
-    private datos: DatosService,
-    private db: AngularFireDatabase) { }
+    private generalSvc: GeneralService,
+    private dataSvc: DatosService,
+    private angularFireDatabase: AngularFireDatabase) { }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
+    const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Empleado'));
     
-    this.ref = this.db.object(clave+'/Empleados/'+cedula+'/DatosPersonales');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let empleado = data.payload.val();
-      this.empleado = "";
-      if(empleado != null){
-        this.empleado = empleado;
+    employeeDbObject.valueChanges().subscribe(employeeData=>{
+      if(employeeData != null){
+        this.employee = employeeData;
       }
     })
   }

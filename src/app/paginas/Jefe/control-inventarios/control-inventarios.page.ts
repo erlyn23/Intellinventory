@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuController, Platform } from '@ionic/angular';
-import { DatosService } from 'src/app/services/datos.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { Router } from '@angular/router';
+import { Inventory } from 'src/app/shared/models/Inventory';
+import { GeneralService } from 'src/app/services/general.service';
+import { DatosService } from 'src/app/services/datos.service';
 
 @Component({
   selector: 'app-control-inventarios',
@@ -11,12 +13,12 @@ import { Router } from '@angular/router';
 })
 export class ControlInventariosPage implements OnInit {
 
-  ref: any;
-  inventarios: any[]=[];
+  inventories: Inventory[]=[];
   constructor(private menuCtrl: MenuController,
     private platform: Platform,
-    private datos: DatosService,
-    private db: AngularFireDatabase,
+    private dataSvc: DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase,
     private router: Router) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.goBack();
@@ -24,21 +26,20 @@ export class ControlInventariosPage implements OnInit {
     }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const sucursal = this.datos.getSucursal();
-
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let invrios = data.payload.val();
-      this.inventarios = [];
-      for(let i in invrios)
+    const inventoriesDbObject: AngularFireObject<Inventory> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Inventarios'));
+    
+    inventoriesDbObject.snapshotChanges().subscribe(inventoriesData=>{
+      let dbInventories = inventoriesData.payload.val();
+      this.inventories = [];
+      for(let i in dbInventories)
       {
-        invrios[i].key = i;
-        this.inventarios.push(invrios[i]);
+        dbInventories[i].Key = i;
+        this.inventories.push(dbInventories[i]);
       }
     })
   }
+
   ionViewWillEnter() {
     this.menuCtrl.enable(false, 'second');
   }
@@ -47,9 +48,9 @@ export class ControlInventariosPage implements OnInit {
     this.router.navigate(['sucursales-jefe']);
   }
 
-  goToAdministracion(i:number)
+  goToInventoryAdministrationPage(inventoryIndex:number)
   {
-    this.datos.setKey(this.inventarios[i].key);
+    this.dataSvc.setInventoryKey(this.inventories[inventoryIndex].Key);
     this.router.navigate(['administracion-jefe'])
   }
 

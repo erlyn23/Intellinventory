@@ -1,7 +1,7 @@
 <app-cabecera></app-cabecera>
 
 <ion-content color="tertiary">
-  <ion-refresher slot="fixed" (ionRefresh)="Refrescar($event)">
+  <ion-refresher slot="fixed" (ionRefresh)="refreshSubsidiariesList($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
     <ion-row>
@@ -10,7 +10,7 @@
       </ion-col>
     </ion-row>
   <ion-grid>
-    <ion-row *ngIf="sucursales.length == 0">
+    <ion-row *ngIf="subsidiaries.length == 0">
       <ion-col style="text-align: center; color: gray; font-style: italic;" size="12">
         <ion-label>No hay sucursales registradas</ion-label>
       </ion-col>
@@ -18,15 +18,15 @@
   </ion-grid>
 
   <ion-list style="background: white;">
-    <ion-item color="tertiary" *ngFor="let sucursal of sucursales, let i = index">
-      <ion-button (click)="goToInventario(i)" color="primary" style="width: 100%;" fill="clear" >
-        {{sucursal.Nombre}}
+    <ion-item color="tertiary" *ngFor="let subsidiaryItem of subsidiaries, let i = index">
+      <ion-button (click)="goToInventoryPage(i)" color="primary" style="width: 100%;" fill="clear" >
+        {{subsidiaryItem.Name}}
       </ion-button>
     </ion-item>
   </ion-list>
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed" color="primary">
-    <ion-fab-button (click)="crearSucursal()">
+    <ion-fab-button (click)="openCreateSubsidiaryModal()">
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
   </ion-fab>

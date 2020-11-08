@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { NavController, ModalController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { NotasEntradaComponent } from 'src/app/paginas/Empleado/control-inventarios/administracion/detalles-producto/notas-entrada/notas-entrada.component';
 import { NotasSalidaComponent } from 'src/app/paginas/Empleado/control-inventarios/administracion/detalles-producto/notas-salida/notas-salida.component';
+import { Product } from 'src/app/shared/models/Product';
 
 @Component({
   selector: 'app-detalles-producto',
@@ -14,33 +15,29 @@ import { NotasSalidaComponent } from 'src/app/paginas/Empleado/control-inventari
 })
 export class DetallesProductoPage implements OnInit {
 
-  producto: any = '';
-  ref: any;
+  product: Product;
+  inventoryState: string;
   constructor(private navCtrl: NavController,
     private modalCtrl: ModalController,
     private menuCtrl: MenuController,
     private router: Router,
-    private db:AngularFireDatabase,
-    private servicio: GeneralService,
-    private datos: DatosService,) {
+    private angularFireDatabase:AngularFireDatabase,
+    private generalSvc: GeneralService,
+    private dataSvc: DatosService) {
      }
 
   ngOnInit() {
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const llaveInventario = this.datos.getKey();
-    const codigo = this.datos.getCode();
+    this.inventoryState = this.dataSvc.getInventoryState();
+    const productDbObject: AngularFireObject<Product> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Producto'));
     
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+llaveInventario+'/Productos/'+codigo);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let product = data.payload.val();
-      if(product != null){
-        this.producto = product;
-        this.producto.SumaEntrada = product.Entrada + product.CantidadInicial;
-        this.producto.TotalExistencia = product.SumaEntrada - product.Salida;
-        this.producto.Diferencia = product.InventarioActual - product.TotalExistencia;
-        this.producto.Nota = product.Nota;
+    productDbObject.valueChanges().subscribe(productData=>{
+      if(productData != null){
+        this.product = productData;
+        this.product.EntrySum = productData.Entry + productData.InitialCuantity;
+        this.product.TotalExistence = productData.EntrySum - productData.Exit;
+        this.product.Difference = productData.ActualInventory - productData.TotalExistence;
+        this.product.FinalNote = productData.FinalNote;
       }
     });
   }
@@ -48,7 +45,7 @@ export class DetallesProductoPage implements OnInit {
     this.menuCtrl.enable(false, 'second');
   }
 
-  async abrirNotasEntrada()
+  async openEntryNotesModal()
   {
     const modal = await this.modalCtrl.create({
       component: NotasEntradaComponent,
@@ -56,7 +53,7 @@ export class DetallesProductoPage implements OnInit {
     await modal.present();
   }
 
-  async abrirNotasSalida()
+  async openExitNotesModal()
   {
     const modal = await this.modalCtrl.create({
       component: NotasSalidaComponent,
