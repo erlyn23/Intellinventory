@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { AngularFireDatabase } from '@angular/fire/database';
-import { DatosService } from 'src/app/services/datos.service';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
+import { GeneralService } from 'src/app/services/general.service';
+import { Stock } from 'src/app/shared/models/Stock';
 
 @Component({
   selector: 'app-detalles-stock',
@@ -10,23 +11,19 @@ import { DatosService } from 'src/app/services/datos.service';
 })
 export class DetallesStockComponent implements OnInit {
 
-  ref: any;
-  producto: any ='';
+  stock: Stock;
   constructor(private modalCtrl: ModalController,
-    private db: AngularFireDatabase,
-    private datos: DatosService,
+    private angularFireDatabase: AngularFireDatabase,
+    private generalSvc: GeneralService
   ) { }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const codigo = this.datos.getCode();
-
-    this.ref = this.db.object(clave+'/Stock/'+cedula+'/'+codigo);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let product = data.payload.val();
-      if(product != null){
-        this.producto = product;
+    const stockDbObject: AngularFireObject<Stock> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Stock'));
+    
+    stockDbObject.valueChanges().subscribe(stockData=>{
+      if(stockData != null){
+        this.stock = stockData;
       }
     })
   }

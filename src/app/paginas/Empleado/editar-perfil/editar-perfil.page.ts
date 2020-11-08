@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, PopoverController, Platform } from '@ionic/angular';
+import { PopoverController, MenuController, Platform } from '@ionic/angular';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FotoPopoverComponent } from './../../../core/foto-popover/foto-popover.component';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Router } from '@angular/router';
+import { Employee } from 'src/app/shared/models/Employee';
 
 @Component({
   selector: 'app-editar-perfil',
@@ -16,68 +17,51 @@ import { Router } from '@angular/router';
 export class EditarPerfilPage implements OnInit {
 
   form: FormGroup;
-  ref: any;
-  imagen: any = "";
+  employeeProfilePhoto: string = "";
   constructor(private menuCtrl: MenuController,
     private router: Router,
     private platform: Platform,
     private popoverCtrl: PopoverController, 
     private formBuilder: FormBuilder,
     private datos: DatosService,
-    private servicio: GeneralService,
-    private db: AngularFireDatabase,
-    private storage: AngularFireStorage) { 
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase,
+    private angularFireStorage: AngularFireStorage) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard']);
       })
     }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-
     this.form = this.formBuilder.group({
-      Nombre: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
-      Edad: ["",[Validators.required]],
-      Telefono: ["",[Validators.required, Validators.maxLength(10), Validators.minLength(10), Validators.pattern('[0-9]*')]],
-      Correo: ["", [Validators.email]]
+      Name: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
+      Age: ["",[Validators.required]],
+      PhoneNumber: ["",[Validators.required, Validators.maxLength(10), Validators.minLength(10), Validators.pattern('[0-9]*')]],
+      Email: ["", [Validators.email]]
     });
-    this.ref = this.db.object(clave+'/Empleados/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let datos = data.payload.val();
-      this.form.controls.Nombre.setValue(datos.Nombre);
-      this.form.controls.Edad.setValue(datos.DatosPersonales.Edad);
-      this.form.controls.Telefono.setValue(datos.DatosPersonales.Telefono);
-      this.form.controls.Correo.setValue(datos.DatosPersonales.Correo);
+    
+    const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Empleado'));
+    
+    employeeDbObject.valueChanges().subscribe(employeeData=>{
+      this.Name.setValue(employeeData.Name);
+      this.Age.setValue(employeeData.Age);
+      this.PhoneNumber.setValue(employeeData.PhoneNumber);
+      this.Email.setValue(employeeData.Email);
+
+      const profileEmployeePhotoDirectory = this.angularFireStorage.ref(employeeData.Photo);
+
+      profileEmployeePhotoDirectory.getDownloadURL().subscribe(profilePhotoUrl=>{
+        this.employeeProfilePhoto = profilePhotoUrl;
+      })
     });
-    this.obtenerPerfil();
-  }
-
-  obtenerPerfil()
-  {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-
-    this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let foto = data.payload.val();
-      this.imagen = "";
-      if(foto != null){
-        const directorioFoto = this.storage.ref(foto.Ruta);
-        if(foto.Ruta != ''){
-          directorioFoto.getDownloadURL().subscribe(url=>{
-            this.imagen = url;
-          })
-        }
-      }
-    })
   }
 
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
   }
 
-  async abrirPopover()
+  async openChangeProfilePhotoPopover()
   {
     const popover = await this.popoverCtrl.create({
       cssClass: 'customPopover',
@@ -88,39 +72,37 @@ export class EditarPerfilPage implements OnInit {
   }
 
 
-  guardarPerfil()
+  saveEmployeeProfileInfo()
   {
     if(this.form.valid)
     {
-      const clave = this.datos.getClave();
-      const cedula = this.datos.getCedula();
-      this.db.database.ref(clave+'/Empleados/'+cedula+'/DatosPersonales').set({
-        Nombre: this.form.value.Nombre,
-        Edad: this.form.value.Edad,
-        Telefono: this.form.value.Telefono,
-        Correo: this.form.value.Correo
+      this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Empleado')).update({
+        Name: this.Name.value,
+        Age: this.Age.value,
+        PhoneNumber: this.PhoneNumber.value,
+        Email: this.Email.value
       }).then(()=>{
-        this.servicio.mensaje('toastSuccess', 'Cambios guardados correctamente');
+        this.generalSvc.presentToast('toastSuccess', 'Cambios guardados correctamente');
       }).catch(err=>{
-        this.servicio.mensaje('customToast',err);
+        this.generalSvc.presentToast('customToast',err);
       });
     }
   }
 
-  get Nombre(){
-    return this.form.get('Nombre');
+  get Name(){
+    return this.form.get('Name');
   }
 
-  get Edad(){
-    return this.form.get('Edad');
+  get Age(){
+    return this.form.get('Age');
   }
 
-  get Telefono(){
-    return this.form.get('Telefono');
+  get PhoneNumber(){
+    return this.form.get('PhoneNumber');
   }
   
-  get Correo(){
-    return this.form.get('Correo');
+  get Email(){
+    return this.form.get('Email');
   }
 
 }

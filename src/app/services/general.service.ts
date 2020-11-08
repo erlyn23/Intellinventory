@@ -170,7 +170,9 @@ export class GeneralService {
     const inventoryRoute = `${inventoriesRoute}/${inventoryKey}`;
     const productsRoute = `${inventoryRoute}/Productos`;
     const productRoute = `${productsRoute}/${productCode}`;
-    
+    const entryNotesRoute = `${productRoute}/NotasEntrada`;
+    const exitNotesRoute = `${productRoute}/NotasSalida`;
+
     switch(routeOrigin)
     {
       case "Jefe": 
@@ -218,6 +220,12 @@ export class GeneralService {
       case "Producto":
         return productRoute;
       
+      case "NotasEntrada":
+        return entryNotesRoute;
+
+      case "NotasSalida":
+        return exitNotesRoute;
+        
       default: 
         return "";
     }

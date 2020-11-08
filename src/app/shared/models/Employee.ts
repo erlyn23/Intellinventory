@@ -5,6 +5,7 @@ export interface Employee
     Age: string;
     Photo: string;
     Email: string;
+    PhoneNumber: string;
     StartedSession: boolean;
     ActivationCode: string;
 }

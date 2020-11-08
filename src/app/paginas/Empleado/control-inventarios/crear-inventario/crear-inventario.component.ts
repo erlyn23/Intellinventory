@@ -30,11 +30,7 @@ export class CrearInventarioComponent implements OnInit {
 
   createInventory()
   {
-    const barKey = this.dataSvc.getBarKey();
-    const subsidiary = this.dataSvc.getSubsidiary();
-    const employeeCode = this.dataSvc.getEmployeeCode();
-
-    this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode).push({
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Inventarios')).push({
       Name: this.Name.value,
       CreationDate: this.Date.value,
       State: 'En progreso'

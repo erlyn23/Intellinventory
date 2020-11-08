@@ -2,9 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { ModalController } from '@ionic/angular';
-import { AlertPersonalizadoComponent } from 'src/app/core/alert-personalizado/alert-personalizado.component';
+import { Notification } from 'src/app/shared/models/Notification';
+import { Employee } from 'src/app/shared/models/Employee';
+import { Inventory } from 'src/app/shared/models/Inventory';
+import { Product } from 'src/app/shared/models/Product';
+import { Subsidiary } from 'src/app/shared/models/Subsidiary';
 
 @Component({
   selector: 'app-entrada',
@@ -13,119 +17,129 @@ import { AlertPersonalizadoComponent } from 'src/app/core/alert-personalizado/al
 })
 export class EntradaComponent implements OnInit {
 
-  formulario: FormGroup;
-  ref: any;
-  necesarios: any = {  nombreEmpleado: '', nombreInventario: '', nombreProducto:'', nombreSucursal:''};
-  EntradaAnterior: number;
+  form: FormGroup;
+  notificationData: Notification;
+  previousEntry: number;
   constructor(private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
-    private datos:DatosService,
-    private servicio: GeneralService,
-    private db: AngularFireDatabase) { }
+    private dataSvc:DatosService,
+    private generalSvc: GeneralService,
+    private angularFireDatabase: AngularFireDatabase) { }
 
   ngOnInit() {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-    const sucursal = this.datos.getSucursal();
-    const inventario = this.datos.getKey();
-    const producto = this.datos.getCode();
-
-
-    this.formulario = this.formBuilder.group({
-      Cantidad: ["",[Validators.required]],
-      Nota: ["",[Validators.required]]
+    this.form = this.formBuilder.group({
+      Cuantity: ["",[Validators.required]],
+      Note: ["",[Validators.required]]
     });
 
-    this.ref = this.db.object(clave+'/Empleados/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let nombre = data.payload.val();
-      this.datos.setNombreEmpleado(nombre.Nombre);
-    });
-
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
-    inventario+'/NombreInventario');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let nombre = data.payload.val();
-      this.datos.setNombreInventario(nombre);
-    });
-
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
-    inventario+'/Productos/'+producto+'/Nombre');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let nombre = data.payload.val();
-      this.necesarios.nombreProducto = nombre;
-      this.datos.setNombreProducto(nombre);
-    });
-
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Nombre');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let nombre = data.payload.val();
-      this.necesarios.nombreProducto = nombre;
-      this.datos.setNombreSucursal(nombre);
-    });
-
-    this.ref = this.db.object(clave+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
-    inventario+'/Productos/'+producto+'/Entrada');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let cantidad = data.payload.val();
-      this.EntradaAnterior = 0;
-      this.EntradaAnterior = cantidad;
-    });
-  }
-  async cargando()
-  {
-    const alert = this.modalCtrl.create({
-      cssClass: 'alertDisfrazado',
-      component: AlertPersonalizadoComponent,
-      id: 'sirvedealert'
-    });
-    (await alert).present();
+    this.getEmployeeFromDb();
+    this.getSubsidiaryFromDb();
+    this.getInventoryFromDb();
+    this.getProductFromDb();
   }
 
-  darEntradaProducto()
+  getEmployeeFromDb()
   {
-    if(this.formulario.valid)
+    const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Empleado'));
+    employeeDbObject.valueChanges().subscribe(employeeData=>{
+      this.dataSvc.setEmployeeName(employeeData.Name);
+    });
+  }
+
+  getSubsidiaryFromDb()
+  {    
+    const subsidiaryDbObject: AngularFireObject<Subsidiary> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Sucursal'));
+    subsidiaryDbObject.valueChanges().subscribe(subsidiaryData=>{
+      this.notificationData.SubsidiaryName = subsidiaryData.Name;
+      this.dataSvc.setSubsidiaryName(subsidiaryData.Name);
+    });
+  }
+
+  getInventoryFromDb()
+  {
+    const inventoryDbObject: AngularFireObject<Inventory> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Inventario'));
+    inventoryDbObject.valueChanges().subscribe(inventoryData=>{
+      this.dataSvc.setInventoryName(inventoryData.Name);
+    });
+  }
+
+  getProductFromDb()
+  {
+    const productDbObject: AngularFireObject<Product> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Producto'));
+    productDbObject.valueChanges().subscribe(productData=>{
+      this.notificationData.ProductName = productData.Name;
+      this.dataSvc.setProductName(productData.Name);
+    });
+
+    productDbObject.valueChanges().subscribe(productData=>{
+      this.previousEntry = 0;
+      this.previousEntry = productData.Entry;
+    });
+  }
+  
+  giveProductEntry()
+  {
+    if(this.form.valid)
     {
-        this.necesarios.nombreEmpleado = this.datos.getNombreEmpleado();
-        this.necesarios.nombreInventario = this.datos.getNombreInventario();
-        this.necesarios.nombreProducto = this.datos.getNombreProducto();
-        this.necesarios.nombreSucursal = this.datos.getNombresucursal();
-
-        const claveBar = this.datos.getClave();
-        const sucursal = this.datos.getSucursal();
-        const cedula = this.datos.getCedula();
-        const llaveInventario = this.datos.getKey();
-        const codigo = this.datos.getCode();
-
-        this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
-        llaveInventario+'/Productos/'+codigo).update({
-          Entrada: this.EntradaAnterior + this.formulario.value.Cantidad
+        this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Producto')).update({
+          Entry: this.previousEntry + this.form.value.Cuantity
           }).then(()=>{
-            this.servicio.mensaje('toastSuccess','Entrada hecha correctamente');
-            this.db.database.ref(claveBar+'/ParaNotificaciones/Entradas').push({
-              NombreEmpleado: this.necesarios.nombreEmpleado,
-              NombreInventario: this.necesarios.nombreInventario,
-              NombreProducto: this.necesarios.nombreProducto,
-              NombreSucursal: this.necesarios.nombreSucursal,
-              ClaveBar: claveBar,
-              Sucursal: sucursal,
-              Inventario: llaveInventario,
-              Cedula: cedula,
-              Producto: codigo
-            });
-            const fecha = new Date();
-            const cadenaFecha =  `${fecha.getDate()}/${fecha.getMonth() + 1}/${fecha.getFullYear()} ${fecha.getHours()}:${fecha.getMinutes()}`;
-            this.db.database.ref(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+
-            llaveInventario+'/Productos/'+codigo+'/NotasEntrada').push({
-              Nota: this.formulario.value.Nota,
-              Cantidad: this.formulario.value.Cantidad,
-              Fecha: cadenaFecha
-            })
+            this.generalSvc.presentToast('toastSuccess','Entrada hecha correctamente');
+            this.sendNotificationData();
+            this.writeEntryNote();
             this.modalCtrl.dismiss();
         }).catch((err)=>{
-        this.servicio.mensaje('customToast',err);
+        this.generalSvc.presentToast('customToast',err);
         });
     }
+  }
+
+  sendNotificationData()
+  {
+    this.assignNotificationData();
+
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada'))
+    .push({
+      EmployeeName: this.notificationData.EmployeeName,
+      InventoryName: this.notificationData.InventoryName,
+      ProductName: this.notificationData.ProductName,
+      SubsidiaryName: this.notificationData.SubsidiaryName,
+      BarKey: this.notificationData.BarKey,
+      SubsidiaryKey: this.notificationData.SubsidiaryKey,
+      InventoryKey: this.notificationData.InventoryKey,
+      EmployeeCode: this.notificationData.EmployeeCode,
+      ProductCode: this.notificationData.ProductCode
+    });
+  }
+
+  assignNotificationData()
+  {
+    this.notificationData.EmployeeName = this.dataSvc.getEmployeeName();
+    this.notificationData.InventoryName = this.dataSvc.getInventoryName();
+    this.notificationData.ProductName = this.dataSvc.getProductName();
+    this.notificationData.SubsidiaryName = this.dataSvc.getSubsidiaryName();
+    this.notificationData.BarKey = this.dataSvc.getBarKey();
+    this.notificationData.SubsidiaryKey = this.dataSvc.getSubsidiary();
+    this.notificationData.InventoryKey = this.dataSvc.getInventoryKey();
+    this.notificationData.EmployeeCode = this.dataSvc.getEmployeeCode();
+    this.notificationData.ProductCode = this.dataSvc.getProductCode();
+  }
+
+  writeEntryNote()
+  {
+    const date = new Date();
+    const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
+    ${date.getHours()}:${date.getMinutes()}`;
+
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('NotasEntrada')).push({
+      Note: this.form.value.Note,
+      Cuantity: this.form.value.Cuantity,
+      Date: dateString
+    });
   }
 
   goBack()

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { ModalController } from '@ionic/angular';
-import { DatosService } from 'src/app/services/datos.service';
+import { GeneralService } from 'src/app/services/general.service';
+import { ProductNote } from 'src/app/shared/models/ProductNote';
 
 @Component({
   selector: 'app-notas-salida',
@@ -10,26 +11,21 @@ import { DatosService } from 'src/app/services/datos.service';
 })
 export class NotasSalidaComponent implements OnInit {
 
-  ref: any;
-  notas: any[] =[];
+  productExitNotes: ProductNote[] =[];
   constructor(private modalCtrl: ModalController,
-    private db: AngularFireDatabase,
-    private datos: DatosService) { }
+    private angularFireDatabase: AngularFireDatabase,
+    private generalSvc: GeneralService) { }
 
   ngOnInit() {
-    const claveBar = this.datos.getClave();
-    const sucursal = this.datos.getSucursal();
-    const cedula = this.datos.getCedula();
-    const inventario = this.datos.getKey();
-    const producto = this.datos.getCode();
-
-    this.ref = this.db.object(claveBar+'/Sucursales/'+sucursal+'/Inventarios/'+cedula+'/'+inventario+'/Productos/'+producto+'/NotasSalidas');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let notas = data.payload.val();
-      this.notas = [];
-      for(let i in notas){
-        notas[i].key = i;
-        this.notas.push(notas[i]);
+    const productExitNotesObject: AngularFireObject<ProductNote>  = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('NotasSalidas'));
+    
+    productExitNotesObject.snapshotChanges().subscribe(exitNotesData=>{
+      let notes = exitNotesData.payload.val();
+      this.productExitNotes = [];
+      for(let i in notes){
+        notes[i].Key = i;
+        this.productExitNotes.push(notes[i]);
       }
     })
   }

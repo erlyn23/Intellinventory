@@ -11,18 +11,18 @@
 
 <ion-content color="tertiary">
   <ion-grid>
-    <form [formGroup]="formulario">
+    <form [formGroup]="form">
       <ion-row>
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Escribe una nota</ion-label>
-            <ion-input formControlName="Nota" type="text"></ion-input>
+            <ion-input formControlName="Note" type="text"></ion-input>
           </ion-item>
         </ion-col>
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="guardarNota()" style="width: 100%;" color="primary" shape="round" [disabled]="formulario.invalid">
+          <ion-button (click)="saveFinalNote()" style="width: 100%;" color="primary" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="add-circle"></ion-icon>
             Guardar Nota
           </ion-button>

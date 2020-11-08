@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
-import { AngularFireDatabase } from '@angular/fire/database';
-import { DatosService } from 'src/app/services/datos.service';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { GeneralService } from 'src/app/services/general.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Plugins } from '@capacitor/core';
+import { Stock } from 'src/app/shared/models/Stock';
 
 const { Clipboard } = Plugins; 
 
@@ -15,63 +15,62 @@ const { Clipboard } = Plugins;
 })
 export class StockModalComponent implements OnInit {
 
-  formulario: FormGroup;
-  ref: any;
+  form: FormGroup;
   constructor(private formBuilder: FormBuilder,
     private modalCtrl: ModalController,
-    private db: AngularFireDatabase, 
-    private datos: DatosService,
-    private servicio: GeneralService) { }
+    private angularFireDatabase: AngularFireDatabase, 
+    private generalSvc: GeneralService) { }
 
   ngOnInit() {
-    this.formulario = this.formBuilder.group({
-      Codigo: ["",[Validators.required]],
-      Nombre: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
-      Cantidad: ["",[Validators.required]]
-    })
+    this.form = this.formBuilder.group({
+      Code: ["",[Validators.required]],
+      Name: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+      Cuantity: ["",[Validators.required]]
+    });
   }
 
-  buscarStock(val:any){
-    this.ref = this.db.object(this.datos.getClave()+'/Stock/'+this.datos.getCedula()+'/'+val.detail.value);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let prod = data.payload.val();
-      if(prod != null)
+  searchStock(val:any){
+    const stockDbObject: AngularFireObject<Stock>= this.angularFireDatabase
+    .object(`${this.generalSvc.getSpecificObjectRoute('Stocks')}/${val.detail.value}`);
+    stockDbObject.valueChanges().subscribe(stockData=>{
+      if(stockData != null)
       {
-        this.formulario.controls.Nombre.setValue(prod.Nombre);
-        this.formulario.controls.Cantidad.setValue(prod.Cantidad);
+        this.form.controls.Nombre.setValue(stockData.Name);
+        this.form.controls.Cantidad.setValue(stockData.Cuantity);
       }else{
-        this.formulario.controls.Nombre.setValue("");
-        this.formulario.controls.Cantidad.setValue("");
+        this.form.controls.Nombre.setValue("");
+        this.form.controls.Cantidad.setValue("");
       }
     })
   }
 
-  guardarStock()
+  saveStock()
   {
-    if(this.formulario.valid)
+    if(this.form.valid)
     {
-      const clave = this.datos.getClave();
-      const cedula = this.datos.getCedula();
-      this.db.database.ref(clave+'/Stock/'+cedula+'/'+this.formulario.value.Codigo).set({
-        Codigo: this.formulario.value.Codigo,
-        Nombre: this.formulario.value.Nombre,
-        Cantidad: this.formulario.value.Cantidad
+      this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('Stocks')}/${this.Code.value}`)
+      .set({
+        Code: this.Code.value,
+        Name: this.Name.value,
+        Cuantity: this.Cuantity.value
       }).then(()=>{
-        this.servicio.mensaje('toastSuccess', 'Stock guardado correctamente');
+        this.generalSvc.presentToast('toastSuccess', 'Stock guardado correctamente');
         this.modalCtrl.dismiss();
       }).catch(err=>{
-        this.servicio.mensaje('customToast',err);
+        this.generalSvc.presentToast('customToast',err);
       })
     }
   }
-  leerCodigo(){
-    this.servicio.leerCodigo().then(async ()=>{
+  
+  
+  readBarCode(){
+    this.generalSvc.readBarCode().then(async ()=>{
 
       let code = await Clipboard.read(); 
-      this.formulario.controls.Codigo.setValue(code.value);
+      this.Code.setValue(code.value);
     })
     
-    this.servicio.mensaje('toastSuccess', 'Código leído, pegue el código en el campo.')
+    this.generalSvc.presentToast('toastSuccess', 'Código leído, pegue el código en el campo.')
   }
 
   goBack()
@@ -79,16 +78,16 @@ export class StockModalComponent implements OnInit {
     this.modalCtrl.dismiss();
   }
 
-  get Codigo(){
-    return this.formulario.get('Codigo');
+  get Code(){
+    return this.form.get('Code');
   }
 
-  get Nombre(){
-    return this.formulario.get('Nombre');
+  get Name(){
+    return this.form.get('Name');
   }
 
-  get Cantidad(){
-    return this.formulario.get('Cantidad');
+  get Cuantity(){
+    return this.form.get('Cuantity');
   }
 
 }

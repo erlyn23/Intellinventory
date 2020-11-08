@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, AlertController, MenuController, Platform } from '@ionic/angular';
-import { DatosService } from 'src/app/services/datos.service';
+import { MenuController, Platform } from '@ionic/angular';
 import { GeneralService } from 'src/app/services/general.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { StockModalComponent } from './stock-modal/stock-modal.component';
 import { DetallesStockComponent } from './detalles-stock/detalles-stock.component';
 import { Router } from '@angular/router';
+import { Stock } from 'src/app/shared/models/Stock';
+import { DatosService } from 'src/app/services/datos.service';
 
 @Component({
   selector: 'app-crear-stock',
@@ -14,95 +15,64 @@ import { Router } from '@angular/router';
 })
 export class CrearStockPage implements OnInit {
 
-  ref: any;
-  stocks: any[] = [];
-  constructor(private modalCtrl: ModalController,
-    private router: Router,
-    private platform: Platform,
+  stocks: Stock[] = [];
+  constructor(private platform: Platform,
     private menuCtrl: MenuController,
-    private alertCtrl: AlertController,
-    private datos: DatosService,
-    private general: GeneralService,
-    private db: AngularFireDatabase) {
+    private generalSvc: GeneralService,
+    private dataSvc: DatosService,
+    private angularFireDatabase: AngularFireDatabase,
+    private router: Router) {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard']);
       })
      }
 
   ngOnInit() {
-    this.obtenerStocks();
+    this.getStocksList();
   }
 
-  obtenerStocks(){
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-
-    this.ref = this.db.object(clave+'/Stock/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let defaults = data.payload.val();
+  getStocksList(){
+    const stocksDbObject: AngularFireObject<Stock> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Stocks'));
+    
+    stocksDbObject.snapshotChanges().subscribe(stockData=>{
+      let stocks = stockData.payload.val();
       this.stocks = [];
-      for(let i in defaults)
+      for(let i in stocks)
       {
-        defaults[i].key = i;
-        this.stocks.push(defaults[i]);
+        stocks[i].Key = i;
+        this.stocks.push(stocks[i]);
       }
     });
   }
+
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
   }
 
-  async abrirModalStock()
+  openCreateStockModal()
   {
-    const modal = await this.modalCtrl.create({
-      cssClass:'customModal',
-      component: StockModalComponent
-    });
-    (await modal).present();
+    this.generalSvc.openModal(StockModalComponent);
+  }
+  
+  goToDetails(i:number){
+    this.dataSvc.setProductCode(this.stocks[i].Key);
+    this.generalSvc.openModal(DetallesStockComponent);
   }
 
-  async eliminarStock(i: number)
+  confirmDeleteStock(stockIndex: number)
   {
-    const alert = await this.alertCtrl.create({
-      cssClass: 'customAlert',
-      header: 'Confirmar',
-      message: '¿Estás seguro de eliminar este stock? No podrás recuperarlo',
-      buttons:[
-        {
-          cssClass:'CancelarEliminar',
-          role:'cancel',
-          text:'Cancelar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          cssClass:'ConfirmarEliminar',
-          role:"confirm",
-          text: 'Confirmar',
-          handler: ()=>{
-            const clave = this.datos.getClave();
-            const cedula = this.datos.getCedula();
-
-            this.db.database.ref(clave+'/Stock/'+cedula+'/'+this.stocks[i].key).remove().then(()=>{
-              this.general.mensaje('toastSuccess', 'Stock eliminado correctamente');
-            }).catch(err=>{
-              this.general.mensaje('customToast',err);
-            })
-          }
-        }
-      ]
-    });
-    (await alert).present();
+    this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de eliminar este stock? No podrás recuperarlo',
+    ()=>{this.deleteStock(stockIndex)}, ()=>{ this.generalSvc.closeAlert(); });
   }
 
-  async goToDetails(i:number){
-    this.datos.setCode(this.stocks[i].key);
-    const modal = await this.modalCtrl.create({
-      cssClass: 'customModal',
-      component: DetallesStockComponent
+  deleteStock(stockIndex: number)
+  {
+    this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('Stocks')}/${this.stocks[stockIndex].Key}`)
+    .remove().then(()=>{
+      this.generalSvc.presentToast('toastSuccess', 'Stock eliminado correctamente');
+    }).catch(err=>{
+      this.generalSvc.presentToast('customToast',err);
     });
-    (await modal).present();
   }
-
 }

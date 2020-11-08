@@ -1,6 +1,6 @@
 export interface Stock
 {
-    Code: string;
+    Key: string;
     Name: string;
     Cuantity: number;
 }

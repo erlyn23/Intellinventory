@@ -33,7 +33,8 @@ export class ImportarProductosComponent implements OnInit {
     const subsidiary = this.dataSvc.getSubsidiary();
     const employeeCode = this.dataSvc.getEmployeeCode();
 
-    this.inventoriesDbRef = this.angularFireDatabase.object(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode);
+    this.inventoriesDbRef = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Inventarios'));
     this.inventoriesDbRef.snapshotChanges().subscribe(inventoriesData=>{
       let inventories = inventoriesData.payload.val();
       this.inventories = [];
@@ -50,7 +51,7 @@ export class ImportarProductosComponent implements OnInit {
     const employeeCode = this.dataSvc.getEmployeeCode();
 
     const productsDbRef: AngularFireObject<Product> = 
-    this.angularFireDatabase.object(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode+'/'+searchParam.detail.value+'/Productos');
+    this.angularFireDatabase.object(this.generalSvc.getSpecificObjectRoute('Productos'));
     productsDbRef.snapshotChanges().subscribe(productData=>{
       let dbProducts = productData.payload.val();
       this.products = [];
@@ -62,15 +63,11 @@ export class ImportarProductosComponent implements OnInit {
   }
 
   importProducts(){
-    const barKey = this.dataSvc.getBarKey();
-    const subsidiary = this.dataSvc.getSubsidiary();
-    const employeeCode = this.dataSvc.getEmployeeCode();
-    const inventoryKey = this.dataSvc.getInventoryKey();
-    
     for(let i in this.products)
     {
       let product = this.products[i];
-      this.angularFireDatabase.database.ref(barKey+'/Sucursales/'+subsidiary+'/Inventarios/'+employeeCode+'/'+inventoryKey+'/Productos/'+product.Code).update({
+      this.dataSvc.setProductCode(product.Code);
+      this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Producto')).update({
         Code: product.Code,
         Name: product.Name,
         InitialCuantity: product.ActualInventory,

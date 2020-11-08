@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Información {{producto.Nombre}}</ion-title>
+    <ion-title>Información {{stock.Name}}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -17,13 +17,13 @@
           <ion-card-content>
             <ion-list style="background: #3a93c9;">
               <ion-item color="primary">
-                <h4>Código: {{producto.Codigo}}</h4>
+                <h4>Código: {{stock.Code}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Nombre: {{producto.Nombre}}</h4>
+                <h4>Nombre: {{stock.Name}}</h4>
               </ion-item>
               <ion-item color="primary">
-                <h4>Cantidad de Stock: {{producto.Cantidad}}</h4>
+                <h4>Cantidad de Stock: {{stock.Cuantity}}</h4>
               </ion-item>
             </ion-list>
           </ion-card-content>

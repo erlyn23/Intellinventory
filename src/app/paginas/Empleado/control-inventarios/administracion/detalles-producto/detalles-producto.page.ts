@@ -38,7 +38,7 @@ export class DetallesProductoPage implements OnInit {
 
   ngOnInit() {
 
-    this.angularFireObject = this.angularFireDatabase.object(this.generalSvc.getProductRoute());
+    this.angularFireObject = this.angularFireDatabase.object(this.generalSvc.getSpecificObjectRoute('Producto'));
     this.angularFireObject.valueChanges().subscribe(dbProduct=>{
       if(dbProduct != null){
         this.product = dbProduct;
@@ -55,12 +55,13 @@ export class DetallesProductoPage implements OnInit {
   setStocks()
   { 
 
-    const stockDbObject: AngularFireObject<Stock> = this.angularFireDatabase.object(this.generalSvc.getStockRoute());
+    const stockDbObject: AngularFireObject<Stock> = this.angularFireDatabase.object(this.generalSvc.getSpecificObjectRoute('Stock'));
     stockDbObject.valueChanges().subscribe(dbStock=>{
       if(dbStock != null)
       {
         this.stock = dbStock;
-        this.generalSvc.presentSimpleAlert(`Tenemos información de stock de esta mercancía, se compra por defecto una cantidad de ${this.stock.Cuantity} unidades.`, 'Información');
+        this.generalSvc.presentSimpleAlert(`Tenemos información de stock de esta mercancía, 
+        se compra por defecto una cantidad de ${this.stock.Cuantity} unidades.`, 'Información');
       }
     });
   }
@@ -97,7 +98,7 @@ export class DetallesProductoPage implements OnInit {
 
   saveChanges()
   {
-    this.angularFireDatabase.database.ref(this.generalSvc.getProductRoute()).update({
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Producto')).update({
       EntrySum: this.product.EntrySum,
       TotalExistence: this.product.TotalExistence,
       Difference: this.product.Difference,
@@ -112,7 +113,8 @@ export class DetallesProductoPage implements OnInit {
   {
     if(!this.isSaved && this.inventoryState != 'Finalizado')
     {
-      this.generalSvc.presentSimpleAlert('Aún no guardas los cambios, aunque puedas verlos debes guardarlos.', 'Información');
+      this.generalSvc.presentSimpleAlert(`Aún no guardas los cambios, 
+      aunque puedas verlos debes guardarlos.`, 'Información');
     }else{
       this.navCtrl.pop().then(()=>{
         this.router.navigate(['administracion']);

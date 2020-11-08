@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, AlertController, Platform } from '@ionic/angular';
-import { DatosService } from 'src/app/services/datos.service';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { MenuController, Platform } from '@ionic/angular';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { Router } from '@angular/router';
-import { Plugins } from '@capacitor/core';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { Employee } from 'src/app/shared/models/Employee';
+import { GeneralService } from 'src/app/services/general.service';
 
-const { Storage } = Plugins;
 
 @Component({
   selector: 'app-dashboard',
@@ -15,124 +14,52 @@ const { Storage } = Plugins;
 })
 export class DashboardPage implements OnInit {
 
-  nombre: any;
-  ref: any;
-  imagen: any = "";
+  employee: Employee;
+  profileEmployeePhoto: string;
+
   constructor(private menuCtrl: MenuController,
     private platform: Platform,
-    private alertCtrl: AlertController,
-    private datos: DatosService,
+    private generalSvc: GeneralService,
     private router: Router,
-    private db: AngularFireDatabase,
-    private storage: AngularFireStorage) {
+    private angularFireDatabase: AngularFireDatabase,
+    private angularFireStorage: AngularFireStorage) {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
-        this.salir();
+        this.exit();
       })
-     }
+    }
 
   ngOnInit() { 
-    const cedula = this.datos.getCedula();
-    const clave = this.datos.getClave();
-    this.ref = this.db.object(clave + '/Empleados/'+cedula);
-    this.ref.snapshotChanges().subscribe(data=>{
-      let nombre = data.payload.val();
-      if(nombre != null){
-        this.nombre = nombre.Nombre;
+    const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Empleado'));
+    
+    employeeDbObject.valueChanges().subscribe(employeeData=>{
+      if(employeeData != null){
+        this.employee = employeeData;
+
+        const photoDirectory = this.angularFireStorage.ref(employeeData.Photo);
+
+        photoDirectory.getDownloadURL().subscribe(employeeUrlPhoto=>{
+          this.profileEmployeePhoto = employeeUrlPhoto;
+        })
       }
     });
-    this.obtenerPerfil();
   }
+
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'first');
   }
 
-  obtenerPerfil()
+  goToPage(page: string)
   {
-    const clave = this.datos.getClave();
-    const cedula = this.datos.getCedula();
-
-    this.ref = this.db.object(clave+'/Empleados/'+cedula+'/FotoPerfil');
-    this.ref.snapshotChanges().subscribe(data=>{
-      let foto = data.payload.val();
-      this.imagen = "";
-      if(foto != null){
-        const directorioFoto = this.storage.ref(foto.Ruta);
-        if(foto.Ruta != ''){
-          directorioFoto.getDownloadURL().subscribe(url=>{
-            this.imagen = url;
-          })
-        }
-      }
-    })
+    this.router.navigate([page]);
   }
 
-  async salir()
+  exit()
   {
-    const alert = await this.alertCtrl.create({
-      header: 'Confirmar',
-      message: '¿Estás seguro de querer salir?',
-      cssClass: 'customAlert',
-      buttons:
-      [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-          cssClass: 'CancelarEliminar',
-          handler: ()=>{
-            this.alertCtrl.dismiss();
-          }
-        },
-        {
-          text: 'Confirmar',
-          role: 'confirm',
-          cssClass: 'ConfirmarEliminar',
-          handler: ()=>{
-            this.limpiarUser();
-            this.router.navigate(['login']);
-          }
-        }
-      ]
-    });
-    await alert.present();
+    this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de querer salir?', 
+    ()=>{
+      this.generalSvc.clearLocalStorageData();
+      this.router.navigate(['login']);
+    }, ()=>{  });
   }
-
-  async limpiarUser()
-  {
-    return (await Storage.clear());
-  }
-
-  goToPage(pagina: any)
-  {
-    switch(pagina)
-    {
-      case 'ctrlInventario':
-        this.router.navigate(['control-inventarios']);
-      break;
-      case 'sucursales':
-        this.router.navigate(['sucursales']);
-      break;
-      case 'stock':
-        this.router.navigate(['crear-stock']);
-      break;
-      case 'proveedores':
-        this.router.navigate(['proveedores']);
-      break;
-      case 'calculadora':
-        this.router.navigate(['calculadora']);
-      break;
-      case 'editar':
-        this.router.navigate(['editar-perfil']);
-      break;
-      case 'entradarapida':
-        this.router.navigate(['entrada-rapida']);
-      break;
-      case 'salidarapida':
-        this.router.navigate(['salida-rapida']);
-      break;
-      case 'salir':
-        this.salir();
-      break;
-    }
-  }
-
 }

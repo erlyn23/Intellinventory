@@ -11,21 +11,21 @@
 
 <ion-content color="tertiary">
   <ion-grid>
-    <form [formGroup]="formulario">
+    <form [formGroup]="form">
       <ion-row>
         <ion-col size="9">
           <ion-item color="tertiary">
             <ion-label position="floating">Código</ion-label>
-            <ion-input type="number" formControlName="Codigo" (ionChange)="buscarStock($event)"></ion-input>
+            <ion-input type="number" formControlName="Code" (ionChange)="searchStock($event)"></ion-input>
           </ion-item>
-          <div *ngIf="Codigo.invalid && (Codigo.touched || Codigo.dirty)">
-            <ion-item *ngIf="Codigo.errors.required" color="tertiary" lines="none">
+          <div *ngIf="Code.invalid && (Code.touched || Code.dirty)">
+            <ion-item *ngIf="Code.errors.required" color="tertiary" lines="none">
               <ion-label color="danger">Debes insertar un código</ion-label>
             </ion-item>
           </div>
         </ion-col>
         <ion-col size="3">
-          <ion-button (click)="leerCodigo()">
+          <ion-button (click)="readBarCode()">
             <ion-icon slot="icon-only" name="barcode"></ion-icon>
           </ion-button>
         </ion-col>
@@ -34,16 +34,16 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Nombre</ion-label>
-            <ion-input type="text" formControlName="Nombre"></ion-input>
+            <ion-input type="text" formControlName="Name"></ion-input>
           </ion-item>
-          <div *ngIf="Nombre.invalid && (Nombre.touched || Nombre.dirty)">
-            <ion-item *ngIf="Nombre.errors.required" color="tertiary" lines="none">
+          <div *ngIf="Name.invalid && (Name.touched || Name.dirty)">
+            <ion-item *ngIf="Name.errors.required" color="tertiary" lines="none">
               <ion-label color="danger">Debes insertar un nombre</ion-label>
             </ion-item>
-            <ion-item *ngIf="Nombre.errors.minlength" color="tertiary" lines="none">
+            <ion-item *ngIf="Name.errors.minlength" color="tertiary" lines="none">
               <ion-label color="danger">Debes escribir al menos 3 letras</ion-label>
             </ion-item>
-            <ion-item *ngIf="Nombre.errors.maxlength" color="tertiary" lines="none">
+            <ion-item *ngIf="Name.errors.maxlength" color="tertiary" lines="none">
               <ion-label color="danger">Debes escribir menos de 30 letras</ion-label>
             </ion-item>
           </div>
@@ -53,10 +53,10 @@
         <ion-col size="12">
           <ion-item color="tertiary">
             <ion-label position="floating">Cantidad</ion-label>
-            <ion-input type="number" formControlName="Cantidad"></ion-input>
+            <ion-input type="number" formControlName="Cuantity"></ion-input>
           </ion-item>
-          <div *ngIf="Cantidad.invalid && (Cantidad.touched || Cantidad.dirty)">
-            <ion-item *ngIf="Cantidad.errors.required" color="tertiary" lines="none">
+          <div *ngIf="Cuantity.invalid && (Cuantity.touched || Cuantity.dirty)">
+            <ion-item *ngIf="Cuantity.errors.required" color="tertiary" lines="none">
               <ion-label color="danger">Debes insertar una cantidad</ion-label>
             </ion-item>
           </div>
@@ -64,7 +64,7 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
-          <ion-button (click)="guardarStock()" style="width: 100%;" shape="round" [disabled]="formulario.invalid">
+          <ion-button (click)="saveStock()" style="width: 100%;" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="cube-outline"></ion-icon>
             Guardar stock
           </ion-button>

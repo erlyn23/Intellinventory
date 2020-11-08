@@ -16,14 +16,14 @@
   <ion-list style="background: white;">
     <ion-item color="tertiary" *ngFor="let stock of stocks, let i = index">
       <ion-button (click)="goToDetails(i)" style="width: 100%;" fill="clear">
-        {{stock.Nombre}}
+        {{stock.Name}}
       </ion-button>
-      <ion-button (click)="eliminarStock(i)" color="danger" fill="clear">
+      <ion-button (click)="confirmDeleteStock(i)" color="danger" fill="clear">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
       </ion-button>
     </ion-item>
   </ion-list>
-  <ion-fab (click)="abrirModalStock()" vertical="bottom" horizontal="end" slot="fixed">
+  <ion-fab (click)="openCreateStockModal()" vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button>
       <ion-icon name="add"></ion-icon>
     </ion-fab-button>
