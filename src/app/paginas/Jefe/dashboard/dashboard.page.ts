@@ -11,12 +11,9 @@ import { LocalNotificationActionPerformed, Plugins } from '@capacitor/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Boss } from 'src/app/shared/models/Boss';
 import { Notification } from 'src/app/shared/models/Notification';
-import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
-const { Storage, 
-LocalNotifications,
-App, 
-BackgroundTask } = Plugins;
+const { LocalNotifications } = Plugins;
 
 @Component({
   selector: 'app-dashboard',
@@ -45,22 +42,37 @@ export class DashboardPage implements OnInit {
     private sanitizer: DomSanitizer) {
       LocalNotifications.requestPermission().then((hasPermission)=>{
         if(hasPermission.granted){
-          BackgroundTask.requestPermissions();
-          this.getPendingNotificationsFromDb();
+          this.checkIfRoleIsBoss();
         }
       });
-      
-      if(this.platform.pause.isStopped){
-        this.backgroundMode.enable();
-        this.backgroundMode.on('activate').subscribe(()=>{
-          this.getPendingNotificationsFromDb();
-        })
-      }
       this.platform.backButton.subscribeWithPriority(10, ()=>{
-        this.exit()
+        this.exit();
       });
   }
-  
+
+  checkIfRoleIsBoss(): boolean
+  {
+    this.generalSvc.getLocalStorageData('role').then(role=>{
+      if(role.value == 'boss')
+      {
+        this.getPendingNotificationsFromDb();
+        return true;
+      }
+      return false;
+    });
+    return false;
+  }
+
+  setBackgroundMode()
+  {
+    this.backgroundMode.enable();
+    this.backgroundMode.on('activate').subscribe(()=>{
+      this.backgroundMode.overrideBackButton();
+      this.backgroundMode.disableBatteryOptimizations();
+      this.getPendingNotificationsFromDb();
+    });
+  }
+
   getSafeImage()
   {
     return this.sanitizer.sanitize(SecurityContext.STYLE, `url(${this.bossProfileUrlImage})`);
@@ -69,13 +81,8 @@ export class DashboardPage implements OnInit {
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'second');
   }
-  
-  ngOnDestroy(): void {
-    this.setBackgroundMode(); 
-  }
 
-
-  ngOnInit() {
+  ngOnInit() {  
     const bossDbObject: AngularFireObject<Boss> = this.angularFireDatabase
     .object(this.generalSvc.getSpecificObjectRoute('Jefe'))
     
@@ -91,22 +98,17 @@ export class DashboardPage implements OnInit {
         });
       }
     });
-    this.setBackgroundMode();
     this.onClickNotifiaction();
-    this.getPendingNotificationsFromDb();
-  }
-
-  setBackgroundMode(){
-    App.addListener('appStateChange', state=>{
-      if(!state.isActive){
-        let taskId= BackgroundTask.beforeExit(async ()=>{
-          await this.getPendingNotificationsFromDb();
-          BackgroundTask.finish({
-            taskId
-          })
+    this.generalSvc.getLocalStorageData('role').then(role=>{
+      if(role.value == 'boss')
+      {
+        this.getPendingNotificationsFromDb();
+        window.addEventListener('beforeunload', () => {
+          this.getPendingNotificationsFromDb();
+          this.setBackgroundMode();
         });
       }
-    })
+    });
   }
 
   onClickNotifiaction()
@@ -145,9 +147,11 @@ export class DashboardPage implements OnInit {
       let dbEntryNotification = entryNotificationData.payload.val();
       for(let i in dbEntryNotification)
       {
-        this.sendNotification(`${dbEntryNotification[i].EmployeeName}: Entrada,`,`${dbEntryNotification[i].SubsidiaryName}: 
-        En el inventario: ${dbEntryNotification[i].InventoryName} 
-        al producto: ${dbEntryNotification[i].ProductName}`, counter, 
+        dbEntryNotification[i].Key = i;
+        this.sendNotification(`${dbEntryNotification[i].EmployeeName}: Entrada`,
+          `Sucursal: ${dbEntryNotification[i].SubsidiaryName}
+Inventario: ${dbEntryNotification[i].InventoryName} 
+Producto: ${dbEntryNotification[i].ProductName}`, counter, 
         { BarKey: dbEntryNotification[i].BarKey, 
           EmployeeCode: dbEntryNotification[i].EmployeeCode, 
           SubsidiaryKey: dbEntryNotification[i].SubsidiaryKey, 
@@ -171,9 +175,11 @@ export class DashboardPage implements OnInit {
       let dbExitNotification = exitNotificationData.payload.val();
       for(let i in dbExitNotification)
       {
-        this.sendNotification(`${dbExitNotification[i].EmployeeName}: Salida,`,`${dbExitNotification[i].SubsidiaryName}: 
-        En el inventario: ${dbExitNotification[i].InventoryName} 
-        al producto: ${dbExitNotification[i].ProductName}`, counter, 
+        dbExitNotification[i].Key = i;
+        this.sendNotification(`${dbExitNotification[i].EmployeeName}: Salida`,
+        `Sucursal: ${dbExitNotification[i].SubsidiaryName}
+Inventario: ${dbExitNotification[i].InventoryName} 
+Producto: ${dbExitNotification[i].ProductName}`, counter, 
         { BarKey: dbExitNotification[i].BarKey, 
           EmployeeCode: dbExitNotification[i].EmployeeCode, 
           SubsidiaryKey: dbExitNotification[i].SubsidiaryKey, 
@@ -193,7 +199,7 @@ export class DashboardPage implements OnInit {
           title: title,
           body: message,
           id: id,
-          smallIcon:"ic_launcher",
+          smallIcon:"ic_stat_background",
           attachments: null,
           actionTypeId: "",
           extra: extraData
@@ -208,7 +214,6 @@ export class DashboardPage implements OnInit {
     ()=>{
       this.router.navigate(['login']).then(()=>{
         this.generalSvc.clearLocalStorageData();
-        this.menuCtrl.toggle();
       });
     },
     ()=>{ this.generalSvc.closeAlert(); });

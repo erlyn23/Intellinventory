@@ -4,7 +4,6 @@ import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { Plugins} from '@capacitor/core';
 import { File } from '@ionic-native/file/ngx';
-import { Product } from 'src/app/shared/models/Product';
 import * as XLSX from 'xlsx';
 import { DatosService } from './datos.service';
 
@@ -138,7 +137,7 @@ export class GeneralService {
     return await this.barcode.scan();
   }
 
-  exportExcel(json: Product[], fileName: string){
+  exportExcel(json: any[], fileName: string){
     const workSheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
     const workBook: XLSX.WorkBook = { Sheets: {'data':workSheet}, SheetNames: ['data'] };
     const excelBuffer: any = XLSX.write(workBook, { bookType: 'xlsx', type: 'array' });

@@ -114,7 +114,7 @@ export class SalidaComponent implements OnInit {
   {
     this.assignNotificationData();
 
-    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada'))
+    this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesSalida'))
     .push({
       EmployeeName: this.notificationData.EmployeeName,
       InventoryName: this.notificationData.InventoryName,

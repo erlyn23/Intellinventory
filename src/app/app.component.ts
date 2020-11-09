@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Platform, AlertController} from '@ionic/angular';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
+import { Autostart } from '@ionic-native/autostart/ngx';
 import { ConnectionService } from 'ng-connection-service';
 
 @Component({
@@ -10,25 +11,34 @@ import { ConnectionService } from 'ng-connection-service';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent {
-  hayConexion: boolean;
-  ref: any;
+
   constructor(private platform: Platform,
+    private autostart: Autostart,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private alertCtrl: AlertController,
-    private conexion: ConnectionService,
+    private connectionService: ConnectionService,
   ) {this.initializeApp();
     this.checkConnection();
   }
 
   initializeApp() {
     this.platform.ready().then(() => {
+      this.autostart.enable();
       this.statusBar.backgroundColorByHexString('#0d2c42');
       this.splashScreen.hide();
     });
   }
 
-  async alert(){
+  checkConnection(){
+    this.connectionService.monitor().subscribe(hasConnection=>{
+      if(!hasConnection){
+        this.sendConnectionStatusMessage();
+      }
+    })
+  }
+
+  async sendConnectionStatusMessage(){
     const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
       header: 'Información',
@@ -46,14 +56,4 @@ export class AppComponent {
     await alert.present();
   }
 
-  checkConnection(){
-    this.conexion.monitor().subscribe(hayConexion=>{
-      this.hayConexion = hayConexion;
-      if(!this.hayConexion){
-        this.alert();
-      }else{
-        console.log('hay conexión');
-      }
-    })
-  }
 }

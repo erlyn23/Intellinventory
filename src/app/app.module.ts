@@ -20,6 +20,7 @@ import { Camera } from '@ionic-native/camera/ngx';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import { Autostart } from '@ionic-native/autostart/ngx';
 import { ConnectionServiceModule } from 'ng-connection-service';
  
 @NgModule({
@@ -44,6 +45,7 @@ import { ConnectionServiceModule } from 'ng-connection-service';
     BarcodeScanner,
     File,
     BackgroundMode,
+    Autostart,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

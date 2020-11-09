@@ -270,10 +270,10 @@ export class EntradaRapidaPage implements OnInit {
               InventoryName: this.inventory.Name,
               ProductName: this.dataSvc.getProductName(),
               BarKey: this.dataSvc.getBarKey(),
-              Subsidiary: subsidiary,
-              Inventory: inventory,
+              SubsidiaryKey: subsidiary,
+              InventoryKey: inventory,
               EmployeeCode: this.employeeCodeOfAnother,
-              Product: product,
+              ProductCode: product,
             });
 
             const date = new Date();
@@ -304,10 +304,10 @@ export class EntradaRapidaPage implements OnInit {
                 InventoryName: this.inventory.Name,
                 ProductName: this.dataSvc.getProductName(),
                 BarKey: this.dataSvc.getBarKey(),
-                Subsidiary: subsidiary,
-                Inventory: inventory,
+                SubsidiaryKey: subsidiary,
+                InventoryKey: inventory,
                 EmployeeCode: this.dataSvc.getEmployeeCode(),
-                Product: product
+                ProductCode: product
               });
               
               const date = new Date();

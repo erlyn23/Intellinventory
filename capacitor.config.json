@@ -9,7 +9,7 @@
       "launchShowDuration": 10
     },
     "LocalNotifications": {
-      "smallIcon": "ic_launcher",
+      "smallIcon": "ic_stat_background",
       "iconColor": "#488AFF",
       "sound": "beep.wav"
     }

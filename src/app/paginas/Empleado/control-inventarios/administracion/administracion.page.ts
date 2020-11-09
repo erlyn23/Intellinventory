@@ -145,7 +145,7 @@ export class AdministracionPage implements OnInit {
     });
   }
 
-  exportInventoryToexcel()
+  exportInventoryToExcel()
   {
     this.generalSvc.exportExcel(this.products, 'Inventario');
   }
