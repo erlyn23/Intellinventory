@@ -6,8 +6,7 @@
       <ion-col size="4"></ion-col>
       <ion-col size="4">
         <img (click)="openChangeProfilePhotoPopover()" src="../../../../assets/user.png" class="perfil" *ngIf="bossProfileUrlImage == ''">
-        <div (click)="openChangeProfilePhotoPopover()" style="background: url({{imabossProfileUrlImagegen}});
-        background-size: 100% 100%; 
+        <div (click)="openChangeProfilePhotoPopover()" [style.background-image]="getSafeImage()"  style="background-size: 100% 100%; 
         background-repeat: no-repeat;
         width: 125px; height: 125px; border-radius: 100px;" *ngIf="bossProfileUrlImage != ''"></div>
       </ion-col>

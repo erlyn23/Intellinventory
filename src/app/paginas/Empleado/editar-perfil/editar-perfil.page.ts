@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { PopoverController, MenuController, Platform } from '@ionic/angular';
-import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -23,7 +22,6 @@ export class EditarPerfilPage implements OnInit {
     private platform: Platform,
     private popoverCtrl: PopoverController, 
     private formBuilder: FormBuilder,
-    private datos: DatosService,
     private generalSvc: GeneralService,
     private angularFireDatabase: AngularFireDatabase,
     private angularFireStorage: AngularFireStorage) { 
@@ -39,21 +37,26 @@ export class EditarPerfilPage implements OnInit {
       PhoneNumber: ["",[Validators.required, Validators.maxLength(10), Validators.minLength(10), Validators.pattern('[0-9]*')]],
       Email: ["", [Validators.email]]
     });
-    
     const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
     .object(this.generalSvc.getSpecificObjectRoute('Empleado'));
     
     employeeDbObject.valueChanges().subscribe(employeeData=>{
-      this.Name.setValue(employeeData.Name);
-      this.Age.setValue(employeeData.Age);
-      this.PhoneNumber.setValue(employeeData.PhoneNumber);
-      this.Email.setValue(employeeData.Email);
+      if(employeeData != null)
+      {
+        this.Name.setValue(employeeData.Name);
+        this.Age.setValue(employeeData.Age);
+        this.PhoneNumber.setValue(employeeData.PhoneNumber);
+        this.Email.setValue(employeeData.Email);
 
-      const profileEmployeePhotoDirectory = this.angularFireStorage.ref(employeeData.Photo);
+        if(employeeData.Photo != undefined)
+        {
+          const profileEmployeePhotoDirectory = this.angularFireStorage.ref(employeeData.Photo);
 
-      profileEmployeePhotoDirectory.getDownloadURL().subscribe(profilePhotoUrl=>{
-        this.employeeProfilePhoto = profilePhotoUrl;
-      })
+          profileEmployeePhotoDirectory.getDownloadURL().subscribe(profilePhotoUrl=>{
+            this.employeeProfilePhoto = profilePhotoUrl;
+          });
+        }
+      }
     });
   }
 

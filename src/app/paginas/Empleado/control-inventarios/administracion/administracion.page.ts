@@ -16,7 +16,13 @@ import { Product } from 'src/app/shared/models/Product';
 })
 export class AdministracionPage implements OnInit {
 
-  inventory: Inventory;
+  inventory: Inventory = {
+    Key: '',
+    Name: '',
+    CreationDate: '',
+    Products: null,
+    State: ''
+  };
   products: Product[] = [];
   searchResultProducts: Product[];
   isSearch: boolean = false;
@@ -73,7 +79,8 @@ export class AdministracionPage implements OnInit {
 
   confirmDeleteProduct(productIndex: number){
 
-    this.generalSvc.presentAlertWithActions('Confirmar', '¿Estás seguro de querer eliminar este producto? No podrás recuperarlo',
+    this.generalSvc.presentAlertWithActions('Confirmar', 
+    '¿Estás seguro de querer eliminar este producto? No podrás recuperarlo',
     ()=>{
       this.deleteProduct(productIndex);
     },
@@ -82,7 +89,14 @@ export class AdministracionPage implements OnInit {
   }
 
   deleteProduct(productIndex: number){
-
+    if(this.isSearch)
+    {
+      this.dataSvc.setProductCode(this.searchResultProducts[productIndex].Code);
+    }
+    else
+    {
+      this.dataSvc.setProductCode(this.products[productIndex].Code);
+    }
     this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Producto'))
     .remove().then(()=>{
       this.generalSvc.presentToast('toastSuccess', 'Se ha eliminado el producto');
@@ -118,13 +132,13 @@ export class AdministracionPage implements OnInit {
     this.generalSvc.presentAlertWithActions('Confirmar', 
     '¿Estás seguro de finalizar el inventario? Una vez hecho esto no podrás hacer nada para revertirlo.',
     ()=>{
-      this.finalizarInventario();
+      this.finalizeInventory();
     },()=>{ this.generalSvc.closeAlert(); });
   }
 
-  finalizarInventario(){
+  finalizeInventory(){
     this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('Inventario'))
-    .update({Status: 'Finalizado'})
+    .update({State: 'Finalizado'})
     .then(()=>{
       this.generalSvc.presentToast('toastSuccess','Inventario finalizado correctamente');
       this.goBack();

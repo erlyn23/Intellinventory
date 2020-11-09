@@ -31,8 +31,8 @@
           <ion-item color="tertiary">
             <ion-label>Inventario</ion-label>
             <ion-select interface="popover" formControlName="Inventory" (ionChange)="searchInventory($event)">
-              <ion-select-option *ngFor="let inventoryItem of inventories" [value]="inventoryItem.key">
-                {{inventoryItem.NombreInventario}}
+              <ion-select-option *ngFor="let inventoryItem of inventories" [value]="inventoryItem.Key">
+                {{inventoryItem.Name}}
               </ion-select-option>
             </ion-select>
           </ion-item>

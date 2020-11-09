@@ -12,7 +12,16 @@ import { GeneralService } from 'src/app/services/general.service';
 })
 export class DetallesEmpleadoComponent implements OnInit {
 
-  employee: Employee;
+  employee: Employee = {
+    Code: '',
+    Name: '',
+    PhoneNumber: '',
+    Photo: '',
+    Age: '',
+    Email: '',
+    ActivationCode: '',
+    StartedSession: false
+  };
   constructor(private modalCtrl: ModalController,
     private generalSvc: GeneralService,
     private dataSvc: DatosService,

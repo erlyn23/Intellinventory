@@ -14,7 +14,13 @@ import { Product } from 'src/app/shared/models/Product';
 })
 export class AdministracionPage implements OnInit {
 
-  inventory: Inventory;
+  inventory: Inventory = {
+    Key: '',
+    Name: '',
+    CreationDate: '',
+    State: '',
+    Products: null
+  };
   products: Product[] = [];
   searchResultProducts: Product[];
   isSearch: boolean = false;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SecurityContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
@@ -11,6 +11,7 @@ import { LocalNotificationActionPerformed, Plugins } from '@capacitor/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Boss } from 'src/app/shared/models/Boss';
 import { Notification } from 'src/app/shared/models/Notification';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 
 const { Storage, 
 LocalNotifications,
@@ -24,7 +25,14 @@ BackgroundTask } = Plugins;
 })
 export class DashboardPage implements OnInit {
 
-  boss: Boss;
+  boss: Boss = { Email :'', 
+  Password: '', 
+  Photo: '', 
+  PhoneNumber: '', 
+  Name: '', 
+  CompanyName: '', 
+  StartedSession: false
+  };
   bossProfileUrlImage: string = "";
   constructor(private router: Router, 
     private backgroundMode: BackgroundMode,
@@ -33,7 +41,8 @@ export class DashboardPage implements OnInit {
     private angularFireDatabase:AngularFireDatabase,
     private angularFireStorage: AngularFireStorage,
     private generalSvc: GeneralService,
-    private dataSvc:DatosService) {
+    private dataSvc:DatosService,
+    private sanitizer: DomSanitizer) {
       LocalNotifications.requestPermission().then((hasPermission)=>{
         if(hasPermission.granted){
           BackgroundTask.requestPermissions();
@@ -50,8 +59,13 @@ export class DashboardPage implements OnInit {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.exit()
       });
-    }
+  }
   
+  getSafeImage()
+  {
+    return this.sanitizer.sanitize(SecurityContext.STYLE, `url(${this.bossProfileUrlImage})`);
+  }
+
   ionViewWillEnter() {
     this.menuCtrl.enable(true, 'second');
   }
@@ -74,7 +88,7 @@ export class DashboardPage implements OnInit {
 
         bossProfilePhotoDirectory.getDownloadURL().subscribe(profilePhotoUrl=>{
           this.bossProfileUrlImage = profilePhotoUrl;
-        })
+        });
       }
     });
     this.setBackgroundMode();
@@ -131,7 +145,6 @@ export class DashboardPage implements OnInit {
       let dbEntryNotification = entryNotificationData.payload.val();
       for(let i in dbEntryNotification)
       {
-        dbEntryNotification[i].Key = i;
         this.sendNotification(`${dbEntryNotification[i].EmployeeName}: Entrada,`,`${dbEntryNotification[i].SubsidiaryName}: 
         En el inventario: ${dbEntryNotification[i].InventoryName} 
         al producto: ${dbEntryNotification[i].ProductName}`, counter, 
@@ -158,7 +171,6 @@ export class DashboardPage implements OnInit {
       let dbExitNotification = exitNotificationData.payload.val();
       for(let i in dbExitNotification)
       {
-        dbExitNotification[i].Key = i;
         this.sendNotification(`${dbExitNotification[i].EmployeeName}: Salida,`,`${dbExitNotification[i].SubsidiaryName}: 
         En el inventario: ${dbExitNotification[i].InventoryName} 
         al producto: ${dbExitNotification[i].ProductName}`, counter, 

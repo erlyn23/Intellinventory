@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
-import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
-import { GeneralService } from 'src/app/services/general.service';
 import { Provider } from 'src/app/shared/models/Provider';
 
 
@@ -14,25 +12,22 @@ import { Provider } from 'src/app/shared/models/Provider';
 })
 export class DetallesProveedorComponent implements OnInit {
   
-  provider: Provider;
+  provider: Provider = {
+    Key:'',
+    Name: '',
+    Product: '',
+    PhoneNumber: '',
+    Cuantity: 0
+  };
   constructor(private modalCtrl: ModalController,
     private platform: Platform,
-    private angularFireDatabase: AngularFireDatabase,
-    private dataSvc: DatosService,
-    private generalSvc: GeneralService
+    private dataSvc: DatosService
   ) { 
     this.platform.backButton.subscribeWithPriority(10, ()=>{this.goBack()});
   }
 
   ngOnInit() {
-    const providerDbObject: AngularFireObject<Provider> = this.angularFireDatabase
-    .object(this.generalSvc.getSpecificObjectRoute('Proveedor'));
-    
-    providerDbObject.valueChanges().subscribe(providerData=>{
-      if(providerData != null){
-        this.provider = providerData;
-      }
-    })
+    this.provider = this.dataSvc.getProvider();
   }
   goBack(){
     this.modalCtrl.dismiss();

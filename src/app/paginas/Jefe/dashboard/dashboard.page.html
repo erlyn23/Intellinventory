@@ -5,7 +5,7 @@
             <ion-col size="3"></ion-col>
             <ion-col size="6" style="display: flex; justify-content: center;"> 
                 <img class="perfil" src="./../../../../assets/user.png" *ngIf="bossProfileUrlImage == ''">
-                <div style="background: url({{bossProfileUrlImage}}); 
+                <div [style.background-image]="getSafeImage()" style="
                 background-size: 100% 100%; 
                 width: 125px; 
                 height: 125px; 

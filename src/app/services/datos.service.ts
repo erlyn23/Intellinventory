@@ -15,7 +15,13 @@ export class DatosService {
   productCode: string;
   inventoryState:string;
   providerOperation: string;
-  provider: Provider;
+  provider: Provider = {
+    Key: '',
+    Name: '',
+    Product: '',
+    PhoneNumber: '',
+    Cuantity: 0
+  };
   subsidiary: string;
   constructor() { }
 

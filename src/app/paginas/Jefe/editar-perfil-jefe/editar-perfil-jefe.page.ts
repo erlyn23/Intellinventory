@@ -1,15 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SecurityContext } from '@angular/core';
 import { MenuController, PopoverController, ModalController, Platform } from '@ionic/angular';
-import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FotoPopoverComponent } from './../../../core/foto-popover/foto-popover.component';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { CambiarPasswordComponent } from './cambiar-password/cambiar-password.component';
-import { Route } from '@angular/compiler/src/core';
 import { Router } from '@angular/router';
 import { Boss } from 'src/app/shared/models/Boss';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-editar-perfil-jefe',
@@ -25,10 +24,10 @@ export class EditarPerfilJefePage implements OnInit {
     private router:Router,
     private popoverCtrl: PopoverController, 
     private formBuilder: FormBuilder,
-    private dataSvc: DatosService,
     private generalSvc: GeneralService,
     private angularFireDatabase: AngularFireDatabase,
-    private angularFireStorage: AngularFireStorage) {
+    private angularFireStorage: AngularFireStorage,
+    private sanitizer: DomSanitizer) {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard-jefe']);
       })
@@ -48,7 +47,7 @@ export class EditarPerfilJefePage implements OnInit {
       if(bossData != null)
       {
         this.Name.setValue(bossData.Name);
-        this.PhoneNumber.setValue(bossData.PhoneNumer);
+        this.PhoneNumber.setValue(bossData.PhoneNumber);
         this.Company.setValue(bossData.CompanyName);
 
         const bossProfilePhotoDirectory = this.angularFireStorage.ref(bossData.Photo);
@@ -58,6 +57,11 @@ export class EditarPerfilJefePage implements OnInit {
         })
       }
     });
+  }
+
+  getSafeImage()
+  {
+    return this.sanitizer.sanitize(SecurityContext.STYLE, `url(${this.bossProfileUrlImage})`);
   }
 
   ionViewWillEnter() {

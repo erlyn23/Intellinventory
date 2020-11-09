@@ -23,7 +23,7 @@ export class FotoPopoverComponent implements OnInit {
   uploadImage(imageData: any)
   {
     this.generalSvc.getLocalStorageData('role').then(role=>{
-      if(role.value == 'jefe')
+      if(role.value == 'boss')
       {
         const bossId = this.dataSvc.getBarKey();
         this.image = imageData.target.files[0];
@@ -57,7 +57,7 @@ export class FotoPopoverComponent implements OnInit {
 
   saveImageInDb(filePath: string){
       this.generalSvc.getLocalStorageData('role').then(role=>{
-        if(role.value == 'jefe'){
+        if(role.value == 'boss'){
           const fileRef = this.angularFireStorage.ref(filePath);
           const uploadTask = this.angularFireStorage.upload(filePath, this.image);
           uploadTask.percentageChanges().subscribe(percent=>{
@@ -66,10 +66,11 @@ export class FotoPopoverComponent implements OnInit {
               const barKey = this.dataSvc.getBarKey();
               this.modalCtrl.dismiss();
               this.generalSvc.presentToast('toastSuccess', 'Imagen cambiada correctamente');
-              this.generalSvc.insertDataInDb(barKey+'/Jefe/FotoPerfil',{Ruta: ''}).catch(err=>{
+              this.generalSvc.closeLoading();
+              this.generalSvc.insertDataInDb(this.generalSvc.getSpecificObjectRoute('Jefe'),{Photo: ''}).catch(err=>{
                 this.generalSvc.presentToast('customToast',err);
               });
-              this.generalSvc.insertDataInDb(barKey+'/Jefe/FotoPerfil',{Ruta: filePath}).catch(err=>{
+              this.generalSvc.insertDataInDb(this.generalSvc.getSpecificObjectRoute('Jefe'),{Photo: filePath}).catch(err=>{
                 this.generalSvc.presentToast('customToast',err);
               });
               this.popoverCtrl.dismiss();
@@ -85,10 +86,11 @@ export class FotoPopoverComponent implements OnInit {
               const employeeCode = this.dataSvc.getEmployeeCode();
               this.modalCtrl.dismiss();
               this.generalSvc.presentToast('toastSuccess', 'Imagen cambiada correctamente');
-              this.generalSvc.insertDataInDb(barKey+'/Empleados/'+employeeCode+'/FotoPerfil',{Ruta: ''}).catch(err=>{
+              this.generalSvc.closeLoading();
+              this.generalSvc.insertDataInDb(this.generalSvc.getSpecificObjectRoute('Empleado'),{Photo: ''}).catch(err=>{
                 this.generalSvc.presentToast('customToast', err);
               });
-              this.generalSvc.insertDataInDb(barKey+'/Empleados/'+employeeCode+'/FotoPerfil',{Ruta: filePath}).catch(err=>{
+              this.generalSvc.insertDataInDb(this.generalSvc.getSpecificObjectRoute('Empleado'),{Photo: filePath}).catch(err=>{
               this.generalSvc.presentToast('customToast',err);
             });
           this.popoverCtrl.dismiss();

@@ -34,7 +34,7 @@ export class SucursalesJefePage implements OnInit {
       this.subsidiaries = [];
       for(let i in dbSubsidiaries)
       {
-        dbSubsidiaries[i].key = i;
+        dbSubsidiaries[i].Key = i;
         this.subsidiaries.push(dbSubsidiaries[i]);
       }
     });

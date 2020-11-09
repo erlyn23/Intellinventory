@@ -32,7 +32,11 @@ export class CrearProveedorComponent implements OnInit {
     if(this.dataSvc.getProviderOperation() == 'modificar' && this.dataSvc.getProvider() != null)
     {
       this.provider = this.dataSvc.getProvider();
-      this.form.setValue(this.provider);
+      
+      this.Name.setValue(this.provider.Name);
+      this.Cuantity.setValue(this.provider.Cuantity);
+      this.Product.setValue(this.provider.Product);
+      this.PhoneNumber.setValue(this.provider.PhoneNumber);
     }
   }
 
@@ -61,9 +65,9 @@ export class CrearProveedorComponent implements OnInit {
       this.angularFireDatabase.database.ref(`${this.generalSvc.getSpecificObjectRoute('Proveedores')}/${this.provider.Key}`)
       .set({
         Name: this.Name.value,
-        Producto: this.Product.value,
-        Cantidad: this.Cuantity.value,
-        Telefono: this.PhoneNumber.value
+        Product: this.Product.value,
+        Cuantity: this.Cuantity.value,
+        PhoneNumber: this.PhoneNumber.value
       }).then(()=>{
         this.generalSvc.presentToast('toastSuccess', 'Proveedor modificado correctamente');
         this.modalCtrl.dismiss();

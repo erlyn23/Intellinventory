@@ -30,11 +30,11 @@ export class ModalCrearComponent implements OnInit {
     const name = this.Name.value;
     const employeeCode = this.Code.value;
     this.angularFireDatabase.database.ref('EmpleadosActivos/'+employeeCode).set({
-      ActivationCode: this.dataSvc.getEmployeeCode(),
+      ActivationCode: this.dataSvc.getBarKey(),
     });
 
     this.generalSvc.insertDataInDb(`${this.generalSvc.getSpecificObjectRoute('Empleados')}/${employeeCode}`, 
-    {EmployeeCode: employeeCode, Name: name}).then(()=>{
+    {Code: employeeCode, Name: name}).then(()=>{
       this.generalSvc.presentToast('toastSuccess', 'El empleado se ha guardado correctamente');
       this.modalCtrl.dismiss();
     }).catch(err=>{

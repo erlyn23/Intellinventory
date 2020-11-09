@@ -20,7 +20,20 @@ import { Stock } from 'src/app/shared/models/Stock';
 })
 export class DetallesProductoPage implements OnInit {
 
-  product: Product;
+  product: Product = {
+    Code: '',
+    Name: '',
+    Entry: 0,
+    EntryNotes: null,
+    EntrySum: 0,
+    Exit: 0,
+    ExitNotes: null,
+    Difference:0,
+    TotalExistence: 0,
+    ActualInventory: 0,
+    FinalNote: '',
+    InitialCuantity: 0
+  };
   angularFireObject: AngularFireObject<Product>;
   isSaved: boolean = false;
   inventoryState: string;

@@ -23,7 +23,7 @@ export class EntradaRapidaPage implements OnInit {
   subsidiaries: Subsidiary[] = [];
   inventories: Inventory[] = [];
   subsidiaryNeedPassword: boolean;
-  employeeCodeOfAnother: string;
+  employeeCodeOfAnother: string = "";
   errorMessageForWrongSubsidiaryPassword: string = "";
   errorMessageForProductNotFound: string = "";
   subsidiary: Subsidiary;
@@ -72,7 +72,7 @@ export class EntradaRapidaPage implements OnInit {
       let dbSubsidiaries = subsidiariesData.payload.val();
       this.subsidiaries = []; 
       for(let i in dbSubsidiaries){
-        dbSubsidiaries[i].key = i;
+        dbSubsidiaries[i].Key = i;
         this.subsidiaries.push(dbSubsidiaries[i]);
       }
     })
@@ -172,7 +172,7 @@ export class EntradaRapidaPage implements OnInit {
           const subsidiaryDbRoute = this.generalSvc.getSpecificObjectRoute('Sucursal'); 
 
           inventoryDbObject = this.angularFireDatabase
-          .object(`${subsidiaryDbRoute}/${this.employeeCodeOfAnother}/${val.detail.value}`);
+          .object(`${subsidiaryDbRoute}/Inventarios/${this.employeeCodeOfAnother}/${val.detail.value}`);
           
           inventoryDbObject.valueChanges().subscribe(inventoryData=>{
           this.inventory = inventoryData;
@@ -202,19 +202,20 @@ export class EntradaRapidaPage implements OnInit {
       if(this.employeeCodeOfAnother.length > 0 && this.subsidiaryNeedPassword)
       {
         const subsidiaryDbRoute = this.generalSvc.getSpecificObjectRoute('Sucursal'); 
-
-        productDbObject = this.angularFireDatabase
-        .object(`${subsidiaryDbRoute}/${this.employeeCodeOfAnother}/${this.dataSvc.getInventoryKey()}/Productos/${productCode}`);
+        const productRoute = `${subsidiaryDbRoute}/Inventarios/${this.employeeCodeOfAnother}/${this.dataSvc.getInventoryKey()}/Productos/${productCode}`;
         
+        productDbObject = this.angularFireDatabase.object(productRoute);
+
         productDbObject.valueChanges().subscribe(productData=>{
           if(productData != null){
             this.product = productData;
             this.dataSvc.setProductName(this.product.Name);
             this.errorMessageForProductNotFound = "";
+            this.previousEntry = productData.Entry;
           }else{
             this.errorMessageForProductNotFound = "El producto no existe."
           }
-          this.previousEntry = productData.Entry;
+          
         });
       
       }
@@ -253,16 +254,15 @@ export class EntradaRapidaPage implements OnInit {
     const product = this.Code.value;
 
     if(this.form.valid && this.errorMessageForProductNotFound == ""){
-      if(this.subsidiaryNeedPassword){
+      if(this.subsidiaryNeedPassword){            
           const subsidiaresRoute = this.generalSvc.getSpecificObjectRoute('Sucursales');
 
           this.Password.setValidators(Validators.required);
           this.angularFireDatabase.database
-          .ref(`${subsidiaresRoute}}/${subsidiary}/Inventarios/${this.employeeCodeOfAnother}/${inventory}/Productos/${product}`)
+          .ref(`${subsidiaresRoute}/${subsidiary}/Inventarios/${this.employeeCodeOfAnother}/${inventory}/Productos/${product}`)
           .update({
             Entry: this.previousEntry + this.Cuantity.value
           }).then(()=>{
-
             this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada'))
             .push({
               EmployeeName: this.dataSvc.getEmployeeName(),
@@ -277,11 +277,10 @@ export class EntradaRapidaPage implements OnInit {
             });
 
             const date = new Date();
-            const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
-            ${date.getHours()}:${date.getMinutes()}`;        
-            
+            const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;    
+
             this.angularFireDatabase.database
-            .ref(`${subsidiaresRoute}}/${subsidiary}/Inventarios/${this.employeeCodeOfAnother}/${inventory}/Productos/${product}/NotasEntrada`).push({
+            .ref(`${subsidiaresRoute}/${subsidiary}/Inventarios/${this.employeeCodeOfAnother}/${inventory}/Productos/${product}/NotasEntrada`).push({
               Note: this.EntryNote.value,
               Cuantity: this.Cuantity.value,
               Date: dateString
@@ -299,7 +298,7 @@ export class EntradaRapidaPage implements OnInit {
           .update({
               Entry: this.previousEntry + this.Cuantity.value
             }).then(()=>{
-              this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotifiacionesEntrada')).push({
+              this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada')).push({
                 EmployeeName: this.dataSvc.getEmployeeName(),
                 SubsidiaryName: this.subsidiary.Name,
                 InventoryName: this.inventory.Name,
@@ -312,10 +311,10 @@ export class EntradaRapidaPage implements OnInit {
               });
               
               const date = new Date();
-              const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
-              ${date.getHours()}:${date.getMinutes()}`; 
+              const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`; 
 
-              this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('NotasEntrada'))
+              this.angularFireDatabase.database
+              .ref(`${this.generalSvc.getSpecificObjectRoute('Productos')}/${product}/NotasEntrada`)
               .push({
                 Note: this.EntryNote.value,
                 Cuantity: this.Cuantity.value,

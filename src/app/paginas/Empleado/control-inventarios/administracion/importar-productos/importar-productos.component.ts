@@ -46,12 +46,11 @@ export class ImportarProductosComponent implements OnInit {
   }
 
   searchProducts(searchParam:any){
-    const barKey = this.dataSvc.getBarKey();
-    const subsidiary = this.dataSvc.getSubsidiary();
-    const employeeCode = this.dataSvc.getEmployeeCode();
-
+    
     const productsDbRef: AngularFireObject<Product> = 
-    this.angularFireDatabase.object(this.generalSvc.getSpecificObjectRoute('Productos'));
+    this.angularFireDatabase
+    .object(this.generalSvc.getSpecificObjectRoute('Inventarios')+"/"+searchParam.detail.value+"/Productos");
+    
     productsDbRef.snapshotChanges().subscribe(productData=>{
       let dbProducts = productData.payload.val();
       this.products = [];

@@ -35,11 +35,11 @@ export class StockModalComponent implements OnInit {
     stockDbObject.valueChanges().subscribe(stockData=>{
       if(stockData != null)
       {
-        this.form.controls.Nombre.setValue(stockData.Name);
-        this.form.controls.Cantidad.setValue(stockData.Cuantity);
+        this.Name.setValue(stockData.Name);
+        this.Cuantity.setValue(stockData.Cuantity);
       }else{
-        this.form.controls.Nombre.setValue("");
-        this.form.controls.Cantidad.setValue("");
+        this.Name.setValue("");
+        this.Cuantity.setValue("");
       }
     })
   }

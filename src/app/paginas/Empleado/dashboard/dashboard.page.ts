@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SecurityContext } from '@angular/core';
 import { MenuController, Platform } from '@ionic/angular';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Employee } from 'src/app/shared/models/Employee';
 import { GeneralService } from 'src/app/services/general.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 
 @Component({
@@ -14,19 +15,34 @@ import { GeneralService } from 'src/app/services/general.service';
 })
 export class DashboardPage implements OnInit {
 
-  employee: Employee;
-  profileEmployeePhoto: string;
+  employee: Employee = {
+    Code: '',
+    ActivationCode: '',
+    Name: '',
+    Age: '',
+    PhoneNumber: '',
+    Email: '',
+    Photo: '',
+    StartedSession: false
+  };
+  profileEmployeePhoto: string = "";
 
   constructor(private menuCtrl: MenuController,
     private platform: Platform,
     private generalSvc: GeneralService,
     private router: Router,
     private angularFireDatabase: AngularFireDatabase,
-    private angularFireStorage: AngularFireStorage) {
+    private angularFireStorage: AngularFireStorage,
+    private sanitizer: DomSanitizer) {
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.exit();
       })
     }
+
+  getSafeImage()
+  {
+    return this.sanitizer.sanitize(SecurityContext.STYLE, `url(${this.profileEmployeePhoto})`);
+  }
 
   ngOnInit() { 
     const employeeDbObject: AngularFireObject<Employee> = this.angularFireDatabase
@@ -35,12 +51,14 @@ export class DashboardPage implements OnInit {
     employeeDbObject.valueChanges().subscribe(employeeData=>{
       if(employeeData != null){
         this.employee = employeeData;
+        if(employeeData.Photo != undefined)
+        {
+          const photoDirectory = this.angularFireStorage.ref(employeeData.Photo);
 
-        const photoDirectory = this.angularFireStorage.ref(employeeData.Photo);
-
-        photoDirectory.getDownloadURL().subscribe(employeeUrlPhoto=>{
-          this.profileEmployeePhoto = employeeUrlPhoto;
-        })
+          photoDirectory.getDownloadURL().subscribe(employeeUrlPhoto=>{
+            this.profileEmployeePhoto = employeeUrlPhoto;
+          });
+        }
       }
     });
   }

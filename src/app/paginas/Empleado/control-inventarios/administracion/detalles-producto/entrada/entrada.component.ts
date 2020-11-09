@@ -18,7 +18,18 @@ import { Subsidiary } from 'src/app/shared/models/Subsidiary';
 export class EntradaComponent implements OnInit {
 
   form: FormGroup;
-  notificationData: Notification;
+  notificationData: Notification = {
+    Key:'',
+    EmployeeName: '',
+    EmployeeCode: '',
+    InventoryName: '',
+    InventoryKey: '',
+    ProductName: '',
+    ProductCode: '',
+    SubsidiaryName: '',
+    SubsidiaryKey: '',
+    BarKey: ''
+  };
   previousEntry: number;
   constructor(private modalCtrl: ModalController,
     private formBuilder: FormBuilder,
@@ -132,8 +143,7 @@ export class EntradaComponent implements OnInit {
   writeEntryNote()
   {
     const date = new Date();
-    const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
-    ${date.getHours()}:${date.getMinutes()}`;
+    const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
     this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('NotasEntrada')).push({
       Note: this.form.value.Note,

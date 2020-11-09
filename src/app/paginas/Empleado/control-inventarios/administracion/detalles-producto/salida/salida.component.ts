@@ -18,7 +18,18 @@ import { Subsidiary } from 'src/app/shared/models/Subsidiary';
 export class SalidaComponent implements OnInit {
 
   form: FormGroup;
-  notificationData: Notification;
+  notificationData: Notification = {
+    Key:'',
+    EmployeeName: '',
+    EmployeeCode: '',
+    InventoryName: '',
+    InventoryKey: '',
+    ProductName: '',
+    ProductCode: '',
+    SubsidiaryName: '',
+    SubsidiaryKey: '',
+    BarKey: ''
+  };
   previousExit: number;
   constructor(private formBuilder:FormBuilder,
     private modalCtrl: ModalController,
@@ -133,8 +144,7 @@ export class SalidaComponent implements OnInit {
   writeExitNote()
   {
     const date = new Date();
-    const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} 
-    ${date.getHours()}:${date.getMinutes()}`;
+    const dateString =  `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
 
     this.angularFireDatabase.database.ref(this.generalSvc.getSpecificObjectRoute('NotasSalida')).push({
       Note: this.form.value.Note,

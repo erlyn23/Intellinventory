@@ -11,7 +11,11 @@ import { Stock } from 'src/app/shared/models/Stock';
 })
 export class DetallesStockComponent implements OnInit {
 
-  stock: Stock;
+  stock: Stock = {
+    Key: '',
+    Name: '',
+    Cuantity: 0
+  };
   constructor(private modalCtrl: ModalController,
     private angularFireDatabase: AngularFireDatabase,
     private generalSvc: GeneralService

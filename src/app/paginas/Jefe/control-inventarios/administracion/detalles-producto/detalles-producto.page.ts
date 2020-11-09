@@ -15,7 +15,20 @@ import { Product } from 'src/app/shared/models/Product';
 })
 export class DetallesProductoPage implements OnInit {
 
-  product: Product;
+  product: Product = {
+    Code:  '',
+    Name: '',
+    Entry: 0,
+    Exit:  0,
+    InitialCuantity: 0,
+    EntryNotes: null,
+    ExitNotes: null,
+    ActualInventory: 0,
+    Difference: 0,
+    EntrySum: 0,
+    TotalExistence: 0,
+    FinalNote: '',
+  };
   inventoryState: string;
   constructor(private navCtrl: NavController,
     private modalCtrl: ModalController,

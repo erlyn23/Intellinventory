@@ -63,7 +63,7 @@ export class ControlInventariosPage implements OnInit {
   }
 
   deleteInventory(inventoryIndex: number){
-
+    this.dataSvc.setInventoryKey(this.inventories[inventoryIndex].Key);
     this.angularFireDatabase.database
     .ref(this.generalSvc.getSpecificObjectRoute('Inventario'))
     .remove().then(()=>{

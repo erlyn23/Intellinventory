@@ -96,6 +96,11 @@ export class GeneralService {
     (await loading).present();
   }
 
+  closeLoading()
+  {
+    this.loadingCtrl.dismiss();
+  }
+
   async openModal(component: any)
   {
     const modal = await this.modalCtrl.create({
@@ -112,7 +117,7 @@ export class GeneralService {
 
   insertDataInDb(path:string, data:any)
   {
-    return this.db.database.ref(path).set(data);
+    return this.db.database.ref(path).update(data);
   }
 
   async getLocalStorageData(key: string):Promise <{value: string}>
@@ -160,7 +165,7 @@ export class GeneralService {
     const inventoryKey: string = this.dataSvc.getInventoryKey();
     const productCode : string= this.dataSvc.getProductCode();
     const providerCode: string = this.dataSvc.getProvider().Key;
-
+    
     const bossRoute = `${barKey}/Jefe`;
     const activeEmployeesRoute = `EmpleadosActivos`;
     const employeesRoute = `${barKey}/Empleados`;

@@ -3,7 +3,7 @@ export interface Boss{
     Email: string;
     Password: string;
     Photo: string;
-    PhoneNumer: string; 
+    PhoneNumber: string; 
     CompanyName: string;
     StartedSession: boolean;
-}
+} 

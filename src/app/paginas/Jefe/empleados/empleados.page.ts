@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
 import { ModalCrearComponent } from './modal-crear/modal-crear.component';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
@@ -15,9 +14,8 @@ import { Employee } from 'src/app/shared/models/Employee';
 })
 export class EmpleadosPage implements OnInit {
   
-  employees: Employee[];
-  constructor(private router: Router, 
-    private menuCtrl: MenuController,
+  employees: Employee[] = [];
+  constructor(private menuCtrl: MenuController,
     private angularFireDatabase:AngularFireDatabase,
     private generalSvc: GeneralService,
     private dataSvc:DatosService) {
@@ -69,7 +67,6 @@ export class EmpleadosPage implements OnInit {
     .remove()
     .then(()=>{
       this.generalSvc.presentToast('toastSuccess', 'Se ha eliminado el empleado');
-      this.router.navigate(['dashboardjefe'])
     }).catch((err)=>{
       this.generalSvc.presentToast('toastCustom',err);
     });

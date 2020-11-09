@@ -26,6 +26,8 @@ export class ControlInventariosPage implements OnInit {
     }
 
   ngOnInit() {
+    console.log(this.generalSvc.getSpecificObjectRoute('Inventarios'));
+    
     const inventoriesDbObject: AngularFireObject<Inventory> = this.angularFireDatabase
     .object(this.generalSvc.getSpecificObjectRoute('Inventarios'));
     

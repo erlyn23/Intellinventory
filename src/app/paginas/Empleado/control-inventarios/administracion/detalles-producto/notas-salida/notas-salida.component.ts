@@ -18,7 +18,7 @@ export class NotasSalidaComponent implements OnInit {
 
   ngOnInit() {
     const productExitNotesObject: AngularFireObject<ProductNote>  = this.angularFireDatabase
-    .object(this.generalSvc.getSpecificObjectRoute('NotasSalidas'));
+    .object(this.generalSvc.getSpecificObjectRoute('NotasSalida'));
     
     productExitNotesObject.snapshotChanges().subscribe(exitNotesData=>{
       let notes = exitNotesData.payload.val();

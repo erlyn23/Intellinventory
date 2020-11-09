@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuController, LoadingController } from '@ionic/angular';
+import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -15,15 +15,29 @@ import { Boss } from 'src/app/shared/models/Boss';
 })
 export class LoginPage implements OnInit {
 
-  position: string;
+  position: string = "";
   roleSelected: number = 0;
   searchEmployeeRef: AngularFireObject<Employee>;
-  boss: Boss;
-  employee: Employee;
+  boss: Boss = { Email :'', 
+  Password: '', 
+  Photo: '', 
+  PhoneNumber: '', 
+  Name: '', 
+  CompanyName: '', 
+  StartedSession: false
+  };
+
+  employee: Employee = { Code: '', 
+  Name: '', 
+  Age: '', 
+  PhoneNumber: '', 
+  Photo: '', 
+  Email: '', 
+  StartedSession: false, 
+  ActivationCode: '' };
   found: number = 0;
 
   constructor(private menuCtrl: MenuController,
-    private loadingCtrl: LoadingController,
     private generalSvc: GeneralService,
     private dataSvc: DatosService,
     private angularFireAuth:AngularFireAuth,
@@ -49,14 +63,14 @@ export class LoginPage implements OnInit {
                   this.angularFireAuth.currentUser.then(loggedUser=>{
                     this.generalSvc.saveDataInLocalStorage('barKey',loggedUser.uid);
                     this.dataSvc.setBarKey(loggedUser.uid);
-                    this.loadingCtrl.dismiss();
+                    this.generalSvc.closeLoading();
                     this.router.navigate(['dashboardjefe']);
                   });
                 });
               }
             })
           }).catch((err)=>{
-            this.loadingCtrl.dismiss();
+            this.generalSvc.closeLoading();
             this.generalSvc.presentToast('customToast',err);
           })
         }
@@ -64,20 +78,17 @@ export class LoginPage implements OnInit {
         {
           this.generalSvc.getLocalStorageData('employeeCode').then(employeeCode=>{
             if(employeeCode.value != null){
-              this.generalSvc.presentLoading('Iniciando sesión, por favor espera...');
               this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+employeeCode.value);
               this.searchEmployeeRef.valueChanges().subscribe(employee=>{
               if(employee != null)
               {
-                  this.dataSvc.setBarKey(employee.ActivationCode);
-                  this.dataSvc.setEmployeeCode(employee.Code);
-                  this.found = 1;
-                  this.loadingCtrl.dismiss();
-                  this.router.navigate(['dashboard']).then(()=>{
-                    this.found = 0;
-                  });
+                this.dataSvc.setBarKey(employee.ActivationCode);
+                this.dataSvc.setEmployeeCode(employeeCode.value);
+                this.found = 1;
+                this.router.navigate(['dashboard']).then(()=>{
+                  this.found = 0;
+                });
               }else{
-                this.loadingCtrl.dismiss();
                 this.generalSvc.presentToast('customToast', 'No estás registrado en ningún sistema');
               }
             })
@@ -97,9 +108,11 @@ export class LoginPage implements OnInit {
     switch(roleValue.detail.value)
     {
       case "Jefe":
+        this.position = "Jefe";
         this.roleSelected = 1;
       break;
       case "Empleado":
+        this.position = "Empleado";
         this.roleSelected = 2;
       break;
     }
@@ -131,7 +144,7 @@ export class LoginPage implements OnInit {
         }
         this.generalSvc.saveDataInLocalStorage('role','boss');
         this.generalSvc.saveDataInLocalStorage('barKey',user.uid);
-        this.loadingCtrl.dismiss();
+        this.generalSvc.closeLoading();
         this.router.navigate(['dashboardjefe']).then(()=>{
           this.boss.Email = "";
           this.boss.Password = "";
@@ -141,15 +154,15 @@ export class LoginPage implements OnInit {
         switch(err.code)
         {
           case "auth/invalid-email":
-            this.loadingCtrl.dismiss();
+            this.generalSvc.closeLoading();
             this.generalSvc.presentToast('customToast',"Correo o contraseña incorrecta")
             break;
           case "auth/wrong-password":
-            this.loadingCtrl.dismiss();
+            this.generalSvc.closeLoading();
             this.generalSvc.presentToast('customToast',"Correo o contraseña incorrecta");
             break;
           case "auth/user-not-found":
-            this.loadingCtrl.dismiss(); 
+            this.generalSvc.closeLoading();
             this.generalSvc.presentToast('customToast',"El usuario no existe");
             break;
         }
