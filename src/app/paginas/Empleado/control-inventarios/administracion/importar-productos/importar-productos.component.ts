@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { ModalController } from '@ionic/angular';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { GeneralService } from 'src/app/services/general.service';
@@ -28,11 +27,6 @@ export class ImportarProductosComponent implements OnInit {
     this.form = this.formBuilder.group({
       Inventories: [""]
     })
-
-    const barKey = this.dataSvc.getBarKey();
-    const subsidiary = this.dataSvc.getSubsidiary();
-    const employeeCode = this.dataSvc.getEmployeeCode();
-
     this.inventoriesDbRef = this.angularFireDatabase
     .object(this.generalSvc.getSpecificObjectRoute('Inventarios'));
     this.inventoriesDbRef.snapshotChanges().subscribe(inventoriesData=>{

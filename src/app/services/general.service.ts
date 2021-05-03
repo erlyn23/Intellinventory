@@ -1,4 +1,4 @@
-import { ComponentRef, Injectable } from '@angular/core';
+import { Component, ComponentRef, Injectable } from '@angular/core';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { AngularFireDatabase } from '@angular/fire/database';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner/ngx';
@@ -54,11 +54,11 @@ export class GeneralService {
     await alert.present();
   }
 
-  async presentAlertWithActions(title: string, 
-    message: string, confirmHandler: any, 
-    cancelHandler: any)
-  {
-    const alert = await this.alertCtrl.create({
+  async presentAlertWithActions(title: string, message: string, 
+    confirmHandler: (value: any)=> boolean | void | { [key: string]: any}, 
+    cancelHandler: (value: any)=> boolean | void | {[key: string]: any}){
+    
+      const alert = await this.alertCtrl.create({
       cssClass: 'customAlert',
       header: title,
       message: message,
@@ -77,7 +77,7 @@ export class GeneralService {
         }
       ]
     });
-    return await alert.present();
+    return (await alert.present());
   }
 
   closeAlert()

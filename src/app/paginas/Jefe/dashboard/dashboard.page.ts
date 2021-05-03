@@ -12,6 +12,7 @@ import { AngularFireStorage } from '@angular/fire/storage';
 import { Boss } from 'src/app/shared/models/Boss';
 import { Notification } from 'src/app/shared/models/Notification';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
 
 const { LocalNotifications } = Plugins;
 
@@ -136,14 +137,14 @@ export class DashboardPage implements OnInit {
     })
   }
 
+  notificationSubscription: Subscription;
   getEntryPendingNotifications()
   {
     let counter = 0;
-    const toNotificationsDbObject: AngularFireObject<Notification>
-    = this.angularFireDatabase
+    const toNotificationsDbObject: AngularFireObject<Notification> = this.angularFireDatabase
     .object(this.generalSvc.getSpecificObjectRoute('ParaNotificacionesEntrada'));
     
-    toNotificationsDbObject.snapshotChanges().subscribe(entryNotificationData=>{
+    this.notificationSubscription = toNotificationsDbObject.snapshotChanges().subscribe(entryNotificationData=>{
       let dbEntryNotification = entryNotificationData.payload.val();
       for(let i in dbEntryNotification)
       {
@@ -222,5 +223,10 @@ Producto: ${dbExitNotification[i].ProductName}`, counter,
   goToPage(page: string)
   {
     this.router.navigate([page]);
+  }
+
+  ngOnDestroy(): void {
+   this.notificationSubscription.unsubscribe();
+    
   }
 }

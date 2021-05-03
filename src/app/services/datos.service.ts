@@ -115,7 +115,7 @@ export class DatosService {
     }
   //Métodos para obtener la sucursal
 
-  //Métodos para obtener datos necesarios
+  //Métodos para obtener los datos de las notificaciones
     employeeName: string;
     inventoryName: string;
     productName: string;
@@ -161,5 +161,5 @@ export class DatosService {
       return this.subsidiaryName;
     }
 
-  //Métodos para obtener datos necesarios
+  //Métodos para obtener los datos de las notificaciones
 }

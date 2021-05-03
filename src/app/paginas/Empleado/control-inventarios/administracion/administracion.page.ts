@@ -147,7 +147,23 @@ export class AdministracionPage implements OnInit {
 
   exportInventoryToExcel()
   {
-    this.generalSvc.exportExcel(this.products, 'Inventario');
+    const productsToExcel = [];
+    for(let product of this.products){
+      productsToExcel.push(JSON.parse(`
+      {
+        "Código": "${product.Code}",
+        "Nombre": "${product.Name}",
+        "Inventario_Inicial": "${product.InitialCuantity}",
+        "Entrada": "${product.Entry}",
+        "Suma_entrada": "${product.EntrySum}",
+        "Salida": "${product.Exit}",
+        "Inventario_actual": "${product.ActualInventory}",
+        "Existencia_total": "${product.TotalExistence}",
+        "Nota_final": "${product.FinalNote}"
+      }`));
+    }
+
+    this.generalSvc.exportExcel(productsToExcel, 'Inventario');
   }
 
   goToDetails(productIndex:number)
