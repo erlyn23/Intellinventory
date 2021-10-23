@@ -1,6 +1,7 @@
 export interface Employee
 {
     Code: string;
+    Password?: string;
     Name: string;
     Age: string;
     Photo: string;

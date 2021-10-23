@@ -76,20 +76,25 @@ export class LoginPage implements OnInit {
         }
         else
         {
-          this.generalSvc.getLocalStorageData('employeeCode').then(employeeCode=>{
+          this.generalSvc.getLocalStorageData('employeeCode').then(async employeeCode=>{
+            const employeePassword = await this.generalSvc.getLocalStorageData('employeePassword');
             if(employeeCode.value != null){
               this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+employeeCode.value);
               this.searchEmployeeRef.valueChanges().subscribe(employee=>{
               if(employee != null)
               {
-                this.dataSvc.setBarKey(employee.ActivationCode);
-                this.dataSvc.setEmployeeCode(employeeCode.value);
-                this.found = 1;
-                this.router.navigate(['dashboard']).then(()=>{
-                  this.found = 0;
-                });
+                if(employee.Password === employeePassword.value){
+                  this.dataSvc.setBarKey(employee.ActivationCode);
+                  this.dataSvc.setEmployeeCode(employeeCode.value);
+                  this.found = 1;
+                  this.router.navigate(['dashboard']).then(()=>{
+                    this.found = 0;
+                  });
+                }else{
+                  this.generalSvc.presentToast('customToast', 'Código o contraseña incorrecta');
+                }
               }else{
-                this.generalSvc.presentToast('customToast', 'No estás registrado en ningún sistema');
+                this.generalSvc.presentToast('customToast', 'No estás registrado en el sistema, contacta con tu empleador');
               }
             })
             }
@@ -170,6 +175,7 @@ export class LoginPage implements OnInit {
   }
 
   startEmployeeSessionWithEnterButton(event){
+    //El número 13 representa cuando le dan a Enter
     if(event == 13){
       this.startEmployeeSession();
     }
@@ -179,18 +185,23 @@ export class LoginPage implements OnInit {
   startEmployeeSession()
   {
     this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+this.employee.Code);
-    this.searchEmployeeRef.valueChanges().subscribe(employeData=>{
-      if(employeData != null)
+    this.searchEmployeeRef.valueChanges().subscribe(employeeData=>{
+      if(employeeData != null)
       {
-        if(this.employee.StartedSession){
-          this.generalSvc.saveDataInLocalStorage('employeeCode', this.employee.Code);
-        }
-        this.generalSvc.saveDataInLocalStorage('role','employee');
-        this.dataSvc.setEmployeeCode(this.employee.Code);
-        this.dataSvc.setBarKey(employeData.ActivationCode);
-        this.router.navigate(['dashboard']).then(()=>{
-          this.employee.Code = "";
-        })
+          if(employeeData.Password === this.employee.Password){
+            if(this.employee.StartedSession){
+              this.generalSvc.saveDataInLocalStorage('employeeCode', this.employee.Code);
+              this.generalSvc.saveDataInLocalStorage('employeePassword', this.employee.Password);
+            }
+            this.generalSvc.saveDataInLocalStorage('role','employee');
+            this.dataSvc.setEmployeeCode(this.employee.Code);
+            this.dataSvc.setBarKey(employeeData.ActivationCode);
+            this.router.navigate(['dashboard']).then(()=>{
+              this.employee.Code = "";
+            });
+          }else{
+            this.generalSvc.presentToast('customToast', 'Código o contraseña incorrecta');
+          }
       }else{
         this.generalSvc.presentToast('customToast', 'No estás registrado en ningún sistema');
       }
