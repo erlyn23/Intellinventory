@@ -22,8 +22,10 @@ export class ModalCrearComponent implements OnInit {
   ngOnInit() {
     this.form = this.formBuilder.group({
       Code: ["",[Validators.required, Validators.maxLength(11), Validators.minLength(11), Validators.pattern('[0-9]*')]],
-      Name: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]]
-    })
+      Name: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
+      Password: ["", [Validators.required, Validators.minLength(6), Validators.maxLength(16)]]
+    });
+    this.Code.setValue(Date.now().toString().substr(7, 6));
   }
 
   saveEmployee(){
@@ -34,7 +36,7 @@ export class ModalCrearComponent implements OnInit {
     });
 
     this.generalSvc.insertDataInDb(`${this.generalSvc.getSpecificObjectRoute('Empleados')}/${employeeCode}`, 
-    {Code: employeeCode, Name: name}).then(()=>{
+    {Code: employeeCode, Password: this.Password.value, Name: name}).then(()=>{
       this.generalSvc.presentToast('toastSuccess', 'El empleado se ha guardado correctamente');
       this.modalCtrl.dismiss();
     }).catch(err=>{
@@ -52,5 +54,9 @@ export class ModalCrearComponent implements OnInit {
 
   get Name(){
     return this.form.get('Name');
+  }
+
+  get Password(){
+    return this.form.get('Password');
   }
 }
