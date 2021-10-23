@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { GeneralService } from 'src/app/services/general.service';
@@ -7,17 +7,19 @@ import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { DatosService } from 'src/app/services/datos.service';
 import { Employee } from 'src/app/shared/models/Employee';
 import { Boss } from 'src/app/shared/models/Boss';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
 
   position: string = "";
   roleSelected: number = 0;
   searchEmployeeRef: AngularFireObject<Employee>;
+  employeeSubscription: Subscription;
   boss: Boss = { Email :'', 
   Password: '', 
   Photo: '', 
@@ -80,7 +82,7 @@ export class LoginPage implements OnInit {
             const employeePassword = await this.generalSvc.getLocalStorageData('employeePassword');
             if(employeeCode.value != null){
               this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+employeeCode.value);
-              this.searchEmployeeRef.valueChanges().subscribe(employee=>{
+              this.employeeSubscription = this.searchEmployeeRef.valueChanges().subscribe(employee=>{
               if(employee != null)
               {
                 if(employee.Password === employeePassword.value){
@@ -184,28 +186,33 @@ export class LoginPage implements OnInit {
   
   startEmployeeSession()
   {
-    this.searchEmployeeRef = this.angularFireDatabase.object('EmpleadosActivos/'+this.employee.Code);
-    this.searchEmployeeRef.valueChanges().subscribe(employeeData=>{
+    const employeeAuthRoute = `EmpleadosActivos/${this.employee.Code}`;
+    this.searchEmployeeRef = this.angularFireDatabase.object(employeeAuthRoute);
+    this.employeeSubscription = this.searchEmployeeRef.valueChanges().subscribe(employeeData=>{
       if(employeeData != null)
       {
-          if(employeeData.Password === this.employee.Password){
-            if(this.employee.StartedSession){
-              this.generalSvc.saveDataInLocalStorage('employeeCode', this.employee.Code);
-              this.generalSvc.saveDataInLocalStorage('employeePassword', this.employee.Password);
-            }
-            this.generalSvc.saveDataInLocalStorage('role','employee');
-            this.dataSvc.setEmployeeCode(this.employee.Code);
-            this.dataSvc.setBarKey(employeeData.ActivationCode);
-            this.router.navigate(['dashboard']).then(()=>{
-              this.employee.Code = "";
-            });
-          }else{
-            this.generalSvc.presentToast('customToast', 'Código o contraseña incorrecta');
+        if(employeeData.Password === this.employee.Password){
+          if(this.employee.StartedSession){
+            this.generalSvc.saveDataInLocalStorage('employeeCode', this.employee.Code);
+            this.generalSvc.saveDataInLocalStorage('employeePassword', this.employee.Password);
           }
+          this.generalSvc.saveDataInLocalStorage('role','employee');
+          this.dataSvc.setEmployeeCode(this.employee.Code);
+          this.dataSvc.setBarKey(employeeData.ActivationCode);
+          this.router.navigate(['dashboard']).then(()=>{
+            this.employee.Code = "";
+            this.employee.Password = "";
+          });
+        }else{
+          this.generalSvc.presentToast('customToast', 'Código o contraseña incorrecta');
+        }
       }else{
         this.generalSvc.presentToast('customToast', 'No estás registrado en ningún sistema');
       }
     });
   }
 
+  ngOnDestroy(): void{
+    this.employeeSubscription?.unsubscribe();
+  }
 }

@@ -33,6 +33,7 @@ export class ModalCrearComponent implements OnInit {
     const employeeCode = this.Code.value;
     this.angularFireDatabase.database.ref('EmpleadosActivos/'+employeeCode).set({
       ActivationCode: this.dataSvc.getBarKey(),
+      Password: this.Password.value
     });
 
     this.generalSvc.insertDataInDb(`${this.generalSvc.getSpecificObjectRoute('Empleados')}/${employeeCode}`, 

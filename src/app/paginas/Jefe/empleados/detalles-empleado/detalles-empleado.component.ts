@@ -24,7 +24,6 @@ export class DetallesEmpleadoComponent implements OnInit {
   };
   constructor(private modalCtrl: ModalController,
     private generalSvc: GeneralService,
-    private dataSvc: DatosService,
     private angularFireDatabase: AngularFireDatabase) { }
 
   ngOnInit() {
