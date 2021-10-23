@@ -21,8 +21,8 @@
           <ion-text color="danger" *ngIf="Code.invalid && (Code.touched || Code.dirty)">
             <p *ngIf="Code.errors.required">No puedes dejar el código vacío</p>
             <p *ngIf="Code.errors.pattern">Solo puedes insertar números</p>
-            <p *ngIf="Code.errors.minlength">El código debe tener solo 11 números</p>
-            <p *ngIf="Code.errors.maxlength">El código debe tener solo 11 números</p>
+            <p *ngIf="Code.errors.minlength">El código debe tener solo 6 números</p>
+            <p *ngIf="Code.errors.maxlength">El código debe tener solo 6 números</p>
           </ion-text>
         </ion-col>
       </ion-row>

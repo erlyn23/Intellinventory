@@ -21,7 +21,7 @@ export class ModalCrearComponent implements OnInit {
 
   ngOnInit() {
     this.form = this.formBuilder.group({
-      Code: ["",[Validators.required, Validators.maxLength(11), Validators.minLength(11), Validators.pattern('[0-9]*')]],
+      Code: ["",[Validators.required, Validators.maxLength(6), Validators.minLength(6), Validators.pattern('[0-9]*')]],
       Name: ["",[Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       Password: ["", [Validators.required, Validators.minLength(6), Validators.maxLength(16)]]
     });

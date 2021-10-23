@@ -65,9 +65,9 @@
                 <ion-label position="floating">Código de empleado</ion-label>
                 <ion-input type="number" [(ngModel)]="employee.Code" name="code"></ion-input>
               </ion-item>
-              <ion-item>
+              <ion-item color="primary">
                 <ion-label position="floating">Contraseña</ion-label>
-                <ion-input type="password" [(ngModel)]="employee.Password"  (keypress)="startEmployeeSessionWithEnterButton($event.keyCode)"></ion-input>
+                <ion-input type="password" [(ngModel)]="employee.Password" name="password" (keypress)="startEmployeeSessionWithEnterButton($event.keyCode)"></ion-input>
               </ion-item>
             </ion-col>
           </ion-row>
