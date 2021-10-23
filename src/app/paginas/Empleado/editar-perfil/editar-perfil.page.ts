@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PopoverController, MenuController, Platform } from '@ionic/angular';
+import { PopoverController, MenuController, Platform, ModalController } from '@ionic/angular';
 import { GeneralService } from 'src/app/services/general.service';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { FotoPopoverComponent } from './../../../core/foto-popover/foto-popover.
 import { AngularFireStorage } from '@angular/fire/storage';
 import { Router } from '@angular/router';
 import { Employee } from 'src/app/shared/models/Employee';
+import { CambiarPasswordComponent } from '../../Jefe/editar-perfil-jefe/cambiar-password/cambiar-password.component';
 
 @Component({
   selector: 'app-editar-perfil',
@@ -24,7 +25,8 @@ export class EditarPerfilPage implements OnInit {
     private formBuilder: FormBuilder,
     private generalSvc: GeneralService,
     private angularFireDatabase: AngularFireDatabase,
-    private angularFireStorage: AngularFireStorage) { 
+    private angularFireStorage: AngularFireStorage,
+    private modalCtrl: ModalController) { 
       this.platform.backButton.subscribeWithPriority(10, ()=>{
         this.router.navigate(['dashboard']);
       })
@@ -72,6 +74,18 @@ export class EditarPerfilPage implements OnInit {
       translucent: true,
     });
     return (await popover.present());
+  }
+
+  async openChangePasswordModal()
+  {
+    const modal = await this.modalCtrl.create({
+      cssClass: 'customModal',
+      component: CambiarPasswordComponent,
+      componentProps: {
+        'isEmployee': true
+      }
+    });
+    await modal.present();
   }
 
 

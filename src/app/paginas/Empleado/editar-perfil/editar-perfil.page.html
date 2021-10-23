@@ -81,6 +81,14 @@
       </ion-row>
       <ion-row>
         <ion-col size="12">
+          <ion-button style="width: 100%;" (click)="openChangePasswordModal()" shape="round">
+            <ion-icon slot="start" name="key-outline"></ion-icon>
+            Cambiar contraseña
+          </ion-button>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col size="12">
           <ion-button (click)="saveEmployeeProfileInfo()" style="width: 100%;" shape="round" [disabled]="form.invalid">
             <ion-icon slot="start" name="checkmark-circle"></ion-icon>
             Guardar Cambios
